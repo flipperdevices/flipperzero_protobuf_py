@@ -30,6 +30,8 @@ def main():
     print("Ping result: ")
     print_hex(proto.cmd_system_ping())
 
+    proto.cmd_gui_send_input_long_down()
+
     print("Screen capture result: ")
     print_screen(proto.cmd_gui_snapshot_screen())
 
