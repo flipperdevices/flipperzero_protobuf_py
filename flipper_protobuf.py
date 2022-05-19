@@ -125,65 +125,14 @@ class ProtoFlipper:
 
     def cmd_gui_send_input(self, key):
         """Send Input Event Request Type"""
-        key, type = key.split("_")
+        type, key = key.split(" ")
 
-        if type == 's':
-            if key == 'UP':
-                self.cmd_gui_send_input_event_request('UP', 'PRESS')
-                self.cmd_gui_send_input_event_request('UP', 'SHORT')
-                self.cmd_gui_send_input_event_request('UP', 'RELEASE')
-            elif key == 'DOWN':
-                self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
-                self.cmd_gui_send_input_event_request('DOWN', 'SHORT')
-                self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
-            elif key == 'LEFT':
-                self.cmd_gui_send_input_event_request('LEFT', 'PRESS')
-                self.cmd_gui_send_input_event_request('LEFT', 'SHORT')
-                self.cmd_gui_send_input_event_request('LEFT', 'RELEASE')
-            elif key == 'RIGHT':
-                self.cmd_gui_send_input_event_request('RIGHT', 'PRESS')
-                self.cmd_gui_send_input_event_request('RIGHT', 'SHORT')
-                self.cmd_gui_send_input_event_request('RIGHT', 'RELEASE')
-            elif key == 'OK':
-                self.cmd_gui_send_input_event_request('OK', 'PRESS')
-                self.cmd_gui_send_input_event_request('OK', 'SHORT')
-                self.cmd_gui_send_input_event_request('OK', 'RELEASE')
-            elif key == 'BACK':
-                self.cmd_gui_send_input_event_request('BACK', 'PRESS')
-                self.cmd_gui_send_input_event_request('BACK', 'SHORT')
-                self.cmd_gui_send_input_event_request('BACK', 'RELEASE')
-            else:
-                raise InputTypeException(
-                    'Corrupted key')
+        if type != 'SHORT' and type != 'LONG':
+            raise InputTypeException('Incorrect type')
 
-        elif type == 'l':
-            if key == 'UP':
-                self.cmd_gui_send_input_event_request('UP', 'PRESS')
-                self.cmd_gui_send_input_event_request('UP', 'LONG')
-                self.cmd_gui_send_input_event_request('UP', 'RELEASE')
-            elif key == 'DOWN':
-                self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
-                self.cmd_gui_send_input_event_request('DOWN', 'LONG')
-                self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
-            elif key == 'LEFT':
-                self.cmd_gui_send_input_event_request('LEFT', 'PRESS')
-                self.cmd_gui_send_input_event_request('LEFT', 'LONG')
-                self.cmd_gui_send_input_event_request('LEFT', 'RELEASE')
-            elif key == 'RIGHT':
-                self.cmd_gui_send_input_event_request('RIGHT', 'PRESS')
-                self.cmd_gui_send_input_event_request('RIGHT', 'LONG')
-                self.cmd_gui_send_input_event_request('RIGHT', 'RELEASE')
-            elif key == 'OK':
-                self.cmd_gui_send_input_event_request('OK', 'PRESS')
-                self.cmd_gui_send_input_event_request('OK', 'LONG')
-                self.cmd_gui_send_input_event_request('OK', 'RELEASE')
-            elif key == 'BACK':
-                self.cmd_gui_send_input_event_request('BACK', 'PRESS')
-                self.cmd_gui_send_input_event_request('BACK', 'LONG')
-                self.cmd_gui_send_input_event_request('BACK', 'RELEASE')
-            else:
-                raise InputTypeException(
-                    'Corrupted key')
-        else:
-            raise InputTypeException(
-                'Corrupted type')
+        if key != 'UP' and key != 'DOWN' and key != 'LEFT' and key != 'RIGHT' and key != 'OK' and key != 'BACK':
+            raise InputTypeException('Incorrect key')
+
+        self.cmd_gui_send_input_event_request(key, 'PRESS')
+        self.cmd_gui_send_input_event_request(key, type)
+        self.cmd_gui_send_input_event_request(key, 'RELEASE')
