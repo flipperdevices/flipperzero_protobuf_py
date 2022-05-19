@@ -1,2 +1,1 @@
-# flipperzero-protobuf-py
- 
+# Python bindings for Flipper Zero protobuf protocol
