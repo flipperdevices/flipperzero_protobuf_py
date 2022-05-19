@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+from nis import match
 from google.protobuf.internal.encoder import _VarintBytes
+from numpy import mat
 
 from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2
 
@@ -107,3 +109,18 @@ class ProtoFlipper:
         data = self._cmd_read_answer(0)
         self.cmd_gui_stop_screen_stream()
         return data.gui_screen_frame.data
+
+    def cmd_gui_send_input_event_request(self, key, type):
+        """Send Input Event Request Key"""
+        cmd_data = gui_pb2.SendInputEventRequest()
+        cmd_data.key = getattr(gui_pb2, key)
+        cmd_data.type = getattr(gui_pb2, type)
+        data = self._cmd_send_and_read_answer(
+                cmd_data, 'gui_send_input_event_request')
+        return data
+
+    def cmd_gui_send_input_long_down(self):
+        """Send Input Event Request Type"""
+        self.cmd_gui_send_input_event_request('UP', 'PRESS')
+        self.cmd_gui_send_input_event_request('UP', 'SHORT')
+        self.cmd_gui_send_input_event_request('UP', 'RELEASE')
