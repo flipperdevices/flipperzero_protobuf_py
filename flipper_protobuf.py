@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from nis import match
-from posixpath import split
 from google.protobuf.internal.encoder import _VarintBytes
 from numpy import mat
 
