@@ -108,7 +108,7 @@ class ProtoFlipper:
         self.cmd_gui_start_screen_stream()
         data = self._cmd_read_answer(0)
         self.cmd_gui_stop_screen_stream()
-        return data.gui_screen_frame.data_
+        return data.gui_screen_frame.data
 
     def cmd_gui_send_input_event_request(self, key, type):
         """Send Input Event Request Key"""
