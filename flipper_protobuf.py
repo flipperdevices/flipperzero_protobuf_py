@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from nis import match
+from posixpath import split
 from google.protobuf.internal.encoder import _VarintBytes
 from numpy import mat
 
@@ -8,6 +9,8 @@ from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2
 
 
 class Varint32Exception(Exception):
+    pass
+class InputTypeException(Exception):
     pass
 
 
@@ -119,8 +122,66 @@ class ProtoFlipper:
                 cmd_data, 'gui_send_input_event_request')
         return data
 
-    def cmd_gui_send_input_long_down(self):
+    def cmd_gui_send_input(self, key):
         """Send Input Event Request Type"""
-        self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
-        self.cmd_gui_send_input_event_request('DOWN', 'LONG')
-        self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
+        key, type = key.split("_")
+        print (key, type)
+        if type == 's':
+            if key == 'UP':
+                self.cmd_gui_send_input_event_request('UP', 'PRESS')
+                self.cmd_gui_send_input_event_request('UP', 'SHORT')
+                self.cmd_gui_send_input_event_request('UP', 'RELEASE') 
+            if key == 'DOWN':
+                self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
+                self.cmd_gui_send_input_event_request('DOWN', 'SHORT')
+                self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
+            if key == 'LEFT':
+                self.cmd_gui_send_input_event_request('LEFT', 'PRESS')
+                self.cmd_gui_send_input_event_request('LEFT', 'SHORT')
+                self.cmd_gui_send_input_event_request('LEFT', 'RELEASE')
+            if key == 'RIGHT':
+                self.cmd_gui_send_input_event_request('RIGHT', 'PRESS')
+                self.cmd_gui_send_input_event_request('RIGHT', 'SHORT')
+                self.cmd_gui_send_input_event_request('RIGHT', 'RELEASE')
+            if key == 'OK':
+                self.cmd_gui_send_input_event_request('OK', 'PRESS')
+                self.cmd_gui_send_input_event_request('OK', 'SHORT')
+                self.cmd_gui_send_input_event_request('OK', 'RELEASE')
+            if key == 'BACK':
+                self.cmd_gui_send_input_event_request('BACK', 'PRESS')
+                self.cmd_gui_send_input_event_request('BACK', 'SHORT')
+                self.cmd_gui_send_input_event_request('BACK', 'RELEASE')
+            else :
+                 raise InputTypeException(
+                    'Corrupted key')
+        if str(type) == 'l':
+            if key == 'UP':
+                self.cmd_gui_send_input_event_request('UP', 'PRESS')
+                self.cmd_gui_send_input_event_request('UP', 'LONG')
+                self.cmd_gui_send_input_event_request('UP', 'RELEASE') 
+            if key == 'DOWN':
+                self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
+                self.cmd_gui_send_input_event_request('DOWN', 'LONG')
+                self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
+            if key == 'LEFT':
+                self.cmd_gui_send_input_event_request('LEFT', 'PRESS')
+                self.cmd_gui_send_input_event_request('LEFT', 'LONG')
+                self.cmd_gui_send_input_event_request('LEFT', 'RELEASE')
+            if key == 'RIGHT':
+                self.cmd_gui_send_input_event_request('RIGHT', 'PRESS')
+                self.cmd_gui_send_input_event_request('RIGHT', 'LONG')
+                self.cmd_gui_send_input_event_request('RIGHT', 'RELEASE')
+            if key == 'OK':
+                self.cmd_gui_send_input_event_request('OK', 'PRESS')
+                self.cmd_gui_send_input_event_request('OK', 'LONG')
+                self.cmd_gui_send_input_event_request('OK', 'RELEASE')
+            if key == 'BACK':
+                self.cmd_gui_send_input_event_request('BACK', 'PRESS')
+                self.cmd_gui_send_input_event_request('BACK', 'LONG')
+                self.cmd_gui_send_input_event_request('BACK', 'RELEASE')
+            else :
+                 raise InputTypeException(
+                    'Corrupted key')
+        else :
+                 raise InputTypeException(
+                    'Corrupted type')
