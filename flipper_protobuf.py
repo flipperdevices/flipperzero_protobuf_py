@@ -121,6 +121,6 @@ class ProtoFlipper:
 
     def cmd_gui_send_input_long_down(self):
         """Send Input Event Request Type"""
-        self.cmd_gui_send_input_event_request('UP', 'PRESS')
-        self.cmd_gui_send_input_event_request('UP', 'SHORT')
-        self.cmd_gui_send_input_event_request('UP', 'RELEASE')
+        self.cmd_gui_send_input_event_request('DOWN', 'PRESS')
+        self.cmd_gui_send_input_event_request('DOWN', 'LONG')
+        self.cmd_gui_send_input_event_request('DOWN', 'RELEASE')
