@@ -1,14 +1,14 @@
 # Python bindings for Flipper Zero protobuf protocol
 
-Since our naming strategy is to use a "-" instead of "_", importing a submodule is not trivial.
-
+Example:
 ```
+#!/usr/bin/env python3
+
 import sys
 import serial
-import importlib
 
-protoflipper_module = importlib.import_module(
-    "flipperzero-protobuf-py.flipper_protobuf")
+from flipperzero_protobuf_py.flipper_protobuf import ProtoFlipper
+from flipperzero_protobuf_py.cli_helpers import *
 
 
 def main():
@@ -28,12 +28,17 @@ def main():
     flipper.write(b"start_rpc_session\r")
     flipper.read_until(b'\n')
 
-    # construct protobuf class
-    proto = protoflipper_module.ProtoFlipper(flipper)
-    #       ^^^^^^^^^^^^^^^^^^^
+    # construct protobuf worker
+    proto = ProtoFlipper(flipper)
 
     print("Ping result: ")
-    print(proto.cmd_system_ping())
+    print_hex(proto.cmd_system_ping())
+
+    proto.cmd_gui_send_input_long_down()
+
+    print("Screen capture result: ")
+    print_screen(proto.cmd_gui_snapshot_screen())
+
 
 if __name__ == '__main__':
     main()
