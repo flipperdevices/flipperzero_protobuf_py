@@ -136,3 +136,10 @@ class ProtoFlipper:
         self.cmd_gui_send_input_event_request(key, 'PRESS')
         self.cmd_gui_send_input_event_request(key, type)
         self.cmd_gui_send_input_event_request(key, 'RELEASE')
+
+    def cmd_flipper_stop_session(self):
+        """Stop RPC session"""
+        cmd_data = flipper_pb2.StopSession()
+        data = self._cmd_send(
+            cmd_data, 'stop_session')
+        return data
