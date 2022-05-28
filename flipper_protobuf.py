@@ -4,7 +4,7 @@ from nis import match
 from google.protobuf.internal.encoder import _VarintBytes
 from numpy import mat
 
-from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2
+from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2, gpio_pb2
 
 
 class Varint32Exception(Exception):
@@ -143,3 +143,30 @@ class ProtoFlipper:
         data = self._cmd_send(
             cmd_data, 'stop_session')
         return data
+
+    def cmd_gpio_set_pin_mode(self, pin, mode):
+        cmd_data = gpio_pb2.SetPinMode()
+        cmd_data.pin = pin
+        cmd_data.mode = mode
+
+        return self._cmd_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
+
+    def cmd_gpio_write_pin(self, pin, value):
+        cmd_data = gpio_pb2.WritePin()
+        cmd_data.pin = pin
+        cmd_data.value = value
+
+        return self._cmd_send_and_read_answer(cmd_data, "gpio_write_pin")
+
+    def cmd_gpio_read_pin(self, pin):
+        cmd_data = gpio_pb2.ReadPin()
+        cmd_data.pin = pin
+
+        return self._cmd_send_and_read_answer(cmd_data, "gpio_read_pin")
+
+    def cmd_gpio_set_input_pull(self, pin, pull_mode):
+        cmd_data = gpio_pb2.SetInputPull()
+        cmd_data.pin = pin
+        cmd_data.pull_mode = pull_mode
+
+        return self._cmd_send_and_read_answer(cmd_data, "gpio_set_input_pull")
