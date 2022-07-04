@@ -5,7 +5,7 @@ from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0csystem.proto\x12\tPB_System"\x1b\n\x0bPingRequest\x12\x0c\n\x04data\x18\x01 \x01(\x0c"\x1c\n\x0cPingResponse\x12\x0c\n\x04data\x18\x01 \x01(\x0c"m\n\rRebootRequest\x121\n\x04mode\x18\x01 \x01(\x0e2#.PB_System.RebootRequest.RebootMode")\n\nRebootMode\x12\x06\n\x02OS\x10\x00\x12\x07\n\x03DFU\x10\x01\x12\n\n\x06UPDATE\x10\x02"\x13\n\x11DeviceInfoRequest"0\n\x12DeviceInfoResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t"\x15\n\x13FactoryResetRequest"\x14\n\x12GetDateTimeRequest"<\n\x13GetDateTimeResponse\x12%\n\x08datetime\x18\x01 \x01(\x0b2\x13.PB_System.DateTime";\n\x12SetDateTimeRequest\x12%\n\x08datetime\x18\x01 \x01(\x0b2\x13.PB_System.DateTime"s\n\x08DateTime\x12\x0c\n\x04hour\x18\x01 \x01(\r\x12\x0e\n\x06minute\x18\x02 \x01(\r\x12\x0e\n\x06second\x18\x03 \x01(\r\x12\x0b\n\x03day\x18\x04 \x01(\r\x12\r\n\x05month\x18\x05 \x01(\r\x12\x0c\n\x04year\x18\x06 \x01(\r\x12\x0f\n\x07weekday\x18\x07 \x01(\r"\x1d\n\x1bPlayAudiovisualAlertRequest"\x18\n\x16ProtobufVersionRequest"7\n\x17ProtobufVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r"(\n\rUpdateRequest\x12\x17\n\x0fupdate_manifest\x18\x01 \x01(\t"\x8a\x02\n\x0eUpdateResponse\x128\n\x04code\x18\x01 \x01(\x0e2*.PB_System.UpdateResponse.UpdateResultCode"\xbd\x01\n\x10UpdateResultCode\x12\x06\n\x02OK\x10\x00\x12\x17\n\x13ManifestPathInvalid\x10\x01\x12\x1a\n\x16ManifestFolderNotFound\x10\x02\x12\x13\n\x0fManifestInvalid\x10\x03\x12\x10\n\x0cStageMissing\x10\x04\x12\x17\n\x13StageIntegrityError\x10\x05\x12\x18\n\x14ManifestPointerError\x10\x06\x12\x12\n\x0eTargetMismatch\x10\x07"\x12\n\x10PowerInfoRequest"/\n\x11PowerInfoResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\tB$\n"com.flipperdevices.protobuf.systemb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0csystem.proto\x12\tPB_System"\x1b\n\x0bPingRequest\x12\x0c\n\x04data\x18\x01 \x01(\x0c"\x1c\n\x0cPingResponse\x12\x0c\n\x04data\x18\x01 \x01(\x0c"m\n\rRebootRequest\x121\n\x04mode\x18\x01 \x01(\x0e2#.PB_System.RebootRequest.RebootMode")\n\nRebootMode\x12\x06\n\x02OS\x10\x00\x12\x07\n\x03DFU\x10\x01\x12\n\n\x06UPDATE\x10\x02"\x13\n\x11DeviceInfoRequest"0\n\x12DeviceInfoResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t"\x15\n\x13FactoryResetRequest"\x14\n\x12GetDateTimeRequest"<\n\x13GetDateTimeResponse\x12%\n\x08datetime\x18\x01 \x01(\x0b2\x13.PB_System.DateTime";\n\x12SetDateTimeRequest\x12%\n\x08datetime\x18\x01 \x01(\x0b2\x13.PB_System.DateTime"s\n\x08DateTime\x12\x0c\n\x04hour\x18\x01 \x01(\r\x12\x0e\n\x06minute\x18\x02 \x01(\r\x12\x0e\n\x06second\x18\x03 \x01(\r\x12\x0b\n\x03day\x18\x04 \x01(\r\x12\r\n\x05month\x18\x05 \x01(\r\x12\x0c\n\x04year\x18\x06 \x01(\r\x12\x0f\n\x07weekday\x18\x07 \x01(\r"\x1d\n\x1bPlayAudiovisualAlertRequest"\x18\n\x16ProtobufVersionRequest"7\n\x17ProtobufVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r"(\n\rUpdateRequest\x12\x17\n\x0fupdate_manifest\x18\x01 \x01(\t"\xca\x02\n\x0eUpdateResponse\x128\n\x04code\x18\x01 \x01(\x0e2*.PB_System.UpdateResponse.UpdateResultCode"\xfd\x01\n\x10UpdateResultCode\x12\x06\n\x02OK\x10\x00\x12\x17\n\x13ManifestPathInvalid\x10\x01\x12\x1a\n\x16ManifestFolderNotFound\x10\x02\x12\x13\n\x0fManifestInvalid\x10\x03\x12\x10\n\x0cStageMissing\x10\x04\x12\x17\n\x13StageIntegrityError\x10\x05\x12\x18\n\x14ManifestPointerError\x10\x06\x12\x12\n\x0eTargetMismatch\x10\x07\x12\x1b\n\x17OutdatedManifestVersion\x10\x08\x12\x0b\n\x07IntFull\x10\t\x12\x14\n\x10UnspecifiedError\x10\n"\x12\n\x10PowerInfoRequest"/\n\x11PowerInfoResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\tB$\n"com.flipperdevices.protobuf.systemb\x06proto3')
 _PINGREQUEST = DESCRIPTOR.message_types_by_name['PingRequest']
 _PINGRESPONSE = DESCRIPTOR.message_types_by_name['PingResponse']
 _REBOOTREQUEST = DESCRIPTOR.message_types_by_name['RebootRequest']
@@ -93,10 +93,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
     _UPDATEREQUEST._serialized_start = 667
     _UPDATEREQUEST._serialized_end = 707
     _UPDATERESPONSE._serialized_start = 710
-    _UPDATERESPONSE._serialized_end = 976
+    _UPDATERESPONSE._serialized_end = 1040
     _UPDATERESPONSE_UPDATERESULTCODE._serialized_start = 787
-    _UPDATERESPONSE_UPDATERESULTCODE._serialized_end = 976
-    _POWERINFOREQUEST._serialized_start = 978
-    _POWERINFOREQUEST._serialized_end = 996
-    _POWERINFORESPONSE._serialized_start = 998
-    _POWERINFORESPONSE._serialized_end = 1045
+    _UPDATERESPONSE_UPDATERESULTCODE._serialized_end = 1040
+    _POWERINFOREQUEST._serialized_start = 1042
+    _POWERINFOREQUEST._serialized_end = 1060
+    _POWERINFORESPONSE._serialized_start = 1062
+    _POWERINFORESPONSE._serialized_end = 1109

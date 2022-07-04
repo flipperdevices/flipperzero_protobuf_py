@@ -136,6 +136,40 @@ class ProtoFlipper:
         self.cmd_gui_send_input_event_request(key, 'PRESS')
         self.cmd_gui_send_input_event_request(key, type)
         self.cmd_gui_send_input_event_request(key, 'RELEASE')
+    
+    def cmd_app_start(self, name, args):
+        """Start application"""
+        cmd_data = application_pb2.StartRequest()
+        cmd_data.name = name
+        cmd_data.args = args
+        data = self._cmd_send_and_read_answer(cmd_data, 'app_start_request')
+        return data
+
+    def cmd_app_exit(self):
+        """Send exit command to app"""
+        cmd_data = application_pb2.AppExitRequest()
+        data = self._cmd_send_and_read_answer(cmd_data, 'app_exit_request')
+        return data
+
+    def cmd_app_load_file(self, path):
+        """Send load file command to app"""
+        cmd_data = application_pb2.AppLoadFileRequest()
+        cmd_data.path = path
+        data = self._cmd_send_and_read_answer(cmd_data, 'app_load_file_request')
+        return data
+
+    def cmd_app_button_press(self, args):
+        """Send button press command to app"""
+        cmd_data = application_pb2.AppButtonPressRequest()
+        cmd_data.args = args
+        data = self._cmd_send_and_read_answer(cmd_data, 'app_button_press_request')
+        return data
+
+    def cmd_app_button_release(self):
+        """Send button release command to app"""
+        cmd_data = application_pb2.AppButtonReleaseRequest()
+        data = self._cmd_send_and_read_answer(cmd_data, 'app_button_release_request')
+        return data
 
     def cmd_flipper_stop_session(self):
         """Stop RPC session"""
