@@ -33,7 +33,7 @@ class FlipperProtoSys:
         #print( MessageToDict(message=data.system_power_info_response))
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return data.system_power_info_response
+        return data.system_update_response
 
     # Reboot
     def cmd_Repoot(self, mode=0):
@@ -61,6 +61,14 @@ class FlipperProtoSys:
         cmd_data = system_pb2.PowerInfoRequest()
         data = self._cmd_send_and_read_answer(cmd_data, 'system_power_info_request')
         return data.system_power_info_response
+        # return MessageToDict(message=data.system_power_info_response)
+
+    # DeviceInfo
+    def cmd_DeviceInfo(self):
+        """Power Info"""
+        cmd_data = system_pb2.DeviceInfoRequest()
+        data = self._cmd_send_and_read_answer(cmd_data, 'system_deviceinfo_request')
+        return data.system_deviceinfo_response
         # return MessageToDict(message=data.system_power_info_response)
 
     # ProtobufVersion
