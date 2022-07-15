@@ -49,11 +49,11 @@ commands_help = {
 }
 
 
-rdir = '/ext'
+# rdir = '/ext'
 
 def main():
 
-    global rdir
+    # global rdir
     interactive = False
 
     proto = FlipperCMD()
@@ -89,7 +89,7 @@ def main():
 
 
 def run_comm(flip, argv):
-    global verbose
+    # global verbose
 
     cmd = argv.pop(0).upper()
 
@@ -129,8 +129,8 @@ def run_comm(flip, argv):
     elif cmd in ["PWD"]:
         print(os.getcwd())
 
-    elif cmd in ["RCD"]:
-        set_rdir(flip, cmd, argv)
+#    elif cmd in ["RCD"]:
+#        set_rdir(flip, cmd, argv)
 
     elif cmd in ["QUIT", "EXIT"]:
         raise QuitException("Quit interactive mode")
@@ -150,19 +150,21 @@ def print_cmds(cmd_list=None):
     # print "\nFor more detail on command run command with arg '?'"
     # print "\n* == may not be implemented\n"
 
-def set_rdir(flip, remdir):
-    global rdir
-
-    if remdir.startswith('/'):
-        newdir = remdir
-    else:
-        newdir = os.path.abspath(rdir + '/' + remdir)
-
-    stat_resp = flip.cmd_stat(newdir)
-    if stat_resp['type'] == 'DIR':
-        rdir = newdir
-    else:
-        print("{newdir}: not a directory")
+# add after callbacks are turned into a class
+#
+# def set_rdir(flip, remdir):
+#     # global rdir
+#
+#     if remdir.startswith('/'):
+#         newdir = remdir
+#     else:
+#         newdir = os.path.abspath(rdir + '/' + remdir)
+#
+#     stat_resp = flip.cmd_stat(newdir)
+#     if stat_resp['type'] == 'DIR':
+#         rdir = newdir
+#     else:
+#         print("{newdir}: not a directory")
 
 # storage_pb2.File.DIR == 1
 # storage_pb2.File.FILE == 0
@@ -190,8 +192,8 @@ def do_list(flip, cmd, argv):
     if len(argv) > 0:
         targ = argv.pop(0)
 
-    print(f"do_list {targ}")
-    print(f"long_format={long_format}, md5_format={md5_format}")
+    # print(f"do_list {targ}")
+    # print(f"long_format={long_format}, md5_format={md5_format}")
 
     if not targ.startswith('/'):
         targ = '/ext/' + targ
@@ -298,6 +300,7 @@ def do_mkdir(flip, cmd, argv):
 
 
 def do_chdir(flip, cmd, argv):
+    # pylint: disable=broad-except
     if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} <directory>")
 

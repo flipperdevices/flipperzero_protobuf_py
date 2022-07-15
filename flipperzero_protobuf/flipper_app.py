@@ -3,6 +3,7 @@
 # pylint: disable=line-too-long, no-member
 
 from .flipperzero_protobuf_compiled import application_pb2
+from .flipper_base import cmdException
 
 __all__ = [ 'FlipperProtoApp']
 
@@ -15,7 +16,7 @@ class FlipperProtoApp:
         data = self._cmd_send_and_read_answer(cmd_data, 'app_lock_status_request')
 
         if data.command_status != 0:
-             raise cmdException(self.values_by_number[rep_data.command_status].name)
+            raise cmdException(self.values_by_number[data.command_status].name)
 
         return data.app_lock_status_response.locked
 

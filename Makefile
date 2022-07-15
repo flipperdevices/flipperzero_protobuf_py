@@ -13,7 +13,7 @@ all: pylint
 pylint:
 	for targ in ${FILES} ; do \
 		echo $$targ ; \
-		pylint $$targ  ; \
+		@pylint $$targ  ; \
 	done
 
 # python -m py_compile $$targ ; \

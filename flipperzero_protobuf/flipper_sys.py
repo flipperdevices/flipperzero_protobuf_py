@@ -3,7 +3,7 @@
 # import sys
 # import os
 import datetime
-import pprint
+# import pprint
 
 # from nis import match
 # from numpy import mat
@@ -38,6 +38,7 @@ class FlipperProtoSys:
     # Reboot
     def cmd_Repoot(self, mode=0):
         """Reboot flipper"""
+        # pylint: disable=broad-except
         # mode
         # 0 = OS
         # 1 = DFU
@@ -49,8 +50,7 @@ class FlipperProtoSys:
         # print(MessageToDict(message=cmd_data, including_default_value_fields=True))
         #data = self._cmd_send(cmd_data, 'system_reboot_request')
         try:
-            data = self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
-            #return data.system_reboot_response
+            self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
         # except serial.serialutil.SerialException as _e:
         except Exception as _e:
             pass
@@ -113,7 +113,6 @@ class FlipperProtoSys:
 
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return
 
     # Ping
     def cmd_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
