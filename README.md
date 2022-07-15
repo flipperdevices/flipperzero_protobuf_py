@@ -4,40 +4,37 @@ Example:
 ```
 #!/usr/bin/env python3
 
+import os
 import sys
-import serial
+import pprint
+import datetime
 
-from flipperzero_protobuf_py.flipper_protobuf import ProtoFlipper
-from flipperzero_protobuf_py.cli_helpers import *
-
+from google.protobuf.json_format import MessageToDict
+from flipperzero_protobuf.flipper_proto import FlipperProto
+from flipperzero_protobuf.cli_helpers import *
 
 def main():
-    # open serial port
-    flipper = serial.Serial(sys.argv[1], timeout=1)
-    flipper.baudrate = 230400
-    flipper.flushOutput()
-    flipper.flushInput()
 
-    # disable timeout
-    flipper.timeout = None
+    proto = FlipperProto()
 
-    # wait for prompt
-    flipper.read_until(b'>: ')
+    print("\n\nPing")
+    ping_rep = proto.cmd_system_ping()
+    print_hex(ping_rep)
 
-    # send command and skip answer
-    flipper.write(b"start_rpc_session\r")
-    flipper.read_until(b'\n')
+    print("\n\n]DeviceInfo")
+    ping_rep = proto.cmd_DeviceInfo()
+    print(ping_rep)
 
-    # construct protobuf worker
-    proto = ProtoFlipper(flipper)
+    print("\n\nGetDateTime")
+    dtime_resp = proto.cmd_GetDateTime()
+    dt = dict2datetime(dtime_resp)
+    print(dt.ctime())
 
-    print("Ping result: ")
-    print_hex(proto.cmd_system_ping())
+    print("\n\nList files")
+    list_resp = proto.cmd_storage_list('/ext')
+    for li in list_resp:
+        print(f"[{li['type']}]\t{li['name']}")
 
-    proto.cmd_gui_send_input("SHORT UP")
-
-    print("Screen capture result: ")
-    print_screen(proto.cmd_gui_snapshot_screen())
 
 
 if __name__ == '__main__':

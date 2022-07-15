@@ -5,12 +5,12 @@ import sys
 # import pprint
 
 
-from google.protobuf.json_format import MessageToDict
+# from google.protobuf.json_format import MessageToDict
 # from .flipper_protof import FlipperProto
 from .flipper_base import FlipperProtoBase, cmdException
 from .flipper_storage import FlipperProtoStorage
 
-# pylint: disable=line-too-long, no-member
+# pylint: disable=line-too-long, no-member, too-many-branches
 _debug = 0
 
 DEV = "/dev/tty.usbmodemflip_Unyana1"

@@ -159,7 +159,6 @@ class FlipperProtoStorage():
 
     def cmd_storage_list(self, data="/ext"):
         """Storage List"""
-        print(f"\ncmd_storage_list path={data}")
         # print("f_code.co_name", sys._getframe().f_code.co_name)
         storage_response = []
         cmd_data = storage_pb2.ListRequest()

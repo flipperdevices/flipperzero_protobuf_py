@@ -43,7 +43,7 @@ class FlipperProtoSys:
         # 1 = DFU
         # 2 = UPDATE
         cmd_data = system_pb2.RebootRequest()
-        
+
         print(dir(cmd_data))
         cmd_data.mode = mode
         # print(MessageToDict(message=cmd_data, including_default_value_fields=True))
@@ -67,9 +67,9 @@ class FlipperProtoSys:
     def cmd_DeviceInfo(self):
         """Power Info"""
         cmd_data = system_pb2.DeviceInfoRequest()
-        data = self._cmd_send_and_read_answer(cmd_data, 'system_deviceinfo_request')
-        return data.system_deviceinfo_response
-        # return MessageToDict(message=data.system_power_info_response)
+        data = self._cmd_send_and_read_answer(cmd_data, 'system_device_info_request')
+        # return data.system_device_info_response
+        return MessageToDict(message=data.system_device_info_response)
 
     # ProtobufVersion
     def cmd_ProtobufVersion(self):
@@ -87,7 +87,7 @@ class FlipperProtoSys:
         data = self._cmd_send_and_read_answer(cmd_data, 'system_get_datetime_request')
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return data.system_get_datetime_response
+        return MessageToDict(data.system_get_datetime_response)['datetime']
 
     # SetDateTime
     def cmd_SetDateTime(self, datetm=None):
@@ -99,10 +99,10 @@ class FlipperProtoSys:
         print("SetDateTimeRequest.datetime", dir(cmd_data.datetime))
         cmd_data.datetime.year = datetm.year
         cmd_data.datetime.month = datetm.month
-        cmd_data.datetime.day = datetm.day 
-        cmd_data.datetime.hour = datetm.hour 
-        cmd_data.datetime.minute = datetm.minute 
-        cmd_data.datetime.second = datetm.second 
+        cmd_data.datetime.day = datetm.day
+        cmd_data.datetime.hour = datetm.hour
+        cmd_data.datetime.minute = datetm.minute
+        cmd_data.datetime.second = datetm.second
         cmd_data.datetime.weekday = datetm.isoweekday()
         print(datetm.timetuple())
         print(MessageToDict(message=cmd_data))

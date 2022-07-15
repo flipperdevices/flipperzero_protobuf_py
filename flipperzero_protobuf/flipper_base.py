@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# pylint: disable=too-few-public-methods
+
 import sys
 import os
 import serial

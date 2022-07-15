@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import numpy
 
 
@@ -36,11 +37,39 @@ def print_screen(screen_bytes):
     for y in range(0, SCREEN_W, 2):
         for x in range(1, SCREEN_H+1):
             if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 1:
-                print(u'\u2588', end='')
+                print('\u2588', end='')
             if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 1:
-                print(u'\u2584', end='')
+                print('\u2584', end='')
             if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 0:
-                print(u'\u2580', end='')
+                print('\u2580', end='')
             if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 0:
                 print(' ', end='')
         print()
+
+
+
+def datetime2dict(dt=None):
+
+    if dt is None:
+        dt = datetime.datetime.now()
+
+    tlist = list(dt.timetuple())
+
+    # tm_year=2022, tm_mon=7, tm_mday=12, tm_hour=18, tm_min=18, tm_sec=38, tm_wday=1, tm_yday=193, tm_isdst=-1
+    datetime_dict = {
+        'year': tlist[0],
+        'month': tlist[2],
+        'day': tlist[3],
+        'hour': tlist[4],
+        'minute': tlist[5],
+        'second': tlist[6],
+        'weekday': tlist[7] +1,
+    }
+
+    return datetime_dict
+
+
+def dict2datetime(d):
+    tdict = d.copy()    # we dont want to destroy the caller's data
+    del tdict['weekday']
+    return datetime.datetime(**tdict)

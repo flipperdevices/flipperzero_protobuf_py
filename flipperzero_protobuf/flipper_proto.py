@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# pylint: disable=too-few-public-methods
 
 
 from .flipper_app import FlipperProtoApp
