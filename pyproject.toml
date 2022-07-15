@@ -1,0 +1,33 @@
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "flipperzero_protobuf"
+version = "0.1.20220714"
+authors = [
+  { name="flipper devices", email="hello@flipperzero.one" },
+  { name="peter shipley", email="peter.shipley@gmail.com" },
+]
+description = "Python bindings for Flipper Zero protobuf protocol"
+readme = "README.md"
+dynamic = ["dependencies", "entry-points"]
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Requires-Dist: protoletariat",
+    "Requires-Dist: numpy (>=3.5.0)",
+    "Requires-Dist: protobuf (>=3.20.1)",
+]
+
+# [console_scripts]
+# flipperzero_cmd = "flipperzero_protobuf.flipperzero_cmd:main"
+
+[project.urls]
+"Homepage" = "https://github.com/flipperdevices/flipperzero_protobuf_py"
+"Bug Tracker" = "https://github.com/flipperdevices/flipperzero_protobuf_py/issues"
