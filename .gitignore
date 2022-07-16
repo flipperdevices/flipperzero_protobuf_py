@@ -9,6 +9,7 @@ __pycache__/
 *.so
 
 callstuff*.py
+test_cmd.py
 
 # Distribution / packaging
 .Python

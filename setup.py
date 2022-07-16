@@ -14,13 +14,13 @@ import ssl
 
 from distutils.core import setup
 
-version = '0.1.20220714'
+version = '0.1.20220715b'
 
 setup(
     name='flipperzero_protobuf',
     version=version,
     # author='Peter Shipley',
-    author_email='Peter.Shipley@gmail.com',
+    author_email='peter.shipley@gmail.com, hello@flipperzero.one',
     packages=['flipperzero_protobuf', 'flipperzero_protobuf/flipperzero_protobuf_compiled'],
     # packages=find_packages(),
     # scripts=['flipperzero_cmd.py'],
@@ -37,16 +37,11 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
 
-        # Pick your license as you wish (should match "license" above)
-        # 'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
     ],
     python_requires='>=3',
 
@@ -55,7 +50,8 @@ setup(
     description='Python API wrapper for flipperzero_protobuf.',
     # long_description=open('README.txt').read(),
     # cmdclass = { 'install_scripts': install_scripts_and_symlinks }
-    install_requires=['numpy==1.22.3', 'protobuf==3.20.1', 'protoletariat'],
+    install_requires=['numpy==1.21.4', 'protobuf==3.12.4'],
+    #install_requires=['numpy==1.21.4', 'protobuf==3.12.4', 'protoletariat'],
     entry_points={
            'console_scripts': [
                'flipperzero_cmd = flipperzero_protobuf.flipperzero_cmd:main'

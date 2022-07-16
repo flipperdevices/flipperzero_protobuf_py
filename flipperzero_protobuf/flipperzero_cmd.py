@@ -6,22 +6,20 @@ import sys
 
 
 # from google.protobuf.json_format import MessageToDict
-# from .flipper_protof import FlipperProto
-from .flipper_base import FlipperProtoBase, cmdException
-from .flipper_storage import FlipperProtoStorage
+from .flipper_base import cmdException    # FlipperProtoBase
+# from .flipper_storage import FlipperProtoStorage
+from .flipper_proto import FlipperProto
+from .cli_helpers import print_screen
 
 # pylint: disable=line-too-long, no-member, too-many-branches
 _debug = 0
-
-DEV = "/dev/tty.usbmodemflip_Unyana1"
 
 class QuitException(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
-class FlipperCMD(FlipperProtoBase, FlipperProtoStorage):
-    pass
-
+#class FlipperCMD(FlipperProtoBase, FlipperProtoStorage):
+#    pass
 
 
 commands_help = {
@@ -42,6 +40,8 @@ commands_help = {
     "GET, GETFILE": "copy file from flipper",
     "CAT": "read file to screen",
 
+    "PRINT-SCREEN":  "print ascii screendump",
+
     "HELP, ?" : "print command list",
     # "VERBOSE" : "set verbose",
     # "ERROR" : "print last error",
@@ -56,7 +56,8 @@ def main():
     # global rdir
     interactive = False
 
-    proto = FlipperCMD()
+    #proto = FlipperCMD()
+    proto = FlipperProto()
 
     argv = sys.argv[1:]
 
@@ -78,10 +79,13 @@ def main():
             lineno += 1
             run_comm(proto, argv)
 
-        except (EOFError, QuitException) as _e:
+        except (EOFError, QuitException, KeyboardInterrupt) as _e:
             interactive = False
+            print(_e)
             break
         except cmdException as e:
+            print(e)
+        except Exception as e:
             print(e)
         finally:
             if interactive is not True:
@@ -129,6 +133,9 @@ def run_comm(flip, argv):
     elif cmd in ["PWD"]:
         print(os.getcwd())
 
+    elif cmd in ["PRINT-SCREEN"]:
+        do_print_screen(flip, cmd, argv)
+
 #    elif cmd in ["RCD"]:
 #        set_rdir(flip, cmd, argv)
 
@@ -136,13 +143,13 @@ def run_comm(flip, argv):
         raise QuitException("Quit interactive mode")
 
     elif cmd in ["HELP", "?"]:
-        print_cmds()
+        print_cmd_help()
 
     else:
         print("Unknown command : ", cmd)  # str(" ").join(argv)
 
 
-def print_cmds(cmd_list=None):
+def print_cmd_help(cmd_list=None):
     if cmd_list is None:
         cmd_list = commands_help
     for k, v in cmd_list.items():
@@ -165,6 +172,19 @@ def print_cmds(cmd_list=None):
 #         rdir = newdir
 #     else:
 #         print("{newdir}: not a directory")
+
+
+def do_print_screen(flip, cmd, argv):
+    outf = None
+    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+        raise cmdException(f"Syntax :\n\t{cmd} [filename.pbm]\n"
+                 "\tfile has to end in .pbm\n"
+                 "\tif no file is given image is printed to stdout")
+
+    if argv:
+        outf = argv.pop(0)
+    print_screen(flip.cmd_gui_snapshot_screen(), outf)
+
 
 # storage_pb2.File.DIR == 1
 # storage_pb2.File.FILE == 0
@@ -300,7 +320,7 @@ def do_mkdir(flip, cmd, argv):
 
 
 def do_chdir(flip, cmd, argv):
-    # pylint: disable=broad-except
+    # pylint: disable=broad-except, unused-argument
     if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} <directory>")
 

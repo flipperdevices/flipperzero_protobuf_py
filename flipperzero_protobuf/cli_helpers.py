@@ -3,26 +3,51 @@
 import datetime
 import numpy
 
+from .flipper_base import cmdException
 
 def print_hex(bytes_data):
-    print("".join('{:02x} '.format(x) for x in bytes_data))
+    #print("".join('{:02x} '.format(x) for x in bytes_data))
+    print("".join(f'{x:02x} ') for x in bytes_data)
 
+SCREEN_H = 128
+SCREEN_W = 64
 
-def print_screen(screen_bytes):
-    SCREEN_H = 128
-    SCREEN_W = 64
+def print_screen(screen_bytes, dest=None):
+    dat  = _dump_screen(screen_bytes)
+
+    if dest is None:
+        for y in range(0, SCREEN_W, 2):
+            for x in range(1, SCREEN_H+1):
+                if int(dat[x][y]) == 1 and int(dat[x][y+1]) == 1:
+                    print('\u2588', end='')
+                if int(dat[x][y]) == 0 and int(dat[x][y+1]) == 1:
+                    print('\u2584', end='')
+                if int(dat[x][y]) == 1 and int(dat[x][y+1]) == 0:
+                    print('\u2580', end='')
+                if int(dat[x][y]) == 0 and int(dat[x][y+1]) == 0:
+                    print(' ', end='')
+            print()
+
+    elif dest.endswith('.pbm'):
+        with open(dest, "w", encoding="utf-8") as fd:
+            print(f"P1\n{SCREEN_H +1} {SCREEN_W}", file=fd)
+            for y in range(0, SCREEN_W):
+                print(numpy.array2string(dat[:,y], max_line_width=300)[1:-1], file=fd)
+    else:
+        raise cmdException("invalid filename")
+
+def _dump_screen(screen_bytes):
+    # pylint: disable=multiple-statements
 
     data = screen_bytes
-    def get_bin(x): return format(x, 'b')
-    scr = numpy.zeros((SCREEN_H+1, SCREEN_W+1))
+    def get_bin(x): return format(x, '08b')
+    scr = numpy.zeros((SCREEN_H+1, SCREEN_W+1), dtype=int)
 
     x = y = 0
     basey = 0
 
     for i in range(0, int(SCREEN_H*SCREEN_W/8)):
-        tmp = get_bin(data[i])
-        tmp = '0'*(8-len(tmp)) + tmp
-        tmp = tmp[::-1]  # reverse
+        tmp = get_bin(data[i])[::-1]
 
         y = basey
         x += 1
@@ -34,17 +59,8 @@ def print_screen(screen_bytes):
             basey += 8
             x = 0
 
-    for y in range(0, SCREEN_W, 2):
-        for x in range(1, SCREEN_H+1):
-            if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 1:
-                print('\u2588', end='')
-            if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 1:
-                print('\u2584', end='')
-            if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 0:
-                print('\u2580', end='')
-            if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 0:
-                print(' ', end='')
-        print()
+    return scr
+
 
 
 
@@ -55,7 +71,6 @@ def datetime2dict(dt=None):
 
     tlist = list(dt.timetuple())
 
-    # tm_year=2022, tm_mon=7, tm_mday=12, tm_hour=18, tm_min=18, tm_sec=38, tm_wday=1, tm_yday=193, tm_isdst=-1
     datetime_dict = {
         'year': tlist[0],
         'month': tlist[2],
