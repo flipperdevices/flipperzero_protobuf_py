@@ -14,7 +14,7 @@ import ssl
 
 from distutils.core import setup
 
-version = '0.1.20220715b'
+version = '0.1.20220716'
 
 setup(
     name='flipperzero_protobuf',
