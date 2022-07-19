@@ -3,7 +3,7 @@
 # import sys
 # import os
 import datetime
-import pprint
+# import pprint
 
 # from nis import match
 # from numpy import mat
@@ -33,24 +33,24 @@ class FlipperProtoSys:
         #print( MessageToDict(message=data.system_power_info_response))
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return data.system_power_info_response
+        return data.system_update_response
 
     # Reboot
     def cmd_Repoot(self, mode=0):
         """Reboot flipper"""
+        # pylint: disable=broad-except
         # mode
         # 0 = OS
         # 1 = DFU
         # 2 = UPDATE
         cmd_data = system_pb2.RebootRequest()
-        
+
         print(dir(cmd_data))
         cmd_data.mode = mode
         # print(MessageToDict(message=cmd_data, including_default_value_fields=True))
         #data = self._cmd_send(cmd_data, 'system_reboot_request')
         try:
-            data = self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
-            #return data.system_reboot_response
+            self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
         # except serial.serialutil.SerialException as _e:
         except Exception as _e:
             pass
@@ -62,6 +62,14 @@ class FlipperProtoSys:
         data = self._cmd_send_and_read_answer(cmd_data, 'system_power_info_request')
         return data.system_power_info_response
         # return MessageToDict(message=data.system_power_info_response)
+
+    # DeviceInfo
+    def cmd_DeviceInfo(self):
+        """Power Info"""
+        cmd_data = system_pb2.DeviceInfoRequest()
+        data = self._cmd_send_and_read_answer(cmd_data, 'system_device_info_request')
+        # return data.system_device_info_response
+        return MessageToDict(message=data.system_device_info_response)
 
     # ProtobufVersion
     def cmd_ProtobufVersion(self):
@@ -79,7 +87,7 @@ class FlipperProtoSys:
         data = self._cmd_send_and_read_answer(cmd_data, 'system_get_datetime_request')
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return data.system_get_datetime_response
+        return MessageToDict(data.system_get_datetime_response)['datetime']
 
     # SetDateTime
     def cmd_SetDateTime(self, datetm=None):
@@ -91,10 +99,10 @@ class FlipperProtoSys:
         print("SetDateTimeRequest.datetime", dir(cmd_data.datetime))
         cmd_data.datetime.year = datetm.year
         cmd_data.datetime.month = datetm.month
-        cmd_data.datetime.day = datetm.day 
-        cmd_data.datetime.hour = datetm.hour 
-        cmd_data.datetime.minute = datetm.minute 
-        cmd_data.datetime.second = datetm.second 
+        cmd_data.datetime.day = datetm.day
+        cmd_data.datetime.hour = datetm.hour
+        cmd_data.datetime.minute = datetm.minute
+        cmd_data.datetime.second = datetm.second
         cmd_data.datetime.weekday = datetm.isoweekday()
         print(datetm.timetuple())
         print(MessageToDict(message=cmd_data))
@@ -105,7 +113,6 @@ class FlipperProtoSys:
 
         if data.command_status != 0:
             raise cmdException(self.values_by_number[data.command_status].name)
-        return
 
     # Ping
     def cmd_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):

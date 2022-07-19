@@ -8,9 +8,9 @@ import sys
 # /usr/local/Cellar/protobuf/3.19.4/lib/python3.10/site-packages/google/protobuf/json_format.py
 
 from google.protobuf.json_format import MessageToDict
-# from flipperzero_protobuf_py.flipper_protof import FlipperProto
-from flipperzero_protobuf_py.flipper_base import FlipperProtoBase, cmdException
-from flipperzero_protobuf_py.flipper_storage import FlipperProtoStorage
+# from flipperzero_protobuf.flipper_protof import FlipperProto
+from flipperzero_protobuf.flipper_base import FlipperProtoBase, cmdException
+from flipperzero_protobuf.flipper_storage import FlipperProtoStorage
 
 # pylint: disable=line-too-long, no-member
 _debug = 0
