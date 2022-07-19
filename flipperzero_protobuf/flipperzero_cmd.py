@@ -194,7 +194,9 @@ def do_list(flip, cmd, argv):
     long_format = False
     md5_format = False
 
-    while len(argv) > 0 and argv[0][0]== "-":
+
+    while len(argv) > 0 and argv[0][0] in ["-", "?"]:
+        print(f"do_list argv0  {argv}")
         if argv[0] == "-l":
             long_format = True
             argv.pop(0)
@@ -202,7 +204,7 @@ def do_list(flip, cmd, argv):
             long_format = True
             md5_format = True
             argv.pop(0)
-        elif argv[0] in ['help', '?']:
+        elif argv[0] in ['-help', '?']:
             raise cmdException(f"Syntax :\n\t{cmd} [-l] [-m] <path>")
 
     #if len(argv) > 0 and argv[0] == "-l":
@@ -398,12 +400,12 @@ def do_put_file(flip, cmd, argv):
     if ( len(argv) >= 1  and argv[0] != "?" ):
         local_filen = argv.pop(0)
         if argv:
-            remote_Filen = argv.pop(0)
+            remote_filen = argv.pop(0)
         else:
-            remote_Filen = local_filen
+            remote_filen = local_filen
 
         if _debug:
-            print( cmd, remote_Filen, local_filen)
+            print( cmd, local_filen, remote_filen)
 
         if not os.path.exists(local_filen):
             print(f"can not open {local_filen}")
@@ -414,15 +416,24 @@ def do_put_file(flip, cmd, argv):
         if not remote_filen.startswith('/'):
             remote_filen = '/ext/' + remote_filen
 
+        if _debug:
+            print("2:",  cmd, local_filen, remote_filen)
+
         stat_resp = flip.cmd_stat(remote_filen)
         if stat_resp['type'] == 'DIR':
             remote_filen = remote_filen + '/' + local_filen
 
+        if _debug:
+            print("3:",  cmd, local_filen, remote_filen)
+
         with open(local_filen, 'rb') as fd:
             file_data = fd.read()
 
+        if _debug:
+            print("4:",  type(file_data))
+
         print(f"putting {len(file_data)} bytes")
-        flip.cmd_write(remote_Filen, file_data)
+        flip.cmd_write(remote_filen, file_data)
 
     else:
         raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")
