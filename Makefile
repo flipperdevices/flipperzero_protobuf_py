@@ -24,4 +24,3 @@ clean:
 
 build:
 	python3 -m build 
-	scp -r dist kali:

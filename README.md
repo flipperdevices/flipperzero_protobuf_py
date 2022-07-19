@@ -6,14 +6,14 @@ Python API binding/wrappers for Flipper Zero protobuf protocol and command line 
 ---
 ### flipperzero_cmd 
 
-The command tool `flipperzero_cmd` is terninal based too for file transfer and remote command.
+The command tool `flipperzero_cmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
 
 It is still a work in progress (Alpha) but is funtional
 
 ---
 
-##### Command Line #####
+##### Command Line Examples #####
 
 ```
 $ flipperzero_cmd ls
@@ -22,13 +22,22 @@ Using port /dev/cu.usbmodemflip_Unyana1
 ibutton/                 infrared/                lfrfid/                  music_player/
 nfc/                     subghz/                  u2f/                     wav_player/
 .metadata_never_index    favorites.txt            Manifest                 rwfiletest.bin
-```
-
-##### interactive command moode #####
-
 
 ```
-$ ./test_cmd.py
+
+```
+$ flipperzero_cmd put My_Home_TV.ir /ext/infrared
+Using port /dev/cu.usbmodemflip_UOhBaby
+PUT My_Home_TV.ir /ext/infrared
+putting 206 bytes
+
+```
+
+##### Interactive Command Mode Examples #####
+
+
+```
+$ flipperzero_cmd
 Using port /dev/cu.usbmodemflip_UOhBaby
 Entering interactive mode
 
@@ -49,18 +58,40 @@ Entering interactive mode
     HELP, ?                :	print command list
     EXIT, QUIT             :	exit program
 
-2 flipper> ls
-.fseventsd/              .Spotlight-V100/         badusb/                  dolphin/
-ibutton/                 infrared/                lfrfid/                  music_player/
-nfc/                     subghz/                  u2f/                     wav_player/
-.metadata_never_index    favorites.txt            Manifest                 rwfiletest.bin
+2 flipper> ls ?
+Syntax :
+	LS [-l] [-m] <path>
+    
+3 flipper> ls -lm
+Storage List result:  /ext
+.Spotlight-V100          	   DIR
+.Trashes                 	   DIR
+apps                     	   DIR
+badusb                   	   DIR
+dolphin                  	   DIR
+elf                      	   DIR
+ibutton                  	   DIR
+infrared                 	   DIR
+lfrfid                   	   DIR
+music_player             	   DIR
+nfc                      	   DIR
+subghz                   	   DIR
+u2f                      	   DIR
+wav_player               	   DIR
+.metadata_never_index    	     0 d41d8cd98f00b204e9800998ecf8427e
+favorites.txt            	    93 50c7a56f93d8f6c87f205691def774fa
+Manifest                 	 16871 c74a84dea8d644198d27755313942614
+rwfiletest.bin           	 16384 3df67097cee5e4cea36e0f941c134ffc
+Total Bytes: 33348
 
 3 flipper> quit
 Quit interactive mode
 ```
+
+
 ---
 
-#### API example: ####
+### API Examples: ###
 ```
 #!/usr/bin/env python3
 
