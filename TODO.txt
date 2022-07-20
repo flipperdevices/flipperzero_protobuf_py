@@ -1,0 +1,21 @@
+
+TODO
+
+
+add more Documentation
+
+Add recursion to
+	RM, DEL, DELETE	: add recursion option
+	LS, LIST	: add recursion option
+	MKDIR		: option '-p' to Create intermediate directories
+	GET / PUT	: add recursion option
+
+Add some form of rsync command
+
+method to query / print more device info
+
+support command files (scriptable ?)
+
+add other fileformat options to print_screen command
+
+rewrite flipperzero_cmd into a class

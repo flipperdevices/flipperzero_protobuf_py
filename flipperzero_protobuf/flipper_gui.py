@@ -10,6 +10,20 @@ from .flipper_base import InputTypeException
 
 __all__ = [ 'FlipperProtoGui' ]
 
+"""
+    InputKey
+        0 UP
+        1 DOWN
+        2 RIGHT
+        3 LEFT
+        4 OK
+
+    InputType
+        1 RELEASE
+        2 SHORT
+        3 LONG
+        4 REPEAT
+"""
 
 
 class FlipperProtoGui:
@@ -42,7 +56,16 @@ class FlipperProtoGui:
 
     # SendInputEvent
     def cmd_gui_send_input_event_request(self, key, ftype):
-        """Send Input Event Request Key"""
+        """Send Input Event Request Key
+
+        Parameters
+        ----------
+        key : str
+            'UP', 'DOWN', 'RIGHT', 'LEFT', 'OK'
+        ftype : int
+            'PRESS', 'RELEASE', 'SHORT', 'LONG', 'REPEAT'
+
+        """
         cmd_data = gui_pb2.SendInputEventRequest()
         cmd_data.key = getattr(gui_pb2, key)
         cmd_data.type = getattr(gui_pb2, ftype)
@@ -58,7 +81,7 @@ class FlipperProtoGui:
         if ftype not in ['SHORT', 'LONG']:
             raise InputTypeException('Incorrect type')
 
-         #if key != 'UP' and key != 'DOWN' and key != 'LEFT' and key != 'RIGHT' and key != 'OK' and key != 'BACK':
+        # if key != 'UP' and key != 'DOWN' and key != 'LEFT' and key != 'RIGHT' and key != 'OK' and key != 'BACK':
         if key not in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'OK', 'BACK']:
             raise InputTypeException('Incorrect key')
 

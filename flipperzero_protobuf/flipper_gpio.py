@@ -9,41 +9,268 @@
 
 # pylint: disable=line-too-long, no-member
 
-from .flipperzero_protobuf_compiled import  gpio_pb2
+from .flipperzero_protobuf_compiled import gpio_pb2
+from .flipper_base import cmdException, InputTypeException
 
 __all__ = [ 'FlipperProtoGpio' ]
 
 class FlipperProtoGpio:
+    """
+
+     Methods
+     -------
+    cmd_gpio_get_pin_mode(pin):
+            get GPIO pin mode
+
+    cmd_gpio_set_pin_mode(pin, mode):
+            set GPIO pin mode
+
+    cmd_gpio_write_pin(pin, value):
+            set GPIO pin
+
+    cmd_gpio_read_pin(pin):
+            query GPIO pin
+
+    cmd_gpio_set_input_pull(pin, pull_mode):
+            Set GPIO pill Input
+
+        GpioPin ID:
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        GpioInputPull
+            0 = 'NO'
+            1 = 'UP'
+            2 = 'DOWN'
+
+        GpioPinMode
+            0 = 'OUTPUT'
+            1 = 'INPUT'
+    """
 
     # GetPinMode
+    def cmd_gpio_get_pin_mode(self, pin):
+        """ get GPIO pin mode
+
+        Parameters
+        ----------
+        pin : int or str
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        Returns:
+        ----------
+        str
+            'OUTPUT'
+            'INPUT'
+
+        Raises
+        ----------
+        InputTypeException
+        cmdException
+
+        """
+
+        cmd_data = gpio_pb2.GetPinMode()
+        if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+            raise InputTypeException("Invalid pin")
+
+        if isinstance(pin, int):
+            cmd_data.pin = pin
+        else:
+            cmd_data.pin = gpio_pb2.getattr(pin)
+
+        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_get_pin_mode")
+        # gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[0].name
+        if rep_data.command_status != 0:
+            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin}")
+
+        # return rep_data.gpio_get_pin_mode_response.mode
+        return gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[rep_data.gpio_get_pin_mode_response.mode].name
 
     # SetPinMode
     def cmd_gpio_set_pin_mode(self, pin, mode):
-        cmd_data = gpio_pb2.SetPinMode()
-        cmd_data.pin = pin
-        cmd_data.mode = mode
+        """ set GPIO pin mode
 
-        return self._cmd_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
+        Parameters
+        ----------
+        pin : int or str
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        mode : str
+            0 = 'OUTPUT'
+            1 = 'INPUT'
+
+        Raises
+        ----------
+        InputTypeException
+        cmdException
+
+        """
+
+        cmd_data = gpio_pb2.SetPinMode()
+
+        if isinstance(pin, int):
+            cmd_data.pin = pin
+        else:
+            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+                raise InputTypeException("Invalid pin")
+            cmd_data.pin = gpio_pb2.getattr(pin)
+
+        if mode not in ['OUTPUT', 'INPUT']:
+            raise InputTypeException("Invalid mode")
+        cmd_data.mode = gpio_pb2.getattr(mode)
+
+        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
+
+        if rep_data.command_status != 0:
+            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
 
     # WritePin
     def cmd_gpio_write_pin(self, pin, value):
+        """ write GPIO pin
+
+        Parameters
+        ----------
+        pin : int or str
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        value : int
+
+        Raises
+        ----------
+        InputTypeException
+        cmdException
+
+        """
+
         cmd_data = gpio_pb2.WritePin()
-        cmd_data.pin = pin
+
+        if isinstance(pin, int):
+            cmd_data.pin = pin
+        else:
+            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+                raise InputTypeException("Invalid pin")
+            cmd_data.pin = gpio_pb2.getattr(pin)
+
         cmd_data.value = value
 
-        return self._cmd_send_and_read_answer(cmd_data, "gpio_write_pin")
+        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_write_pin")
+
+        if rep_data.command_status != 0:
+            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} value={value}")
 
     # ReadPin
     def cmd_gpio_read_pin(self, pin):
-        cmd_data = gpio_pb2.ReadPin()
-        cmd_data.pin = pin
+        """ query GPIO pin
 
-        return self._cmd_send_and_read_answer(cmd_data, "gpio_read_pin")
+        Parameters
+        ----------
+        pin : int or str
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        Returns:
+        ----------
+        int
+            pin value
+
+        Raises
+        ----------
+        InputTypeException
+        cmdException
+
+        """
+
+        cmd_data = gpio_pb2.ReadPin()
+
+        if isinstance(pin, int):
+            cmd_data.pin = pin
+        else:
+            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+                raise InputTypeException("Invalid pin")
+            cmd_data.pin = gpio_pb2.getattr(pin)
+
+        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_read_pin")
+
+        if rep_data.command_status != 0:
+            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin}")
+
+        return rep_data.read_pin_response.value
 
     # SetInputPull
     def cmd_gpio_set_input_pull(self, pin, pull_mode):
-        cmd_data = gpio_pb2.SetInputPull()
-        cmd_data.pin = pin
-        cmd_data.pull_mode = pull_mode
+        """ Set GPIO pill Input
 
-        return self._cmd_send_and_read_answer(cmd_data, "gpio_set_input_pull")
+        Parameters
+        ----------
+        pin : int or str
+            0 = 'PC0'
+            1 = 'PC1'
+            2 = 'PC3'
+            3 = 'PB2'
+            4 = 'PB3'
+            5 = 'PA4'
+            6 = 'PA6'
+            7 = 'PA7'
+
+        pull_mode : str
+            0 = 'NO'
+            1 = 'UP'
+            2 = 'DOWN'
+
+        Raises
+        ----------
+        InputTypeException
+        cmdException
+
+        """
+
+        cmd_data = gpio_pb2.SetInputPull()
+        if isinstance(pin, int):
+            cmd_data.pin = pin
+        else:
+            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+                raise InputTypeException("Invalid pin")
+            cmd_data.pin = gpio_pb2.getattr(pin)
+
+        if pull_mode not in ['NO', 'UP', 'DOWN']:
+            raise InputTypeException("Invalid pull_mode")
+        cmd_data.pull_mode = gpio_pb2.getattr(pull_mode)
+
+        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_input_pull")
+
+        if rep_data.command_status != 0:
+            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}")

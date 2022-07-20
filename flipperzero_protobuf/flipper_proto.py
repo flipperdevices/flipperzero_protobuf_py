@@ -17,4 +17,7 @@ __all__ = [ 'FlipperProto']
 
 class FlipperProto(FlipperProtoBase, FlipperProtoSys, FlipperProtoGpio,
                    FlipperProtoApp, FlipperProtoGui, FlipperProtoStorage):
+    """
+        Meta command class
+    """
     pass

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+# pylint: disable=line-too-long, no-member, too-many-branches, unused-import
 
 import os
 import sys
+import readline
+import shlex
 # import pprint
 
 
@@ -11,7 +14,6 @@ from .flipper_base import cmdException    # FlipperProtoBase
 from .flipper_proto import FlipperProto
 from .cli_helpers import print_screen
 
-# pylint: disable=line-too-long, no-member, too-many-branches
 _debug = 0
 
 class QuitException(Exception):
@@ -63,7 +65,6 @@ def main():
 
     if len(argv) == 0:
         print("Entering interactive mode")
-        import shlex
         interactive = True
 
     lineno = 1
@@ -74,6 +75,7 @@ def main():
                 print(f"{lineno} flipper> ", end="")
                 argv = shlex.split(input(), comments=True, posix=True)
                 if argv is None or len(argv) == 0:
+                    print()
                     continue
 
             lineno += 1
@@ -86,10 +88,11 @@ def main():
         except cmdException as e:
             print(e)
         except Exception as e:
-            print(e)
-        finally:
-            if interactive is not True:
-                return
+            print(f"Exception: {e}")
+        # finally:
+
+        if interactive is not True:
+            break
 
 
 def run_comm(flip, argv):
@@ -196,7 +199,7 @@ def do_list(flip, cmd, argv):
 
 
     while len(argv) > 0 and argv[0][0] in ["-", "?"]:
-        print(f"do_list argv0  {argv}")
+        # print(f"do_list argv0  {argv}")
         if argv[0] == "-l":
             long_format = True
             argv.pop(0)
@@ -416,21 +419,12 @@ def do_put_file(flip, cmd, argv):
         if not remote_filen.startswith('/'):
             remote_filen = '/ext/' + remote_filen
 
-        if _debug:
-            print("2:",  cmd, local_filen, remote_filen)
-
         stat_resp = flip.cmd_stat(remote_filen)
         if stat_resp['type'] == 'DIR':
             remote_filen = remote_filen + '/' + local_filen
 
-        if _debug:
-            print("3:",  cmd, local_filen, remote_filen)
-
         with open(local_filen, 'rb') as fd:
             file_data = fd.read()
-
-        if _debug:
-            print("4:",  type(file_data))
 
         print(f"putting {len(file_data)} bytes")
         flip.cmd_write(remote_filen, file_data)

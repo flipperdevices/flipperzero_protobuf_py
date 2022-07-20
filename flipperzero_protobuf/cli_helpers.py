@@ -13,6 +13,9 @@ SCREEN_H = 128
 SCREEN_W = 64
 
 def print_screen(screen_bytes, dest=None):
+    """
+        convert screendump data into ascii or .pbm for format
+    """
     dat  = _dump_screen(screen_bytes)
 
     if dest is None:
@@ -37,6 +40,9 @@ def print_screen(screen_bytes, dest=None):
         raise cmdException("invalid filename")
 
 def _dump_screen(screen_bytes):
+    """
+        get screendump data
+    """
     # pylint: disable=multiple-statements
 
     data = screen_bytes
@@ -65,6 +71,9 @@ def _dump_screen(screen_bytes):
 
 
 def datetime2dict(dt=None):
+    """
+        convert datatime obj into type dict
+    """
 
     if dt is None:
         dt = datetime.datetime.now()
@@ -85,6 +94,9 @@ def datetime2dict(dt=None):
 
 
 def dict2datetime(d):
+    """
+        convert type dict into datatime obj
+    """
     tdict = d.copy()    # we dont want to destroy the caller's data
     del tdict['weekday']
     return datetime.datetime(**tdict)
