@@ -86,7 +86,7 @@ def main():
             print(_e)
             break
         except cmdException as e:
-            print(e)
+            print("cmdException", e)
         except Exception as e:
             print(f"Exception: {e}")
         # finally:
