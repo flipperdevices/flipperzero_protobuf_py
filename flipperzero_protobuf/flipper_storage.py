@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#import hashlib
+# import hashlib
 
 from google.protobuf.json_format import MessageToDict
 from .flipperzero_protobuf_compiled import storage_pb2
@@ -16,6 +16,22 @@ class FlipperProtoStorage():
     # BackupRestore
     # BackupCreate
     def cmd_read(self, path=None):
+        """ read file from flipperzero device
+
+        Parameters
+        ----------
+        path : str
+            path to file on flipper device
+
+        Returns
+        -------
+            bytes
+
+        Raises
+        ----------
+            cmdException
+
+        """
         print(f"\ncmd_read path={path}")
         storage_response = []
         cmd_data = storage_pb2.ReadRequest()
@@ -39,7 +55,20 @@ class FlipperProtoStorage():
         return b''.join(storage_response)
 
     def cmd_write(self, path=None, data=""):
+        """ write file from flipperzero device
 
+        Parameters
+        ----------
+        path : str
+            path to file on flipper device
+        data : bytes
+            data to write
+
+        Raises
+        ----------
+            cmdException
+
+        """
         if self._debug:
             print(f"\ncmd_write path={path}")
         cmd_data = storage_pb2.WriteRequest()
@@ -58,6 +87,22 @@ class FlipperProtoStorage():
         return rep_data.command_status
 
     def cmd_info(self, path=None):
+        """ get filesystem info
+
+        Parameters
+        ----------
+        path : str
+            path to filesystem
+
+        Returns:
+        ----------
+        dict
+
+        Raises
+        ----------
+            cmdException
+
+        """
 
         if path is None:
             raise ValueError("path can not be None")
@@ -77,6 +122,18 @@ class FlipperProtoStorage():
         return MessageToDict(message=rep_data.storage_info_response)
 
     def cmd_stat(self, path=None):
+        """ get info or file or directory file from flipperzero device
+
+        Parameters
+        ----------
+        path : str
+            path to file on flipper device
+
+        Raises
+        ----------
+            cmdException
+
+        """
         if path is None:
             raise ValueError("path can not be None")
 
@@ -91,7 +148,18 @@ class FlipperProtoStorage():
         return MessageToDict(message=rep_data.storage_stat_response.file)
 
     def cmd_md5sum(self, path=None):
+        """ get md5 of file
 
+        Parameters
+        ----------
+        path : str
+            path to file on flipper device
+
+        Raises
+        ----------
+            cmdException
+
+        """
         if self._debug:
             print(f"\ncmd_md5sum path={path}")
 
@@ -106,6 +174,18 @@ class FlipperProtoStorage():
         return rep_data.storage_md5sum_response.md5sum
 
     def cmd_mkdir(self, path=None):
+        """ creates a new directory
+
+        Parameters
+        ----------
+        path : str
+            path for ew directory on flipper device
+
+        Raises
+        ----------
+            cmdException
+
+        """
 
         if self._debug:
             print(f"\ncmd_mkdir path={path}")
@@ -123,6 +203,18 @@ class FlipperProtoStorage():
 
 
     def cmd_delete(self, path=None, recursive=False):
+        """ delete file or dir
+
+        Parameters
+        ----------
+        path : str
+            path to file or dir on flipper device
+
+        Raises
+        ----------
+            cmdException
+
+        """
 
         if self._debug:
             print(f"\ncmd_delete path={path} recursive={recursive}")
@@ -143,12 +235,28 @@ class FlipperProtoStorage():
         return rep_data.command_status
 
     def cmd_rename_file(self, old_path=None, new_path=None):
-        print(f"\ncmd_rename_file old_path={old_path} new_path={new_path}")
+        """ rename file or dir
+
+        Parameters
+        ----------
+        old_path : str
+            path to file or dir on flipper device
+        new_path : str
+            path to file or dir on flipper device
+
+        Raises
+        ----------
+            cmdException
+
+        """
+
+        if self._debug:
+            print(f"\ncmd_rename_file old_path={old_path} new_path={new_path}")
 
         cmd_data = storage_pb2.RenameRequest()
         cmd_data.old_path = old_path
         cmd_data.new_path = new_path
-        #pprint.pprint(MessageToDict(message=cmd_data, including_default_value_fields=True))
+        # pprint.pprint(MessageToDict(message=cmd_data, including_default_value_fields=True))
 
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_rename_request')
 
@@ -158,7 +266,22 @@ class FlipperProtoStorage():
         return rep_data.command_status
 
     def cmd_storage_list(self, data="/ext"):
-        """Storage List"""
+        """ get file & dir listing
+
+        Parameters
+        ----------
+        path : str
+            path to filesystem
+
+        Returns:
+        ----------
+        list
+
+        Raises
+        ----------
+            cmdException
+
+        """
         # print("f_code.co_name", sys._getframe().f_code.co_name)
         storage_response = []
         cmd_data = storage_pb2.ListRequest()
