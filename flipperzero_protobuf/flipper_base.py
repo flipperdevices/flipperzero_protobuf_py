@@ -54,7 +54,7 @@ class FlipperProtoBase:
                 print(f"{port}: {desc} [{hwid}]")
             if desc.startswith("Flipper"):
                 return port
-            #print("{}: {} [{}]".format(port, desc, hwid))
+            # print("{}: {} [{}]".format(port, desc, hwid))
 
         return None
 

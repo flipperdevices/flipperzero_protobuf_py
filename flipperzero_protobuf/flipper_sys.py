@@ -83,7 +83,7 @@ class FlipperProtoSys:
         cmd_data.mode = cmd_data.getattr(mode)
 
         # print(MessageToDict(message=cmd_data, including_default_value_fields=True))
-        #data = self._cmd_send(cmd_data, 'system_reboot_request')
+        # data = self._cmd_send(cmd_data, 'system_reboot_request')
         try:
             self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
         # except serial.serialutil.SerialException as _e:

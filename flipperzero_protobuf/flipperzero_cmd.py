@@ -20,7 +20,7 @@ class QuitException(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
-#class FlipperCMD(FlipperProtoBase, FlipperProtoStorage):
+# class FlipperCMD(FlipperProtoBase, FlipperProtoStorage):
 #    pass
 
 
@@ -28,26 +28,26 @@ commands_help = {
     "DF, INFO": "get FS info",
 
     "LS, LIST": "list files and dirs",
-    "RM, DEL, DELETE" : "delete file or dir",
-    "MD, MKDIR" : "creates a new directory",
-    "MV, RENAME" : "rename file or dir",
+    "RM, DEL, DELETE": "delete file or dir",
+    "MD, MKDIR": "creates a new directory",
+    "MV, RENAME": "rename file or dir",
 
-    "STAT" : "get info about file or dir",
+    "STAT": "get info about file or dir",
 
-    "CD, CHDIR" : "change local working directory",
+    "CD, CHDIR": "change local working directory",
     "PWD": "print local working directory",
 
-    "MD5, MD5SUM" : "md5 hash of the file",
+    "MD5, MD5SUM": "md5 hash of the file",
     "PUT, PUTFILE": "copy file to flipper",
     "GET, GETFILE": "copy file from flipper",
     "CAT": "read file to screen",
 
-    "PRINT-SCREEN":  "print ascii screendump",
+    "PRINT-SCREEN": "print ascii screendump",
 
-    "HELP, ?" : "print command list",
-    # "VERBOSE" : "set verbose",
-    # "ERROR" : "print last error",
-    "EXIT, QUIT" : "exit program",
+    "HELP, ?": "print command list",
+    # "VERBOSE": "set verbose",
+    # "ERROR": "print last error",
+    "EXIT, QUIT": "exit program",
 }
 
 
@@ -58,7 +58,7 @@ def main():
     # global rdir
     interactive = False
 
-    #proto = FlipperCMD()
+    # proto = FlipperCMD()
     proto = FlipperProto()
 
     argv = sys.argv[1:]
@@ -181,8 +181,8 @@ def do_print_screen(flip, cmd, argv):
     outf = None
     if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} [filename.pbm]\n"
-                 "\tfile has to end in .pbm\n"
-                 "\tif no file is given image is printed to stdout")
+                           "\tfile has to end in .pbm\n"
+                           "\tif no file is given image is printed to stdout")
 
     if argv:
         outf = argv.pop(0)
@@ -199,7 +199,7 @@ def do_list(flip, cmd, argv):
 
 
     while len(argv) > 0 and argv[0][0] in ["-", "?"]:
-        # print(f"do_list argv0  {argv}")
+        # print(f"do_list argv0 {argv}")
         if argv[0] == "-l":
             long_format = True
             argv.pop(0)
@@ -210,7 +210,7 @@ def do_list(flip, cmd, argv):
         elif argv[0] in ['-help', '?']:
             raise cmdException(f"Syntax :\n\t{cmd} [-l] [-m] <path>")
 
-    #if len(argv) > 0 and argv[0] == "-l":
+    # if len(argv) > 0 and argv[0] == "-l":
     #    long_format = True
     #    argv.pop(0)
 
@@ -227,7 +227,7 @@ def do_list(flip, cmd, argv):
         targ = targ.rstrip('/')
 
     flist = flip.cmd_storage_list(targ)
-    flist.sort(key = lambda x: (x['type'], x['name'].lower() ))
+    flist.sort(key=lambda x: (x['type'], x['name'].lower() ))
 
     if _debug:
         print("Storage List result: ", targ)
@@ -262,7 +262,7 @@ def do_list(flip, cmd, argv):
             else:
                 name = l['name']
 
-            if j % 4  == 1:
+            if j % 4 == 1:
                 endl = '\n'
 
             print(f"{name:<25s}", end=endl)
@@ -288,7 +288,7 @@ def do_rename(flip, cmd, argv):
     """
         rename file glue
     """
-    if ( len(argv) > 1  and argv[0] != "?" ):
+    if (len(argv) > 1 and argv[0] != "?" ):
         old_fn = argv.pop(0)
         new_fn = argv.pop(0)
 
@@ -400,7 +400,7 @@ def do_get_file(flip, cmd, argv):
 
 
 def do_put_file(flip, cmd, argv):
-    if ( len(argv) >= 1  and argv[0] != "?" ):
+    if (len(argv) >= 1 and argv[0] != "?"):
         local_filen = argv.pop(0)
         if argv:
             remote_filen = argv.pop(0)
@@ -473,7 +473,7 @@ def do_stat(flip, cmd, argv):
         print(f"stat_resp={stat_resp}")
 
 
-    #if stat_resp.get('commandId', 0) != 0:
+    # if stat_resp.get('commandId', 0) != 0:
     #    print(f"Error: {stat_resp['commandStatus']}")
     #    return
 

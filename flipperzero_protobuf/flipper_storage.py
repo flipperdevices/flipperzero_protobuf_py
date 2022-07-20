@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#import hashlib
+# import hashlib
 
 from google.protobuf.json_format import MessageToDict
 from .flipperzero_protobuf_compiled import storage_pb2
@@ -256,7 +256,7 @@ class FlipperProtoStorage():
         cmd_data = storage_pb2.RenameRequest()
         cmd_data.old_path = old_path
         cmd_data.new_path = new_path
-        #pprint.pprint(MessageToDict(message=cmd_data, including_default_value_fields=True))
+        # pprint.pprint(MessageToDict(message=cmd_data, including_default_value_fields=True))
 
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_rename_request')
 
