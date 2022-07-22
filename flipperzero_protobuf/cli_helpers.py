@@ -12,6 +12,7 @@ def print_hex(bytes_data):
 SCREEN_H = 128
 SCREEN_W = 64
 
+
 def print_screen(screen_bytes, dest=None):
     """
         convert screendump data into ascii or .pbm for format
@@ -39,15 +40,18 @@ def print_screen(screen_bytes, dest=None):
     else:
         raise cmdException("invalid filename")
 
+
 def _dump_screen(screen_bytes):
     """
         get screendump data
     """
     # pylint: disable=multiple-statements
 
-    data = screen_bytes
-    def get_bin(x): return format(x, '08b')
+    def get_bin(x):
+        return format(x, '08b')
+
     scr = numpy.zeros((SCREEN_H + 1, SCREEN_W + 1), dtype=int)
+    data = screen_bytes
 
     x = y = 0
     basey = 0
@@ -66,8 +70,6 @@ def _dump_screen(screen_bytes):
             x = 0
 
     return scr
-
-
 
 
 def datetime2dict(dt=None):
