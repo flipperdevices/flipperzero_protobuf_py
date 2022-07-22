@@ -9,7 +9,7 @@ Python API binding/wrappers for Flipper Zero protobuf protocol and command line 
 The command tool `flipperzero_cmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
 
-It is still a work in progress (Alpha) but is funtional
+It is still a work in progress (Alpha) but is functional
 
 ---
 
