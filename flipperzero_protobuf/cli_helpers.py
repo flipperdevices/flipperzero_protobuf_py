@@ -9,6 +9,7 @@ def print_hex(bytes_data):
     # print("".join('{:02x} '.format(x) for x in bytes_data))
     print("".join(f'{x:02x} ') for x in bytes_data)
 
+
 SCREEN_H = 128
 SCREEN_W = 64
 
