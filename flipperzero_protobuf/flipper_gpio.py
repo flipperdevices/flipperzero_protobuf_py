@@ -12,7 +12,8 @@
 from .flipperzero_protobuf_compiled import gpio_pb2
 from .flipper_base import cmdException, InputTypeException
 
-__all__ = [ 'FlipperProtoGpio' ]
+__all__ = ['FlipperProtoGpio']
+
 
 class FlipperProtoGpio:
     """
@@ -99,7 +100,7 @@ class FlipperProtoGpio:
 
         # gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[0].name
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin}")
+            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}")
 
         # return rep_data.gpio_get_pin_mode_response.mode
         return gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[rep_data.gpio_get_pin_mode_response.mode].name
@@ -147,7 +148,7 @@ class FlipperProtoGpio:
         rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
+            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
 
     # WritePin
     def cmd_gpio_write_pin(self, pin, value):
@@ -188,7 +189,7 @@ class FlipperProtoGpio:
         rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_write_pin")
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} value={value}")
+            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} value={value}")
 
     # ReadPin
     def cmd_gpio_read_pin(self, pin):
@@ -230,7 +231,7 @@ class FlipperProtoGpio:
         rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_read_pin")
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin}")
+            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}")
 
         return rep_data.read_pin_response.value
 
@@ -277,4 +278,4 @@ class FlipperProtoGpio:
         rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_input_pull")
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}")
+            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}")

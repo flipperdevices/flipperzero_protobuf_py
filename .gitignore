@@ -5,6 +5,8 @@ __pycache__/
 
 *--
 *---
+run_local
+
 # C extensions
 *.so
 

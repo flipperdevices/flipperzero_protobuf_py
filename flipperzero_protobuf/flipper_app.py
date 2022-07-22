@@ -5,7 +5,8 @@
 from .flipperzero_protobuf_compiled import application_pb2
 from .flipper_base import cmdException
 
-__all__ = [ 'FlipperProtoApp']
+__all__ = ['FlipperProtoApp']
+
 
 class FlipperProtoApp:
 
@@ -26,7 +27,7 @@ class FlipperProtoApp:
         data = self._cmd_send_and_read_answer(cmd_data, 'app_lock_status_request')
 
         if data.command_status != 0:
-            raise cmdException(self.values_by_number[data.command_status].name)
+            raise cmdException(self.Status_values_by_number[data.command_status].name)
 
         return data.app_lock_status_response.locked
 
@@ -49,7 +50,7 @@ class FlipperProtoApp:
         cmd_data.args = args
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'app_start_request')
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name}")
+            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppExit
     def cmd_app_exit(self):
@@ -63,7 +64,7 @@ class FlipperProtoApp:
         cmd_data = application_pb2.AppExitRequest()
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'app_exit_request')
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name}")
+            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppLoadFile
     def cmd_app_load_file(self, path):
@@ -72,7 +73,7 @@ class FlipperProtoApp:
         cmd_data.path = path
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'app_load_file_request')
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonPress
     def cmd_app_button_press(self, args):
@@ -81,8 +82,7 @@ class FlipperProtoApp:
         cmd_data.args = args
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'app_button_press_request')
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name} args={args}")
-
+            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonRelease
     def cmd_app_button_release(self):
@@ -92,4 +92,4 @@ class FlipperProtoApp:
         cmd_data = application_pb2.AppButtonReleaseRequest()
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'app_button_release_request')
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.values_by_number[rep_data.command_status].name}")
+            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)

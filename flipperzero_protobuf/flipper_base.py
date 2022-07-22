@@ -15,8 +15,9 @@ from google.protobuf.internal.encoder import _VarintBytes
 
 from .flipperzero_protobuf_compiled import flipper_pb2
 
-__all__ = [ 'Varint32Exception', 'InputTypeException', 'cmdException',
-            'FlipperProtoBase']
+__all__ = ['Varint32Exception', 'InputTypeException', 'cmdException',
+           'FlipperProtoBase']
+
 
 class Varint32Exception(Exception):
     pass
@@ -30,8 +31,8 @@ class cmdException(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
-class FlipperProtoBase:
 
+class FlipperProtoBase:
     def __init__(self, serial_port=None, debug=0):
 
         self.rdir = '/ext'
@@ -44,7 +45,7 @@ class FlipperProtoBase:
         else:
             self._serial = self._open_serial(serial_port)
 
-        self.values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
+        self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
     def _find_port(self):
 
@@ -90,7 +91,6 @@ class FlipperProtoBase:
         flipper.read_until(b'\n')
 
         return flipper
-
 
     def _read_varint_32(self):
         """Read varint from serial port"""

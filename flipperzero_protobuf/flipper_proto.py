@@ -12,7 +12,7 @@ from .flipper_sys import FlipperProtoSys
 
 # from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2, gpio_pb2
 
-__all__ = [ 'FlipperProto']
+__all__ = ['FlipperProto']
 
 
 class FlipperProto(FlipperProtoBase, FlipperProtoSys, FlipperProtoGpio,
@@ -20,4 +20,5 @@ class FlipperProto(FlipperProtoBase, FlipperProtoSys, FlipperProtoGpio,
     """
         Meta command class
     """
+    # pylint: disable=unnecessary-pass
     pass

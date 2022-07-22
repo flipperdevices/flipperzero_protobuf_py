@@ -16,6 +16,7 @@ from .cli_helpers import print_screen
 
 _debug = 0
 
+
 class QuitException(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
@@ -100,7 +101,7 @@ def run_comm(flip, argv):
 
     cmd = argv.pop(0).upper()
 
-    if cmd in ["LS", "LIST" ]:
+    if cmd in ["LS", "LIST"]:
         do_list(flip, cmd, argv)
 
     elif cmd in ["RM", "DEL", "DELETE"]:
@@ -179,7 +180,7 @@ def print_cmd_help(cmd_list=None):
 
 def do_print_screen(flip, cmd, argv):
     outf = None
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} [filename.pbm]\n"
                            "\tfile has to end in .pbm\n"
                            "\tif no file is given image is printed to stdout")
@@ -197,13 +198,12 @@ def do_list(flip, cmd, argv):
     long_format = False
     md5_format = False
 
-
     while len(argv) > 0 and argv[0][0] in ["-", "?"]:
         # print(f"do_list argv0 {argv}")
         if argv[0] == "-l":
             long_format = True
             argv.pop(0)
-        elif argv[0] in [ '-m', '-ml', '-lm' ]:
+        elif argv[0] in ['-m', '-ml', '-lm']:
             long_format = True
             md5_format = True
             argv.pop(0)
@@ -227,7 +227,7 @@ def do_list(flip, cmd, argv):
         targ = targ.rstrip('/')
 
     flist = flip.cmd_storage_list(targ)
-    flist.sort(key=lambda x: (x['type'], x['name'].lower() ))
+    flist.sort(key=lambda x: (x['type'], x['name'].lower()))
 
     if _debug:
         print("Storage List result: ", targ)
@@ -239,28 +239,28 @@ def do_list(flip, cmd, argv):
         sizetotal = 0
 
         print(f"{targ}:")
-        for l in flist:
-            if l['type'] == 'DIR':
-                # print(dir_fmt.format(l['name'])
-                print(f"{l['name']:<25s}\t   DIR")
+        for line in flist:
+            if line['type'] == 'DIR':
+                # print(dir_fmt.format(line['name'])
+                print(f"{line['name']:<25s}\t   DIR")
             else:
-                sizetotal += l['size']
+                sizetotal += line['size']
                 if md5_format:
-                    md5val = flip.cmd_md5sum(targ + '/' + l['name'])
-                    print(f"{l['name']:<25s}\t{l['size']:>6d}", md5val)
+                    md5val = flip.cmd_md5sum(targ + '/' + line['name'])
+                    print(f"{line['name']:<25s}\t{line['size']:>6d}", md5val)
                 else:
-                    print(f"{l['name']:<25s}\t{l['size']:>6d}")
+                    print(f"{line['name']:<25s}\t{line['size']:>6d}")
         print(f"Total Bytes: {sizetotal}")
     else:
         j = 1
-        for l in flist:
+        for line in flist:
             j += 1
             endl = ""
 
-            if l['type'] == 'DIR':
-                name = l['name'] + '/'
+            if line['type'] == 'DIR':
+                name = line['name'] + '/'
             else:
-                name = l['name']
+                name = line['name']
 
             if j % 4 == 1:
                 endl = '\n'
@@ -271,9 +271,8 @@ def do_list(flip, cmd, argv):
     # pprint.pprint(flist)
 
 
-
 def do_del(flip, cmd, argv):
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} file")
 
     targ = argv.pop(0)
@@ -288,7 +287,7 @@ def do_rename(flip, cmd, argv):
     """
         rename file glue
     """
-    if (len(argv) > 1 and argv[0] != "?" ):
+    if (len(argv) > 1 and argv[0] != "?"):
         old_fn = argv.pop(0)
         new_fn = argv.pop(0)
 
@@ -311,7 +310,7 @@ def do_rename(flip, cmd, argv):
 
 
 def do_mkdir(flip, cmd, argv):
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} file")
 
     targ = argv.pop(0)
@@ -326,7 +325,7 @@ def do_mkdir(flip, cmd, argv):
 
 def do_chdir(flip, cmd, argv):
     # pylint: disable=broad-except, unused-argument
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} <directory>")
 
     targ = argv.pop(0)
@@ -342,7 +341,7 @@ def do_chdir(flip, cmd, argv):
 
 
 def do_md5sum(flip, cmd, argv):
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} file")
 
     targ = argv.pop(0)
@@ -358,7 +357,7 @@ def do_md5sum(flip, cmd, argv):
 
 
 def do_cat_file(flip, cmd, argv):
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} file")
 
     remote_filen = argv.pop(0)
@@ -375,7 +374,7 @@ def do_cat_file(flip, cmd, argv):
 
 
 def do_get_file(flip, cmd, argv):
-    if ( len(argv) >= 1 and argv[0] != "?" ):
+    if (len(argv) >= 1 and argv[0] != "?"):
         remote_filen = argv.pop(0)
         if argv:
             local_filen = argv.pop(0)
@@ -389,7 +388,7 @@ def do_get_file(flip, cmd, argv):
             remote_filen = '/ext/' + remote_filen
 
         if _debug:
-            print( cmd, remote_filen, local_filen)
+            print(cmd, remote_filen, local_filen)
 
         read_resp = flip.cmd_read(remote_filen)
         print(f"getting {len(read_resp)} bytes")
@@ -408,7 +407,7 @@ def do_put_file(flip, cmd, argv):
             remote_filen = local_filen
 
         if _debug:
-            print( cmd, local_filen, remote_filen)
+            print(cmd, local_filen, remote_filen)
 
         if not os.path.exists(local_filen):
             print(f"can not open {local_filen}")
@@ -453,8 +452,9 @@ def do_info(flip, cmd, argv):
           f"totalSpace: {tspace}\nfreeSpace:  {fspace}\n"
           f"usedspace:  {tspace - fspace}\n")
 
+
 def do_stat(flip, cmd, argv):
-    if ( len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+    if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
         raise cmdException(f"Syntax :\n\t{cmd} file")
 
     targ = argv.pop(0)
@@ -472,11 +472,9 @@ def do_stat(flip, cmd, argv):
     if _debug:
         print(f"stat_resp={stat_resp}")
 
-
     # if stat_resp.get('commandId', 0) != 0:
     #    print(f"Error: {stat_resp['commandStatus']}")
     #    return
-
 
     if stat_resp['type'] == 'DIR':
         print(f"{targ:<25s}\t   DIR")
