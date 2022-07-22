@@ -83,7 +83,7 @@ class FlipperProtoStorage():
             cmdException
 
         """
-        print(f"\ncmd_read path={path}")
+
         storage_response = []
         cmd_data = storage_pb2.ReadRequest()
         cmd_data.path = path
@@ -124,16 +124,26 @@ class FlipperProtoStorage():
         cmd_data.path = path
 
         if isinstance(data, str):
-            cmd_data.file.data = data.encode()
-        else:
-            cmd_data.file.data = data
+            data = data.encode()
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_write_request')
+        chunk_size = 512
+        data_len = len(data)
+        command_id = self._get_command_id()
+        for chunk in range(0, data_len, chunk_size):
 
+            chunk_data = data[chunk: chunk + chunk_size]
+
+            cmd_data.file.data = chunk_data
+
+            if (chunk + chunk_size) < data_len:
+                self._cmd_send(cmd_data, 'storage_write_request', has_next=True, command_id=command_id)
+            else:
+                self._cmd_send(cmd_data, 'storage_write_request', has_next=False, command_id=command_id)
+                break
+
+        rep_data = self._cmd_read_answer()
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
-
-        return rep_data.command_status
 
     def cmd_info(self, path=None):
         """ get filesystem info
@@ -168,6 +178,23 @@ class FlipperProtoStorage():
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return MessageToDict(message=rep_data.storage_info_response)
+
+    def _cmd_stat(self, path=None):
+        """
+        stat without cmdException
+        """
+
+        print(f"\n_cmd_stat path={path}")
+
+        cmd_data = storage_pb2.StatRequest()
+        cmd_data.path = path
+
+        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_stat_request')
+
+        if rep_data.command_status != 0:
+            return None
+
+        return MessageToDict(message=rep_data.storage_stat_response.file)
 
     def cmd_stat(self, path=None):
         """ get info or file or directory file from flipperzero device

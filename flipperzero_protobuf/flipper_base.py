@@ -7,9 +7,7 @@ import os
 import serial
 import serial.tools.list_ports
 
-# from nis import match
 from google.protobuf.internal.encoder import _VarintBytes
-# from numpy import mat
 
 # pylint: disable=line-too-long, no-member
 
@@ -37,6 +35,8 @@ class FlipperProtoBase:
 
         self.rdir = '/ext'
 
+        # self.info = {}
+
         self._debug = debug
 
         self._command_id = 0
@@ -59,7 +59,7 @@ class FlipperProtoBase:
 
         return None
 
-    def _open_serial(self, dev=None):
+    def _open_serial(self, dev=None):   # get_startup_info=False):
 
         serial_dev = dev or self._find_port()
 
@@ -85,6 +85,20 @@ class FlipperProtoBase:
 
         # wait for prompt
         flipper.read_until(b'>: ')
+
+        # cache some data
+        # if get_startup_info:
+        #     flipper.write(b"!\r\r")
+        #     while True:
+        #
+        #         r = flipper.readline().decode('utf-8')
+        #
+        #         if r.startswith('>: '):
+        #             break
+        #
+        #         if len(r) > 5:
+        #             k, v = r.split(':')
+        #             self.info[k.strip()] = v.strip()
 
         # send command and skip answer
         flipper.write(b"start_rpc_session\r")
@@ -117,10 +131,14 @@ class FlipperProtoBase:
         result = self._command_id
         return result
 
-    def _cmd_send(self, cmd_data, cmd_name, has_next=False):
+    def _cmd_send(self, cmd_data, cmd_name, has_next=None, command_id=None):
         """Send command"""
         flipper_message = flipper_pb2.Main()
-        flipper_message.command_id = self._get_command_id()
+        if command_id is None:
+            flipper_message.command_id = self._get_command_id()
+        else:
+            flipper_message.command_id = command_id
+
         flipper_message.command_status = flipper_pb2.CommandStatus.Value('OK')
         flipper_message.has_next = has_next
         getattr(flipper_message, cmd_name).CopyFrom(cmd_data)
@@ -128,9 +146,9 @@ class FlipperProtoBase:
                                       ) + flipper_message.SerializeToString())
         self._serial.write(data)
 
-    def _cmd_send_and_read_answer(self, cmd_data, cmd_name, has_next=False):
+    def _cmd_send_and_read_answer(self, cmd_data, cmd_name, has_next=False, command_id=None):
         """Send command and read answer"""
-        self._cmd_send(cmd_data, cmd_name, has_next)
+        self._cmd_send(cmd_data, cmd_name, has_next=has_next, command_id=command_id)
         return self._cmd_read_answer()
 
     def _cmd_read_answer(self, command_id=None):
