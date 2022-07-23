@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import hashlib
 import numpy
 
 from .flipper_base import cmdException
@@ -15,13 +16,20 @@ SCREEN_H = 128
 SCREEN_W = 64
 
 
+def calc_file_md5(fname):
+    with open(fname, 'rb') as fd:
+        hsum = hashlib.md5(fd.read()).hexdigest()
+
+    return hsum
+
+
 def print_screen(screen_bytes, dest=None):
     """
         convert screendump data into ascii or .pbm for format
     """
     dat = _dump_screen(screen_bytes)
 
-    if dest is None:
+    if dest is None:     # maybe also .txt files ?
         for y in range(0, SCREEN_W, 2):
             for x in range(1, SCREEN_H + 1):
                 if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
@@ -34,11 +42,17 @@ def print_screen(screen_bytes, dest=None):
                     print(' ', end='')
             print()
 
-    elif dest.endswith('.pbm'):
+    elif dest.endswith('.pbm'):    # Black & White bitmap in simple Netpbm format
         with open(dest, "w", encoding="utf-8") as fd:
             print(f"P1\n{SCREEN_H + 1} {SCREEN_W}", file=fd)
             for y in range(0, SCREEN_W):
                 print(numpy.array2string(dat[:, y], max_line_width=300)[1:-1], file=fd)
+    elif dest.endswith('.ppm'):    # Orange and Black color RGB image stored in PPM format
+        with open(dest, "w", encoding="utf-8") as fd:
+            print(f"P3\n{SCREEN_H + 1} {SCREEN_W}\n255", file=fd)
+            for y in range(0, SCREEN_W):
+                print(" ".join(['255 165 000' if c == '1' else '000 000 000' for c in dat[:, y]]))
+
     else:
         raise cmdException("invalid filename")
 
@@ -72,6 +86,23 @@ def _dump_screen(screen_bytes):
             x = 0
 
     return scr
+
+
+def flipper_tree_walk(dpath, proto):
+    list_resp = proto.cmd_storage_list(dpath)
+    dlist = []
+    flist = []
+
+    for li in list_resp:
+        if li['type'] == "DIR":
+            dlist.append(li['name'])
+        else:
+            flist.append(li['name'])
+
+    # print(dlist)
+    yield dpath, dlist, flist
+    for d in dlist:
+        yield from flipper_tree_walk(dpath + '/' + d, proto)
 
 
 def datetime2dict(dt=None):
