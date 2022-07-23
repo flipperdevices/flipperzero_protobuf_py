@@ -4,7 +4,7 @@
 Python API binding/wrappers for Flipper Zero protobuf protocol and command line tool
 
 ---
-### flipperzero_cmd 
+### flipperzero_cmd ###
 
 The command tool `flipperzero_cmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
@@ -13,8 +13,10 @@ It is still a work in progress (Alpha) but is functional
 
 ---
 
-##### Command Line Examples #####
 
+### Command Line Examples ###
+
+List and manage files from command line
 ```
 $ flipperzero_cmd ls
 Using port /dev/cu.usbmodemflip_Unyana1
@@ -25,6 +27,7 @@ nfc/                     subghz/                  u2f/                     wav_p
 
 ```
 
+Copy single files to and fromFlipper device
 ```
 $ flipperzero_cmd put My_Home_TV.ir /ext/infrared
 Using port /dev/cu.usbmodemflip_UOhBaby
@@ -39,7 +42,7 @@ $ flipperzero_cmd put-tree subghz/samples /ext/subghz
 
 ```
 
-##### Interactive Command Mode Examples #####
+#### Interactive Command Mode Examples ####
 
 
 ```
@@ -76,7 +79,9 @@ Entering interactive mode
     HELP, ?                :	print command list
     DEBUG                  :	set or print current debug value
     EXIT, QUIT             :	exit program
+```
 
+```
 2 flipper> ls ?
 Syntax :
 	LS [-l] [-m] <path>
