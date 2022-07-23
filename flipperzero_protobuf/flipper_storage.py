@@ -39,7 +39,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_backup_create_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
     def cmd_BackupRestore(self, archive_path=None):
         """ Backup Restore
@@ -64,7 +64,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_backup_restore_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
+            raise cmdException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
     def cmd_read(self, path=None):
         """ read file from flipperzero device
@@ -91,7 +91,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_read_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         storage_response.append(rep_data.storage_read_response.file.data)
 
@@ -143,7 +143,7 @@ class FlipperProtoStorage():
 
         rep_data = self._cmd_read_answer()
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
     def cmd_info(self, path=None):
         """ get filesystem info
@@ -175,7 +175,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_info_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return MessageToDict(message=rep_data.storage_info_response)
 
@@ -184,7 +184,7 @@ class FlipperProtoStorage():
         stat without cmdException
         """
 
-        print(f"\n_cmd_stat path={path}")
+        # print(f"_cmd_stat path={path}")
 
         cmd_data = storage_pb2.StatRequest()
         cmd_data.path = path
@@ -194,7 +194,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             return None
 
-        return MessageToDict(message=rep_data.storage_stat_response.file)
+        return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
     def cmd_stat(self, path=None):
         """ get info or file or directory file from flipperzero device
@@ -218,9 +218,9 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_stat_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
-        return MessageToDict(message=rep_data.storage_stat_response.file)
+        return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
     def cmd_md5sum(self, path=None):
         """ get md5 of file
@@ -244,11 +244,20 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_md5sum_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return rep_data.storage_md5sum_response.md5sum
 
-    def cmd_mkdir(self, path=None):
+    def _mkdir_path(self, path):
+
+        if self._debug:
+            print(f"\n_mkdir_path path={path}")
+        cmd_data = storage_pb2.MkdirRequest()
+        cmd_data.path = path
+        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_mkdir_request')
+        return rep_data.command_status
+
+    def cmd_mkdir(self, path):
         """ creates a new directory
 
         Parameters
@@ -271,7 +280,13 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_mkdir_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+
+    def _cmd_delete(self, path=None, recursive=False):
+        cmd_data = storage_pb2.DeleteRequest()
+        cmd_data.path = path
+        cmd_data.recursive = recursive
+        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_delete_request')
 
         return rep_data.command_status
 
@@ -303,9 +318,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_delete_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
-
-        return rep_data.command_status
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
     def cmd_rename_file(self, old_path=None, new_path=None):
         """ rename file or dir
@@ -334,7 +347,7 @@ class FlipperProtoStorage():
         rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_rename_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} old_path={old_path} new_path={new_path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} old_path={old_path} new_path={new_path}")
 
         return rep_data.command_status
 
@@ -360,7 +373,7 @@ class FlipperProtoStorage():
         cmd_data = storage_pb2.ListRequest()
 
         cmd_data.path = path
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_list_request', has_next=True)
+        rep_data = self._cmd_send_and_read_answer(cmd_data, 'storage_list_request')   # has_next=True)
 
         if self._debug > 3:
             for i in rep_data.storage_list_response.file:
@@ -370,7 +383,7 @@ class FlipperProtoStorage():
                 print('+>', i.SerializeToString())
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         storage_response.extend(MessageToDict(message=rep_data.storage_list_response, including_default_value_fields=True)['file'])
 

@@ -12,7 +12,7 @@ import shlex
 from .flipper_base import cmdException    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 from .flipper_proto import FlipperProto
-from .cli_helpers import print_screen
+from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
 
 _DEBUG = 0
 
@@ -34,15 +34,23 @@ COMMANDS_HELP = {
     "PWD": "print local working directory",
 
     "MD5, MD5SUM": "md5 hash of the file",
+
     "PUT, PUTFILE": "copy file to flipper",
+    "PUT-TREE": "copy directory tree to flipper",
+
     "GET, GETFILE": "copy file from flipper",
+    "GET-TREE": "copy directory tree from flipper",
+
     "CAT": "read file to screen",
 
-    "PRINT-SCREEN": "print ascii screendump",
+    "PRINT-SCREEN": "screendump in ascii or PBM format",
 
-    "RCD": "change current directory on flipper",
+    "RCD, RCHDIR": "change current directory on flipper",
+
+    "HISTORY": "print command History",
 
     "HELP, ?": "print command list",
+
     # "VERBOSE": "set verbose",
     "DEBUG": "set or print current debug value",
 
@@ -59,17 +67,27 @@ class FlipperCMD:
 
     commands_help = COMMANDS_HELP
 
-    def __init__(self, proto=None, debug=_DEBUG):
+    def __init__(self, proto=None, debug=_DEBUG, verbose=0):
 
         if proto is None:
             self.flip = FlipperProto()
 
         self.rdir = '/ext'
+        self.prevError = 'OK'
+        # self.cmdHistory = []
+
+        # for i in range(50):
+        #    self.cmdHistory.append( f"history {i}")
 
         self.debug = debug
+        self.flip._debug = self.debug
+        self.verbose = verbose
 
+    # TODO:  Convert this into a dict lookup
     def run_comm(self, argv):
-        # global verbose
+
+        # self.cmdHistory.append(" ".join(argv))
+        # print(f"hist len={len(self.cmdHistory)}")
 
         cmd = argv.pop(0).upper()
 
@@ -77,6 +95,9 @@ class FlipperCMD:
             self.do_list(cmd, argv)
 
         elif cmd in ["RM", "DEL", "DELETE"]:
+            self.do_del(cmd, argv)
+
+        elif cmd in ["RM-TREE", "DEL-TRE", "DELTREE"]:
             self.do_del(cmd, argv)
 
         elif cmd in ["MV", "RENAME"]:
@@ -94,8 +115,14 @@ class FlipperCMD:
         elif cmd in ["GET", "GETFILE"]:
             self.do_get_file(cmd, argv)
 
+        elif cmd in ["GET-TREE", "GETTREE"]:
+            self.do_get_tree(cmd, argv)
+
         elif cmd in ["PUT", "PUTFILE"]:
             self.do_put_file(cmd, argv)
+
+        elif cmd in ["PUT-TREE", "PUTTREE"]:
+            self.do_put_tree(cmd, argv)
 
         elif cmd in ["STAT"]:
             self.do_stat(cmd, argv)
@@ -112,10 +139,15 @@ class FlipperCMD:
         elif cmd in ["PRINT-SCREEN"]:
             self.do_print_screen(cmd, argv)
 
-        elif cmd in ["RCD"]:
-            self.set_rdir(cmd, argv)
+        elif cmd in ["RCD", "RCHDIR"]:
+            print(self.rdir)
 
-        elif cmd in ["DEBUG"]:
+        # elif cmd in ["RPWD", "RWD"]:
+
+        elif cmd in ["HISTORY", "HIST"]:
+            self.print_cmd_hist(cmd, argv)
+
+        elif cmd in ["DEBUG", "SET-DEBUG", "GET=DEBUG"]:
             self.set_debug(cmd, argv)
 
         elif cmd in ["QUIT", "EXIT"]:
@@ -135,7 +167,37 @@ class FlipperCMD:
         # print "\nFor more detail on command run command with arg '?'"
         # print "\n* == may not be implemented\n"
 
+    def print_cmd_hist(self, cmd, argv):
+
+        show_count = 20
+
+        if argv:
+            if argv[0].upper() in ['?', 'HELP']:
+                raise cmdException(f"Syntax :\n\t{cmd} [count]\n"
+                                   "\tprint command history")
+
+            if argv[0].lstrip('-').isdigit():
+                show_count = int(argv[0].lstrip('-'))
+
+        # show_count = show_count * -1
+
+        start_at = readline.get_current_history_length() - show_count
+        print(f"{start_at} = {readline.get_current_history_length()} - {show_count}")
+        start_at = max(start_at, 0)
+
+        print(f"show_count={show_count} start_at={start_at}")
+        # for hist in self.cmdHistory[start_at:]:
+        #    print(f"   {hist}")
+
+        for i in range(start_at, readline.get_current_history_length()):
+            print(str(readline.get_history_item(i + 1)))
+
+    # pylint: disable=protected-access
     def set_debug(self, cmd, argv):
+        """
+            DEBUG: [DEBUG_LEVEL]\n"
+                  "\tshows current level if no arg is given")
+        """
         if len(argv) < 1:
             print(f"DEBUG = {self.debug}")
             return
@@ -158,6 +220,8 @@ class FlipperCMD:
         else:
             print(f"{cmd}: unknown option: {opt}")
 
+        self.flip._debug = self.debug
+
     # pylint: disable=protected-access
     def set_rdir(self, cmd, argv):
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
@@ -169,7 +233,7 @@ class FlipperCMD:
         if remdir.startswith('/'):
             newdir = remdir
         else:
-            newdir = os.path.abspath(self.rdir + '/' + remdir)
+            newdir = os.path.normpath(self.rdir + '/' + remdir)
 
         if newdir in ['/', '/ext', '/int']:
             self.rdir = newdir
@@ -237,7 +301,7 @@ class FlipperCMD:
 
         if not targ.startswith('/'):
             # targ = '/ext/' + targ
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
         if len(targ) > 1:
             targ = targ.rstrip('/')
@@ -288,31 +352,41 @@ class FlipperCMD:
         # pprint.pprint(flist)
 
     def do_del(self, cmd, argv):
-        if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
-            raise cmdException(f"Syntax :\n\t{cmd} file")
+        """ DEL <file>
+        Delete file of directory on flipper device
+        """
+        error_str = f"Syntax :\n\t{cmd} file"
+        if not argv or argv[0] == '?':
+            raise cmdException(error_str)
 
-        targ = argv.pop(0)
+        recursive = False
+        if argv and argv[0] in ['-r', '-R']:
+            argv.pop(0)
+            recursive = True
+
+        if argv:
+            targ = argv.pop(0).rstrip('/')
+        else:
+            raise cmdException(error_str)
+
         if not targ.startswith('/'):
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
-        del_resp = self.flip.cmd_delete(targ)
-
-        if self.debug:
-            print(f"del_resp={del_resp}")
+        self.flip.cmd_delete(targ, recursive=recursive)
 
     def do_rename(self, cmd, argv):
-        """
-            rename file glue
+        """ RENAME <old_name> <new_name>
+            renames or move file on flipper device
         """
         if (len(argv) > 1 and argv[0] != "?"):
             old_fn = argv.pop(0)
             new_fn = argv.pop(0)
 
             if not old_fn.startswith('/'):
-                old_fn = os.path.abspath(self.rdir + '/' + old_fn)
+                old_fn = os.path.normpath(self.rdir + '/' + old_fn)
 
             if not new_fn.startswith('/'):
-                new_fn = os.path.abspath(self.rdir + '/' + new_fn)
+                new_fn = os.path.normpath(self.rdir + '/' + new_fn)
 
             if self.debug:
                 print(cmd, old_fn, new_fn)
@@ -325,13 +399,28 @@ class FlipperCMD:
         else:
             raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")
 
+    def _mkdir_path(self, targ):
+        """Simplified mkdir"""
+
+        subpath = ""
+        for p in targ.split('/'):
+            if not p:
+                continue
+
+            subpath = subpath + '/' + p
+            self.flip._mkdir_path(subpath)
+
     def do_mkdir(self, cmd, argv):
+        """
+            MKDIR <directory>
+            Make directories on flipper device
+        """
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} file")
 
         targ = argv.pop(0)
         if not targ.startswith('/'):
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
         if self.debug:
             print(cmd, targ)
@@ -339,6 +428,10 @@ class FlipperCMD:
         self.flip.cmd_mkdir(targ)
 
     def do_chdir(self, cmd, argv):
+        """
+            CD  <directory>
+            Change local current directory
+        """
         # pylint: disable=broad-except, unused-argument
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} <directory>")
@@ -361,7 +454,7 @@ class FlipperCMD:
         targ = argv.pop(0)
 
         if not targ.startswith('/'):
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
         if self.debug:
             print(cmd, targ)
@@ -376,7 +469,7 @@ class FlipperCMD:
         remote_filen = argv.pop(0)
 
         if not remote_filen.startswith('/'):
-            remote_filen = os.path.abspath(self.rdir + '/' + remote_filen)
+            remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
         if self.debug:
             print(cmd, remote_filen)
@@ -384,6 +477,11 @@ class FlipperCMD:
         read_resp = self.flip.cmd_read(remote_filen)
         # print("cmd_read {len(read_resp)}")
         print(read_resp)
+
+    def _get_file(self, remote_filen, local_filen):
+        file_data = self.flip.cmd_read(remote_filen)
+        with open(local_filen, 'wb') as fd:
+            fd.write(file_data)
 
     def do_get_file(self, cmd, argv):
         if (len(argv) >= 1 and argv[0] != "?"):
@@ -397,53 +495,164 @@ class FlipperCMD:
                 local_filen = local_filen + "/" + os.path.basename(remote_filen)
 
             if not remote_filen.startswith('/'):
-                remote_filen = os.path.abspath(self.rdir + '/' + remote_filen)
+                remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
             if self.debug:
                 print(cmd, remote_filen, local_filen)
 
-            read_resp = self.flip.cmd_read(remote_filen)
-            print(f"getting {len(read_resp)} bytes")
+            file_data = self.flip.cmd_read(remote_filen)
+            # print(f"getting {len(file_data)} bytes")
             with open(local_filen, 'wb') as fd:
-                fd.write(read_resp)
+                fd.write(file_data)
         else:
             raise cmdException(f"Syntax :\n\t{cmd} <remote_filename> <local_filename>")
 
+    def _put_file(self, local_filen, remote_filen):
+        """Simplified put file """
+        with open(local_filen, 'rb') as fd:
+            file_data = fd.read()
+
+        self.flip.cmd_write(remote_filen, file_data)
+
     def do_put_file(self, cmd, argv):
-        if (len(argv) >= 1 and argv[0] != "?"):
-            local_filen = argv.pop(0)
-            if argv:
-                remote_filen = argv.pop(0)
-            else:
-                remote_filen = local_filen
+        if (len(argv) < 1 or argv[0] == "?"):
+            raise cmdException(f"Syntax :\n\t{cmd} <local_file> <remote_file_or_dir>")
 
-            if self.debug:
-                print(cmd, local_filen, remote_filen)
-
-            if not os.path.exists(local_filen):
-                print(f"can not open {local_filen}")
-            elif os.path.isdir(local_filen):
-                print(f"Is a directory  {local_filen}")
-                return
-
-            if not remote_filen.startswith('/'):
-                remote_filen = os.path.abspath(self.rdir + '/' + remote_filen)
-
-            stat_resp = self.flip._cmd_stat(remote_filen)
-            # print("stat_resp=",stat_resp)
-            if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
-                remote_filen = remote_filen + '/' + local_filen
-
-            # print(cmd, local_filen, remote_filen)
-
-            with open(local_filen, 'rb') as fd:
-                file_data = fd.read()
-
-            print(f"putting {len(file_data)} bytes")
-            self.flip.cmd_write(remote_filen, file_data)
-
+        local_filen = argv.pop(0)
+        if argv:
+            remote_filen = argv.pop(0)
         else:
-            raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")
+            remote_filen = local_filen
+
+        if self.debug:
+            print(cmd, local_filen, remote_filen)
+
+        if not os.path.exists(local_filen):
+            print(f"can not open {local_filen}")
+        elif os.path.isdir(local_filen):
+            print(f"Is a directory  {local_filen}")
+            return
+
+        if not remote_filen.startswith('/'):
+            remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
+
+        stat_resp = self.flip._cmd_stat(remote_filen)
+        # print("stat_resp=", stat_resp)
+        if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
+            remote_filen = remote_filen + '/' + local_filen
+
+        # print(cmd, local_filen, remote_filen)
+
+        with open(local_filen, 'rb') as fd:
+            file_data = fd.read()
+
+        print(f"putting {len(file_data)} bytes")
+        self.flip.cmd_write(remote_filen, file_data)
+
+    def do_put_tree(self, cmd, argv):
+
+        excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
+        check_md5 = False
+
+        syntax_str = f"Syntax :\n\t{cmd} [-md5] <local_directory> <remote_destination>"
+        if (len(argv) < 2 or argv[0] in ["?", "help"]):
+            raise cmdException(syntax_str)
+
+        if (len(argv) > 2) and argv[0].upper() in ['-M', '-MD5']:
+            argv.pop(0)
+            check_md5 = True
+
+        if len(argv) < 2:
+            raise cmdException(syntax_str)
+        local_dir = argv.pop(0)
+        remote_dir = argv.pop(0)
+
+        if not remote_dir.startswith('/'):
+            remote_dir = os.path.normpath(self.rdir + '/' + remote_dir)
+
+        if not os.path.isdir(local_dir):
+            raise cmdException(f"{syntax_str}\n\t{local_dir}: not a directory")
+
+        local_dir_full = os.path.abspath(local_dir)
+        local_dir_targ = os.path.split(local_dir_full)[1]
+        # remote_dir_targ = os.path.split(remote_dir)[1]
+
+        # if local_dir.endswith('/') or local_dir_targ == remote_dir_targ:
+
+        remote_dir = remote_dir + '/' + local_dir_targ
+        stat_resp = self.flip._cmd_stat(remote_dir)
+
+        if stat_resp is not None and stat_resp.get('type', "") == 'FILE':
+            raise cmdException(f"{syntax_str}\n\t{remote_dir}: exists as a file")
+
+        local_dir_len = len(local_dir_full)
+        for ROOT, dirs, FILES in os.walk(local_dir_full, topdown=True):
+            dirs[:] = [de for de in dirs if de not in excludes and de[0] != '.' and '+' not in de]
+            FILES[:] = [de for de in FILES if de not in excludes and de[0] != '.']
+
+            dt = ROOT[local_dir_len:]
+
+            # print(f"\nROOT = {ROOT} {dt}")
+
+            # t_size = 0
+
+            remdir = os.path.normpath(remote_dir + '/' + dt)
+
+            for d in dirs:
+                if self.debug:
+                    print(f"mkdir {remdir}/{d}")
+                self._mkdir_path(f"{remdir}/{d}")
+            for f in FILES:
+                # if not f.isalnum() or '+' in f:
+                #    continue
+                if self.debug:
+                    print(f"copy {ROOT} / {f} -> {remdir} / {f}")
+                try:
+                    self._put_file(f"{ROOT}/{f}", f"{remdir}/{f}")
+                except cmdException as e:
+                    print(f"{remdir}/{f} : {e} : SKIPPING")
+                    continue
+                # t_size += os.path.getsize(f"{ROOT}/{f}")
+
+                if check_md5:
+                    hash1 = calc_file_md5(f"{ROOT}/{f}")
+                    hash2 = self.flip.cmd_md5sum(f"{remdir}/{f}")
+                    if hash2 != hash1:
+                        print("MD5 mismatch: {remdir}/{f}")
+                        print(f"{hash1} <-> {hash2}")
+
+            # print(f"Total: {t_size}")
+
+    def do_get_tree(self, cmd, argv):
+
+        syntax_str = f"Syntax :\n\t{cmd} <local_directory> <remote_destination>"
+        remote_dir = argv.pop(0)
+        local_dir = argv.pop(0)
+
+        if not remote_dir.startswith('/'):
+            remote_dir_full = os.path.normpath(self.rdir + '/' + remote_dir)
+        else:
+            remote_dir_full = remote_dir
+
+        stat_resp = self.flip._cmd_stat(remote_dir_full)
+        if stat_resp is None or stat_resp.get('type', "") == 'FILE':
+            raise cmdException(f"{syntax_str}\n\t{remote_dir}: is a file, expected directory")
+
+        remote_dir_len = len(remote_dir_full)
+        for ROOT, dirs, FILES in flipper_tree_walk(remote_dir_full, self.flip):
+
+            dt = ROOT[remote_dir_len:]
+            locdir = os.path.normpath(local_dir + '/' + dt)
+
+            for d in dirs:
+                if self.debug:
+                    print(f"mkdir {locdir} / {d}")
+                os.makedirs(f"{locdir}/{d}")
+
+            for f in FILES:
+                if self.debug:
+                    print(f"copy {ROOT} / {f} -> {locdir} / {f}")
+                self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
     def do_info(self, _cmd, argv):
         targ = '/ext'
@@ -452,7 +661,7 @@ class FlipperCMD:
             targ = argv.pop(0)
 
         if not targ.startswith('/'):
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
         # if self.debug:
 
@@ -473,7 +682,7 @@ class FlipperCMD:
         targ = argv.pop(0)
 
         if not targ.startswith('/'):
-            targ = os.path.abspath(self.rdir + '/' + targ)
+            targ = os.path.normpath(self.rdir + '/' + targ)
 
         targ = targ.rstrip('/')
 
@@ -489,7 +698,7 @@ class FlipperCMD:
         #    print(f"Error: {stat_resp['commandStatus']}")
         #    return
 
-        if stat_resp['type'] == 'DIR':
+        if stat_resp.get('type', "") == 'DIR':
             print(f"{targ:<25s}\t   DIR")
         else:
             print(f"{targ:<25s}\t{stat_resp['size']:>6d}")
@@ -514,8 +723,9 @@ def main():
         try:
 
             if interactive is True:
-                print(f"{fcmd.rdir} flipper> ", end="")
-                argv = shlex.split(input(), comments=True, posix=True)
+                # print(f"{fcmd.rdir} flipper> ", end="")
+                prompt = f"{fcmd.rdir} flipper> "
+                argv = shlex.split(input(prompt), comments=True, posix=True)
                 if argv is None or len(argv) == 0:
                     print()
                     continue
@@ -525,7 +735,7 @@ def main():
 
         except (EOFError, fcmd.QuitException, KeyboardInterrupt) as _e:
             interactive = False
-            print(_e)
+            # print(_e)
             break
         except cmdException as e:
             print("cmdException", e)

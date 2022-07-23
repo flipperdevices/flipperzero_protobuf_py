@@ -9,7 +9,7 @@ Python API binding/wrappers for Flipper Zero protobuf protocol and command line 
 The command tool `flipperzero_cmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
 
-It is still a work in progress (Alpha) but is funtional
+It is still a work in progress (Alpha) but is functional
 
 ---
 
@@ -33,6 +33,12 @@ putting 206 bytes
 
 ```
 
+Copy directory tree to Flipper device
+```
+$ flipperzero_cmd put-tree subghz/samples /ext/subghz
+
+```
+
 ##### Interactive Command Mode Examples #####
 
 
@@ -43,19 +49,32 @@ Entering interactive mode
 
 1 flipper> help
     DF, INFO               :	get FS info
+
     LS, LIST               :	list files and dirs
     RM, DEL, DELETE        :	delete file or dir
     MD, MKDIR              :	creates a new directory
     MV, RENAME             :	rename file or dir
+
     STAT                   :	get info about file or dir
     CD, CHDIR              :	change local working directory
     PWD                    :	print local working directory
+
     MD5, MD5SUM            :	md5 hash of the file
+
     PUT, PUTFILE           :	copy file to flipper
+    PUT-TREE               :	copy directory tree to flipper
     GET, GETFILE           :	copy file from flipper
+    GET-TREE               :	copy directory tree from flipper
+
     CAT                    :	read file to screen
-    PRINT-SCREEN           :	print ascii screendump
+
+    PRINT-SCREEN           :	screendump in ascii or PBM format
+
+    RCD, RCHDIR            :	change current directory on flipper
+
+    HISTORY                :	print command History
     HELP, ?                :	print command list
+    DEBUG                  :	set or print current debug value
     EXIT, QUIT             :	exit program
 
 2 flipper> ls ?

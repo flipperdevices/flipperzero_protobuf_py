@@ -153,6 +153,7 @@ class FlipperProtoBase:
 
     def _cmd_read_answer(self, command_id=None):
         """Read answer from serial port and filter by command id"""
+        # message->DebugString()
         if command_id is None:
             command_id = self._command_id
 
