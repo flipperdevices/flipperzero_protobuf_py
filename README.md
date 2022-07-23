@@ -82,11 +82,20 @@ Entering interactive mode
 ```
 
 ```
-2 flipper> ls ?
+/ext flipper> ls
+.Spotlight-V100/         .Trashes/                apps/                    badusb/
+dolphin/                 elf/                     ibutton/                 infrared/
+lfrfid/                  music_player/            nfc/                     subghz/
+u2f/                     wav_player/              .metadata_never_index    favorites.txt
+Manifest                 rwfiletest.bin
+```
+
+```
+/ext flipper> ls ?
 Syntax :
 	LS [-l] [-m] <path>
     
-3 flipper> ls -lm
+/ext flipper> ls -lm
 Storage List result:  /ext
 .Spotlight-V100          	   DIR
 .Trashes                 	   DIR
@@ -108,7 +117,14 @@ Manifest                 	 16871 c74a84dea8d644198d27755313942614
 rwfiletest.bin           	 16384 3df67097cee5e4cea36e0f941c134ffc
 Total Bytes: 33348
 
-3 flipper> quit
+/ext flipper> rcd infrared/
+remote directory = /ext/infrared 
+
+/ext/infrared flipper> ls
+assets/                  IRDB/                    Sanyo/                   TV_Philips/
+Minolta.ir               My_Home_TV.ir
+
+/ext/infrared flipper> quit
 Quit interactive mode
 ```
 
