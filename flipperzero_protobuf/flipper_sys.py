@@ -75,7 +75,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} update_manifest={update_manifest}")
 
     # Reboot
-    def cmd_Repoot(self, mode=0):
+    def cmd_Reboot(self, mode=0):
         """ Reboot flipper
 
         Parameters
