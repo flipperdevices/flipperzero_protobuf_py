@@ -1,10 +1,10 @@
+## class FlipperProto ##
 
-### Application Calls ###
+### [Application Calls](flipper_app.py) ###
 ---
 
 cmd_LockStatus()
 > Get LockScreen Status
-
 
 cmd_app_start(name, args)
 > Start/Run application
@@ -22,7 +22,7 @@ cmd_app_button_release()
 > Send button release command to app
 
 
-### GPIO Calls ###
+### [GPIO Calls](flipper_gui.py) ###
 ---
 
 cmd_gpio_get_pin_mode(pin)
@@ -40,7 +40,8 @@ cmd_gpio_read_pin(pin)
 cmd_gpio_set_input_pull(pin, pull_mode)
 > Set GPIO pill Input
 
-### GUI Calls ###
+### [GUI Calls](flipper_gpio.py)  ###
+---
 
 cmd_start_virtual_display(data)
 > Start Virtual Display
@@ -60,8 +61,8 @@ cmd_gui_send_input_event_request(key, itype)
 cmd_gui_send_input(key_arg)
 > Send Input Event Request Type
 
-
-### Storage Calls ###
+### [Storage Calls](flipper_storage.py) ###
+---
 
 cmd_BackupCreate(archive_path)
 > Create Backup
@@ -96,7 +97,7 @@ cmd_rename_file(old_path, new_path)
 cmd_storage_list(path")
 > get file & dir listing
 
-### System Calls ###
+### [System Calls](flipper_sys.py) ###
 ---
 
 cmd_FactoryReset()
