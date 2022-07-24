@@ -4,7 +4,7 @@
 Python API binding/wrappers for Flipper Zero protobuf protocol and command line tool
 
 ---
-### flipperzero_cmd 
+### flipperzero_cmd ###
 
 The command tool `flipperzero_cmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
@@ -13,8 +13,10 @@ It is still a work in progress (Alpha) but is functional
 
 ---
 
-##### Command Line Examples #####
 
+### Command Line Examples ###
+
+List and manage files from command line
 ```
 $ flipperzero_cmd ls
 Using port /dev/cu.usbmodemflip_Unyana1
@@ -25,6 +27,7 @@ nfc/                     subghz/                  u2f/                     wav_p
 
 ```
 
+Copy single files to fromFlipper device
 ```
 $ flipperzero_cmd put My_Home_TV.ir /ext/infrared
 Using port /dev/cu.usbmodemflip_UOhBaby
@@ -39,7 +42,7 @@ $ flipperzero_cmd put-tree subghz/samples /ext/subghz
 
 ```
 
-##### Interactive Command Mode Examples #####
+#### Interactive Command Mode Examples ####
 
 
 ```
@@ -47,7 +50,7 @@ $ flipperzero_cmd
 Using port /dev/cu.usbmodemflip_UOhBaby
 Entering interactive mode
 
-1 flipper> help
+/ext flipper> help
     DF, INFO               :	get FS info
 
     LS, LIST               :	list files and dirs
@@ -76,12 +79,23 @@ Entering interactive mode
     HELP, ?                :	print command list
     DEBUG                  :	set or print current debug value
     EXIT, QUIT             :	exit program
+```
 
-2 flipper> ls ?
+```
+/ext flipper> ls
+.Spotlight-V100/         .Trashes/                apps/                    badusb/
+dolphin/                 elf/                     ibutton/                 infrared/
+lfrfid/                  music_player/            nfc/                     subghz/
+u2f/                     wav_player/              .metadata_never_index    favorites.txt
+Manifest                 rwfiletest.bin
+```
+
+```
+/ext flipper> ls ?
 Syntax :
 	LS [-l] [-m] <path>
     
-3 flipper> ls -lm
+/ext flipper> ls -lm
 Storage List result:  /ext
 .Spotlight-V100          	   DIR
 .Trashes                 	   DIR
@@ -103,7 +117,14 @@ Manifest                 	 16871 c74a84dea8d644198d27755313942614
 rwfiletest.bin           	 16384 3df67097cee5e4cea36e0f941c134ffc
 Total Bytes: 33348
 
-3 flipper> quit
+/ext flipper> rcd infrared/
+remote directory = /ext/infrared 
+
+/ext/infrared flipper> ls
+assets/                  IRDB/                    Sanyo/                   TV_Philips/
+Minolta.ir               My_Home_TV.ir
+
+/ext/infrared flipper> quit
 Quit interactive mode
 ```
 
