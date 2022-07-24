@@ -140,7 +140,7 @@ class FlipperCMD:
             self.do_print_screen(cmd, argv)
 
         elif cmd in ["RCD", "RCHDIR"]:
-            print(self.rdir)
+            self.set_rdir(cmd, argv)
 
         # elif cmd in ["RPWD", "RWD"]:
 
@@ -355,7 +355,7 @@ class FlipperCMD:
         """ DEL <file>
         Delete file of directory on flipper device
         """
-        error_str = f"Syntax :\n\t{cmd} file"
+        error_str = f"Syntax :\n\t{cmd} [-r] file"
         if not argv or argv[0] == '?':
             raise cmdException(error_str)
 
@@ -655,25 +655,30 @@ class FlipperCMD:
                 self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
     def do_info(self, _cmd, argv):
-        targ = '/ext'
+        targfs = ['/ext', '/int']
+
 
         if len(argv) > 0:
             targ = argv.pop(0)
 
-        if not targ.startswith('/'):
-            targ = os.path.normpath(self.rdir + '/' + targ)
+            if not targ.startswith('/'):
+                targ = os.path.normpath(self.rdir + '/' + targ)
+            targfs = [targ]
 
         # if self.debug:
 
         # print(cmd, targ)
 
-        info_resp = self.flip.cmd_info(targ)
+        for t in targfs:
+            info_resp = self.flip.cmd_info(t)
 
-        tspace = int(info_resp['totalSpace'])
-        fspace = int(info_resp['freeSpace'])
-        print(f"filesystem: {targ}\n"
-              f"totalSpace: {tspace}\nfreeSpace:  {fspace}\n"
-              f"usedspace:  {tspace - fspace}\n")
+            tspace = int(info_resp['totalSpace'])
+            fspace = int(info_resp['freeSpace'])
+            print(f"\nfilesystem: {t}\n"
+                  f"  totalSpace: {tspace}\n"
+                  f"  freeSpace:  {fspace}\n"
+                  f"  usedspace:  {tspace - fspace}")
+        print()
 
     def do_stat(self, cmd, argv):
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
@@ -737,11 +742,21 @@ def main():
             interactive = False
             # print(_e)
             break
+
         except cmdException as e:
             print("cmdException", e)
+
+        except ValueError:
+            print("ValueError", e)
+            if interactive:
+                continue
+            else:
+                break
+
         except Exception as e:
             print(f"Exception: {e}")
             raise
+
         # finally:
 
         if interactive is not True:
