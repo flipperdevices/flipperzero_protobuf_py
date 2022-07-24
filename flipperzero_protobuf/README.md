@@ -132,3 +132,8 @@ cmd_Audiovisual_Alert()
 
 cmd_Stop_Session()
 > Stop RPC session
+
+-----
+
+See Also:  [flipperdevices/flipperzero-protobuf](http://github.com/flipperdevices/flipperzero-protobuf)
+
