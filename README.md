@@ -27,7 +27,7 @@ nfc/                     subghz/                  u2f/                     wav_p
 
 ```
 
-Copy single files to and fromFlipper device
+Copy single files to fromFlipper device
 ```
 $ flipperzero_cmd put My_Home_TV.ir /ext/infrared
 Using port /dev/cu.usbmodemflip_UOhBaby
@@ -50,7 +50,7 @@ $ flipperzero_cmd
 Using port /dev/cu.usbmodemflip_UOhBaby
 Entering interactive mode
 
-1 flipper> help
+/ext flipper> help
     DF, INFO               :	get FS info
 
     LS, LIST               :	list files and dirs
