@@ -20,44 +20,6 @@ _DEBUG = 0
 #    pass
 
 
-COMMANDS_HELP = {
-    "DF, INFO": "get FS info",
-
-    "LS, LIST": "list files and dirs",
-    "RM, DEL, DELETE": "delete file or dir",
-    "MD, MKDIR": "creates a new directory",
-    "MV, RENAME": "rename file or dir",
-
-    "STAT": "get info about file or dir",
-
-    "CD, CHDIR": "change local working directory",
-    "PWD": "print local working directory",
-
-    "MD5, MD5SUM": "md5 hash of the file",
-
-    "PUT, PUTFILE": "copy file to flipper",
-    "PUT-TREE": "copy directory tree to flipper",
-
-    "GET, GETFILE": "copy file from flipper",
-    "GET-TREE": "copy directory tree from flipper",
-
-    "CAT": "read file to screen",
-
-    "PRINT-SCREEN": "screendump in ascii or PBM format",
-
-    "RCD, RCHDIR": "change current directory on flipper",
-
-    "HISTORY": "print command History",
-
-    "HELP, ?": "print command list",
-
-    # "VERBOSE": "set verbose",
-    "DEBUG": "set or print current debug value",
-
-    # "ERROR": "print last error",
-    "EXIT, QUIT": "exit program",
-}
-
 
 class FlipperCMD:
 
@@ -65,12 +27,13 @@ class FlipperCMD:
         def __init__(self, msg):
             Exception.__init__(self, msg)
 
-    commands_help = COMMANDS_HELP
-
     def __init__(self, proto=None, debug=_DEBUG, verbose=0):
 
         if proto is None:
             self.flip = FlipperProto()
+
+        self.cmd_table = {}
+        self.gen_cmd_table()
 
         self.rdir = '/ext'
         self.prevError = 'OK'
@@ -83,7 +46,45 @@ class FlipperCMD:
         self.flip._debug = self.debug
         self.verbose = verbose
 
-    # TODO:  Convert this into a dict lookup
+
+    def gen_cmd_table(self):
+        """gen_cmd_table doc"""
+
+        # has to be in method to referance itself
+        self.cmd_set = {
+            ("LS", "LIST"): self.do_list,
+            ("RM", "DEL", "DELETE"): self.do_del,
+            # ("RM-TREE", "DEL-TRE", "DELTREE"): self.do_del,
+            ("MV", "RENAME"): self.do_rename,
+            ("MD", "MKDIR"): self.do_mkdir,
+            ("MD5SUM", "MD5"): self.do_md5sum,
+            ("CAT",): self.do_cat_file,
+            ("GET", "GETFILE"): self.do_get_file,
+            ("GET-TREE", "GETTREE"): self.do_get_tree,
+            ("PUT", "PUTFILE"): self.do_put_file,
+            ("PUT-TREE", "PUTTREE"): self.do_put_tree,
+            ("STAT",): self.do_stat,
+            ("DF", "INFO"): self.do_info,
+            # ("CD", "CHDIR", "!CD", "!CHDIR"): self.do_chdir,
+            ("CD", "CHDIR"): self.do_chdir,
+            ("PWD",): self.do_print_cwd,
+            ("PRINT-SCREEN",): self.do_print_screen,
+            ("RCD", "RCHDIR"): self.set_rdir,
+            # ("RPWD", "RWD"):,
+            ("HISTORY", "HIST"): self.print_cmd_hist,
+            ("DEBUG",): self.set_debug,
+            ("STOP_SESSION",): self.do_stop_session,
+            ("START_SESSION",): self.do_start_session,
+            ("SEND", "SEND-COMMAND"): self.do_send_cmd,
+            ("QUIT", "EXIT"): self.do_quit,
+            ("HELP", "?"): self.do_cmd_help,
+        }
+
+        for k, v in self.cmd_set.items():
+            # print(f"len {type(k)} k{len(k)} {k}")
+            for c in k:
+                self.cmd_table[c] = v
+
     def run_comm(self, argv):
 
         # self.cmdHistory.append(" ".join(argv))
@@ -91,83 +92,34 @@ class FlipperCMD:
 
         cmd = argv.pop(0).upper()
 
-        if cmd in ["LS", "LIST"]:
-            self.do_list(cmd, argv)
 
-        elif cmd in ["RM", "DEL", "DELETE"]:
-            self.do_del(cmd, argv)
-
-        elif cmd in ["RM-TREE", "DEL-TRE", "DELTREE"]:
-            self.do_del(cmd, argv)
-
-        elif cmd in ["MV", "RENAME"]:
-            self.do_rename(cmd, argv)
-
-        elif cmd in ["MD", "MKDIR"]:
-            self.do_mkdir(cmd, argv)
-
-        elif cmd in ["MD5SUM", "MD5"]:
-            self.do_md5sum(cmd, argv)
-
-        elif cmd in ["CAT"]:
-            self.do_cat_file(cmd, argv)
-
-        elif cmd in ["GET", "GETFILE"]:
-            self.do_get_file(cmd, argv)
-
-        elif cmd in ["GET-TREE", "GETTREE"]:
-            self.do_get_tree(cmd, argv)
-
-        elif cmd in ["PUT", "PUTFILE"]:
-            self.do_put_file(cmd, argv)
-
-        elif cmd in ["PUT-TREE", "PUTTREE"]:
-            self.do_put_tree(cmd, argv)
-
-        elif cmd in ["STAT"]:
-            self.do_stat(cmd, argv)
-
-        elif cmd in ["DF", "INFO"]:
-            self.do_info(cmd, argv)
-
-        elif cmd in ["CD", "CHDIR", "!CD", "!CHDIR"]:
-            self.do_chdir(cmd, argv)
-
-        elif cmd in ["PWD"]:
-            print(os.getcwd())
-
-        elif cmd in ["PRINT-SCREEN"]:
-            self.do_print_screen(cmd, argv)
-
-        elif cmd in ["RCD", "RCHDIR"]:
-            self.set_rdir(cmd, argv)
-
-        # elif cmd in ["RPWD", "RWD"]:
-
-        elif cmd in ["HISTORY", "HIST"]:
-            self.print_cmd_hist(cmd, argv)
-
-        elif cmd in ["DEBUG", "SET-DEBUG", "GET=DEBUG"]:
-            self.set_debug(cmd, argv)
-
-        elif cmd in ["QUIT", "EXIT"]:
-            raise self.QuitException("Quit interactive mode")
-
-        elif cmd in ["HELP", "?"]:
-            self.print_cmd_help()
-
+        if cmd in self.cmd_table:
+            self.cmd_table[cmd](cmd, argv)
         else:
             print("Unknown command : ", cmd)  # str(" ").join(argv)
 
-    def print_cmd_help(self, cmd_list=None):
-        if cmd_list is None:
-            cmd_list = COMMANDS_HELP
-        for k, v in cmd_list.items():
-            print(f"    {k:<22} :\t{v}")
-        # print "\nFor more detail on command run command with arg '?'"
-        # print "\n* == may not be implemented\n"
+    def do_quit(self, cmd, argv):
+        """Exit Program"""
+        raise self.QuitException("Quit interactive mode")
+
+    def do_print_cwd(self, cmd, argv):
+        """print local working directory"""
+        print(os.getcwd())
+
+    # def do_cmd_help(self, cmd, argv):
+    #     """print command list"""
+    #     self.print_cmd_help()
+
+    def print_cmd_help(self, _cmd, _argv):
+        """print command list"""
+
+        for k, v in sorted(self.cmd_set.items()):
+            if v.__doc__:
+                print(f" {' '.join(k):<20s}:", v.__doc__.split('\n')[0].strip())
+
 
     def print_cmd_hist(self, cmd, argv):
+        """Print command history"""
 
         show_count = 20
 
@@ -194,7 +146,7 @@ class FlipperCMD:
 
     # pylint: disable=protected-access
     def set_debug(self, cmd, argv):
-        """
+        """set or print current debug value
             DEBUG: [DEBUG_LEVEL]\n"
                   "\tshows current level if no arg is given")
         """
@@ -222,8 +174,15 @@ class FlipperCMD:
 
         self.flip._debug = self.debug
 
+    def do_send_cmd(self, cmd, argv):
+        """Semd non rpc command to flipper"""
+        cmd_str = " ".join(argv)
+
+        self.flip.end_cmd(cmd_str)
+
     # pylint: disable=protected-access
     def set_rdir(self, cmd, argv):
+        """change current directory on flipper"""
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} <DIR>\n"
                                "\tset remote directory")
@@ -254,6 +213,7 @@ class FlipperCMD:
         print(f"Remote directory: {newdir}")
 
     def do_print_screen(self, cmd, argv):
+        """Take screendump in ascii or PBM format """
         outf = None
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} [filename.pbm]\n"
@@ -268,6 +228,7 @@ class FlipperCMD:
     # storage_pb2.File.FILE == 0
 
     def do_list(self, cmd, argv):
+        """list files and dirs on Flipper device"""
         # pylint: disable=protected-access
 
         targ = self.rdir
@@ -352,8 +313,8 @@ class FlipperCMD:
         # pprint.pprint(flist)
 
     def do_del(self, cmd, argv):
-        """ DEL <file>
-        Delete file of directory on flipper device
+        """delete file of directory on flipper device
+        DEL <file>
         """
         error_str = f"Syntax :\n\t{cmd} [-r] file"
         if not argv or argv[0] == '?':
@@ -375,7 +336,8 @@ class FlipperCMD:
         self.flip.cmd_delete(targ, recursive=recursive)
 
     def do_rename(self, cmd, argv):
-        """ RENAME <old_name> <new_name>
+        """rename file or dir
+            RENAME <old_name> <new_name>
             renames or move file on flipper device
         """
         if (len(argv) > 1 and argv[0] != "?"):
@@ -411,7 +373,7 @@ class FlipperCMD:
             self.flip._mkdir_path(subpath)
 
     def do_mkdir(self, cmd, argv):
-        """
+        """create a new directory
             MKDIR <directory>
             Make directories on flipper device
         """
@@ -428,10 +390,7 @@ class FlipperCMD:
         self.flip.cmd_mkdir(targ)
 
     def do_chdir(self, cmd, argv):
-        """
-            CD  <directory>
-            Change local current directory
-        """
+        """Change local current directory"""
         # pylint: disable=broad-except, unused-argument
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} <directory>")
@@ -448,6 +407,7 @@ class FlipperCMD:
             print(f"CHDIR: {_e}")
 
     def do_md5sum(self, cmd, argv):
+        """md5 hash of the file"""
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} file")
 
@@ -463,6 +423,7 @@ class FlipperCMD:
         print(f"md5sum_resp={md5sum_resp}")
 
     def do_cat_file(self, cmd, argv):
+        """read flipper file to screen"""
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} file")
 
@@ -484,6 +445,7 @@ class FlipperCMD:
             fd.write(file_data)
 
     def do_get_file(self, cmd, argv):
+        """copy file from flipper"""
         if (len(argv) >= 1 and argv[0] != "?"):
             remote_filen = argv.pop(0)
             if argv:
@@ -515,6 +477,7 @@ class FlipperCMD:
         self.flip.cmd_write(remote_filen, file_data)
 
     def do_put_file(self, cmd, argv):
+        """copy file to flipper"""
         if (len(argv) < 1 or argv[0] == "?"):
             raise cmdException(f"Syntax :\n\t{cmd} <local_file> <remote_file_or_dir>")
 
@@ -550,6 +513,7 @@ class FlipperCMD:
         self.flip.cmd_write(remote_filen, file_data)
 
     def do_put_tree(self, cmd, argv):
+        """copy directory tree to flipper"""
 
         excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
         check_md5 = False
@@ -624,6 +588,7 @@ class FlipperCMD:
             # print(f"Total: {t_size}")
 
     def do_get_tree(self, cmd, argv):
+        """copy directory tree from flipper"""
 
         syntax_str = f"Syntax :\n\t{cmd} <local_directory> <remote_destination>"
         remote_dir = argv.pop(0)
@@ -655,6 +620,8 @@ class FlipperCMD:
                 self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
     def do_info(self, _cmd, argv):
+        """get Filesystem info"""
+
         targfs = ['/ext', '/int']
 
 
@@ -681,6 +648,8 @@ class FlipperCMD:
         print()
 
     def do_stat(self, cmd, argv):
+        """get info about file or dir"""
+
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax :\n\t{cmd} file")
 
@@ -708,6 +677,13 @@ class FlipperCMD:
         else:
             print(f"{targ:<25s}\t{stat_resp['size']:>6d}")
 
+    def do_start_session(self, cmd, argv):
+        """(re) start RPC session"""
+        self.flip.start_rpc_session()
+
+    def do_stop_session(self, cmd, argv):
+        """stop RPC session"""
+        self.flip.cmd_Stop_Session()
 
 def main():
 
@@ -750,8 +726,8 @@ def main():
             print("ValueError", e)
             if interactive:
                 continue
-            else:
-                break
+
+            break
 
         except Exception as e:
             print(f"Exception: {e}")

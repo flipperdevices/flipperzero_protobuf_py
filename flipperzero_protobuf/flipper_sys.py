@@ -311,6 +311,7 @@ class FlipperProtoSys:
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
+    # pylint: disable=protected-access
     def cmd_Stop_Session(self):
         """ Stop RPC session
 
@@ -329,7 +330,9 @@ class FlipperProtoSys:
         """
 
         cmd_data = flipper_pb2.StopSession()
-        rep_data = self._cmd_send(cmd_data, 'stop_session')
+        rep_data = self._cmd_send_and_read_answer(cmd_data, 'stop_session')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+
+        self.flip._in_session = False
