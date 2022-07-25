@@ -38,16 +38,19 @@ class FlipperProtoBase:
         # self.info = {}
 
         self._debug = debug
+        self._in_session = False
 
         self._command_id = 0
         if isinstance(serial_port, serial.Serial):
             self._serial = serial_port
         else:
             self._serial = self._open_serial(serial_port)
+            self.start_rpc_session()
 
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
     def _find_port(self):
+        """find serial device"""
 
         ports = serial.tools.list_ports.comports()
         for port, desc, hwid in ports:
@@ -60,6 +63,7 @@ class FlipperProtoBase:
         return None
 
     def _open_serial(self, dev=None):   # get_startup_info=False):
+        """open serial device"""
 
         serial_dev = dev or self._find_port()
 
@@ -71,7 +75,8 @@ class FlipperProtoBase:
             print(f"can not open {serial_dev}")
             sys.exit(0)
 
-        print(f"Using port {serial_dev}")
+        if self._debug:
+            print(f"Using port {serial_dev}")
 
         # open serial port
         # flipper = serial.Serial(sys.argv[1], timeout=1)
@@ -84,7 +89,7 @@ class FlipperProtoBase:
         flipper.timeout = None
 
         # wait for prompt
-        flipper.read_until(b'>: ')
+        # flipper.read_until(b'>: ')
 
         # cache some data
         # if get_startup_info:
@@ -100,11 +105,36 @@ class FlipperProtoBase:
         #             k, v = r.split(':')
         #             self.info[k.strip()] = v.strip()
 
-        # send command and skip answer
-        flipper.write(b"start_rpc_session\r")
-        flipper.read_until(b'\n')
-
         return flipper
+
+    def send_cmd(self, cmd_str):
+        """ send non rpc command to flipper """
+        if self._in_session:
+            raise cmdException('rpc_session is active')
+
+        self._serial.read_until(b'>: ')
+        self._serial.write(cmd_str + '\r')
+
+        while True:
+
+            r = self._serial.readline().decode('utf-8')
+            print(r)
+
+            if r.startswith('>: '):
+                break
+
+
+
+    def start_rpc_session(self):
+        """ start rpc session """
+        # wait for prompt
+        self._serial.read_until(b'>: ')
+
+        # send command and skip answer
+        self._serial.write(b"start_rpc_session\r")
+        self._serial.read_until(b'\n')
+        self._in_session = True
+
 
     def _read_varint_32(self):
         """Read varint from serial port"""
@@ -116,6 +146,7 @@ class FlipperProtoBase:
             b = int.from_bytes(self._serial.read(size=1),
                                byteorder='little', signed=False)
             result |= ((b & 0x7f) << shift)
+
             if not b & 0x80:
                 result &= MASK
                 result = int(result)
@@ -133,6 +164,10 @@ class FlipperProtoBase:
 
     def _cmd_send(self, cmd_data, cmd_name, has_next=None, command_id=None):
         """Send command"""
+
+        if self._in_session is False:
+            raise cmdException('rpc_session is not active')
+
         flipper_message = flipper_pb2.Main()
         if command_id is None:
             flipper_message.command_id = self._get_command_id()
@@ -140,7 +175,8 @@ class FlipperProtoBase:
             flipper_message.command_id = command_id
 
         flipper_message.command_status = flipper_pb2.CommandStatus.Value('OK')
-        flipper_message.has_next = has_next
+        if has_next:
+            flipper_message.has_next = has_next
         getattr(flipper_message, cmd_name).CopyFrom(cmd_data)
         data = bytearray(_VarintBytes(flipper_message.ByteSize()
                                       ) + flipper_message.SerializeToString())
@@ -154,6 +190,10 @@ class FlipperProtoBase:
     def _cmd_read_answer(self, command_id=None):
         """Read answer from serial port and filter by command id"""
         # message->DebugString()
+
+        if self._in_session is False:
+            raise cmdException('rpc_session is not active')
+
         if command_id is None:
             command_id = self._command_id
 
