@@ -4,7 +4,7 @@ from nis import match
 from google.protobuf.internal.encoder import _VarintBytes
 from numpy import mat
 
-from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2, gpio_pb2
+from .flipperzero_protobuf_compiled import application_pb2, flipper_pb2, system_pb2, gui_pb2, gpio_pb2
 
 
 class Varint32Exception(Exception):
