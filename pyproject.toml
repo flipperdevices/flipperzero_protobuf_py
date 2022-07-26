@@ -17,6 +17,7 @@ description = "Python bindings for Flipper Zero protobuf protocol"
 dependencies = [
   "numpy==1.21.5",
   "protobuf==3.12.4",
+  "pyserial",
   #"protoletariat"
 ]
 readme = "README.md"
@@ -29,6 +30,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Requires-Dist: protoletariat",
+    "Requires-Dist: pyserial",
     "Requires-Dist: numpy (>=3.21.5)",
     "Requires-Dist: protobuf (>=3.12.4)",
 ]

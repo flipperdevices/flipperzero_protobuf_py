@@ -24,6 +24,8 @@ all:
 lint: pylint
 
 # Linting / Code Qual check
+# pylint --load-plugins perflint  $$targ  ;
+
 pylint:
 	for targ in ${FILES} ; do \
 		echo $$targ ; \

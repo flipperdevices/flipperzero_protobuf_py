@@ -50,7 +50,7 @@ setup(
     description='Python API wrapper for flipperzero_protobuf.',
     # long_description=open('README.txt').read(),
     # cmdclass = { 'install_scripts': install_scripts_and_symlinks }
-    install_requires=['numpy==1.21.4', 'protobuf==3.12.4'],
+    install_requires=['numpy==1.21.4', 'protobuf==3.12.4', 'pyserial'],
     #install_requires=['numpy==1.21.4', 'protobuf==3.12.4', 'protoletariat'],
     entry_points={
            'console_scripts': [
