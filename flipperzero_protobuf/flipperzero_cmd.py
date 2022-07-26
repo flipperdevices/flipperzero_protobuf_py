@@ -77,7 +77,7 @@ class FlipperCMD:
             ("START_SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self.do_send_cmd,
             ("QUIT", "EXIT"): self.do_quit,
-            ("HELP", "?"): self.do_cmd_help,
+            ("HELP", "?"): self.print_cmd_help,
         }
 
         for k, v in self.cmd_set.items():
@@ -106,9 +106,9 @@ class FlipperCMD:
         """print local working directory"""
         print(os.getcwd())
 
-    # def do_cmd_help(self, cmd, argv):
-    #     """print command list"""
-    #     self.print_cmd_help()
+    def do_cmd_help(self, cmd, argv):
+        """print command list"""
+        self.print_cmd_help()
 
     def print_cmd_help(self, _cmd, _argv):
         """print command list"""
