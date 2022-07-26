@@ -40,7 +40,11 @@ pycodestyle:
 	
 
 clean:
-	/bin/rm -fr flipperzero_protobuf.egg-info dist flipperzero_protobuf/__pycache__ flipperzero_protobuf/flipperzero_protobuf_compiled/__pycache__
+	/bin/rm -fr dist __pycache__ \
+		flipperzero_protobuf.egg-info  \
+		flipperzero_protobuf/__pycache__ \
+		flipperzero_protobuf/flipperzero_protobuf_compiled/__pycache__
+
 	$(if $(wildcard run_local), /bin/bash run_local $@)
 
 build:

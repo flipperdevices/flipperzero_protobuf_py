@@ -16,6 +16,18 @@ SCREEN_W = 64
 
 
 def calc_file_md5(fname):
+    """Calculate md5 hash for file
+
+    Parameters
+    ----------
+        fname : str
+            path to local fole
+
+    Returns
+    -------
+        str containing md5 message-digest fingerprint for file
+
+    """
     with open(fname, 'rb') as fd:
         hsum = hashlib.md5(fd.read()).hexdigest()
 
@@ -23,9 +35,22 @@ def calc_file_md5(fname):
 
 
 def print_screen(screen_bytes, dest=None):
+    """convert screendump data into ascii or .pbm for format
+
+    Parameters
+    ----------
+        screen_bytes: numpy array
+        dest : str
+            filename (optional)
+
+    Returns
+    -------
+        None
+            prints screen data as ascii
+            If dest filename is given screen data is writen as pbm image
+
     """
-        convert screendump data into ascii or .pbm for format
-    """
+
     dat = _dump_screen(screen_bytes)
 
     if dest is None:     # maybe also .txt files ?
@@ -57,9 +82,18 @@ def print_screen(screen_bytes, dest=None):
 
 
 def _dump_screen(screen_bytes):
+    """process` screendump data
+
+    Parameters
+    ----------
+        bytes: screen_bytes
+
+    Returns
+    -------
+        numpy array
+
     """
-        get screendump data
-    """
+
     # pylint: disable=multiple-statements
 
     def get_bin(x):
@@ -88,6 +122,25 @@ def _dump_screen(screen_bytes):
 
 
 def flipper_tree_walk(dpath, proto):
+    """Directory tree generator for flipper
+
+    Parameters
+    ----------
+        dpath: str
+            path to top of directory tree to follow
+        proto : FlipperProto obj
+
+    Returns
+    -------
+        yields a tuple containing:
+            dirpath: str
+                path to current directory in tree
+            dirnamess: list
+                list of subdirectories in dirpath
+            filenames: list
+                list of filenames in dirpath
+
+    """
     list_resp = proto.cmd_storage_list(dpath)
     dlist = []
     flist = []
@@ -105,8 +158,17 @@ def flipper_tree_walk(dpath, proto):
 
 
 def datetime2dict(dt=None):
-    """
-        convert datatime obj into type dict
+    """Convert datetime obj into type dict
+
+    Parameters
+    ----------
+        dt : datetime obj
+
+    Returns
+    -------
+        dict type containing 'year' 'month' 'day' 'hour' 'minute' 'second' 'weekday'
+
+
     """
 
     if dt is None:
@@ -128,9 +190,23 @@ def datetime2dict(dt=None):
 
 
 def dict2datetime(d):
+    """Convert type dict into datetime obj
+
+    Parameters
+    ----------
+    d : dicy
+        dict type containing 'year' 'month' 'day' 'hour' 'minute' 'second' 'weekday'
+
+    Returns
+    -------
+        datetime obj
+
+    Raises
+    ----------
+        TypeError
+
     """
-        convert type dict into datatime obj
-    """
+
     tdict = d.copy()    # we dont want to destroy the caller's data
     del tdict['weekday']
     return datetime.datetime(**tdict)
