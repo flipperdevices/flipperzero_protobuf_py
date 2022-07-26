@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# pylint: disable=line-too-long, no-member, too-many-branches, unused-import
+# ppylint: disable=line-too-long, no-member, too-many-branches, unused-import, unused-argument
 
 import os
 import sys
@@ -178,7 +178,7 @@ class FlipperCMD:
         """Semd non rpc command to flipper"""
         cmd_str = " ".join(argv)
 
-        self.flip.end_cmd(cmd_str)
+        self.flip.send_cmd(cmd_str)
 
     # pylint: disable=protected-access
     def set_rdir(self, cmd, argv):
@@ -270,8 +270,8 @@ class FlipperCMD:
         flist = self.flip.cmd_storage_list(targ)
         flist.sort(key=lambda x: (x['type'], x['name'].lower()))
 
-        if self.debug:
-            print("Storage List result: ", targ)
+        # if self.debug:
+        #     print("Storage List result: ", targ)
 
         if long_format:
             # dir_fmt = "{:<25s}\t   DIR"
@@ -563,18 +563,19 @@ class FlipperCMD:
             remdir = os.path.normpath(remote_dir + '/' + dt)
 
             for d in dirs:
-                if self.debug:
-                    print(f"mkdir {remdir}/{d}")
+                # if self.debug:
+                #     print(f"mkdir {remdir}/{d}")
                 self._mkdir_path(f"{remdir}/{d}")
             for f in FILES:
                 # if not f.isalnum() or '+' in f:
                 #    continue
-                if self.debug:
-                    print(f"copy {ROOT} / {f} -> {remdir} / {f}")
+                # if self.debug:
+                #     print(f"copy {ROOT} / {f} -> {remdir} / {f}")
                 try:
                     self._put_file(f"{ROOT}/{f}", f"{remdir}/{f}")
                 except cmdException as e:
-                    print(f"{remdir}/{f} : {e} : SKIPPING")
+                    # if self.debug:
+                    #     print(f"{remdir}/{f} : {e} : SKIPPING")
                     continue
                 # t_size += os.path.getsize(f"{ROOT}/{f}")
 
@@ -683,7 +684,7 @@ class FlipperCMD:
 
     def do_stop_session(self, cmd, argv):
         """stop RPC session"""
-        self.flip.cmd_Stop_Session()
+        self.flip.cmd_stop_session()
 
 def main():
 

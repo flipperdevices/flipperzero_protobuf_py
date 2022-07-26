@@ -16,7 +16,7 @@ class FlipperProtoStorage():
     # BackupRestore
     # BackupCreate
 
-    def cmd_BackupCreate(self, archive_path=None):
+    def cmd_backup_create(self, archive_path=None):
         """ Create Backup
 
         Parameters
@@ -41,7 +41,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
-    def cmd_BackupRestore(self, archive_path=None):
+    def cmd_backup_restore(self, archive_path=None):
         """ Backup Restore
 
         Parameters

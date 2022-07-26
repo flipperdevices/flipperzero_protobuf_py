@@ -20,7 +20,7 @@ __all__ = ['FlipperProtoSys']
 class FlipperProtoSys:
 
     # FactoryReset
-    def cmd_FactoryReset(self):
+    def cmd_factory_reset(self):
         """ Factory Reset
 
         Parameters
@@ -44,7 +44,7 @@ class FlipperProtoSys:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # Update
-    def cmd_Update(self, update_manifest=""):
+    def cmd_update(self, update_manifest=""):
         """ Update
 
         Parameters
@@ -75,7 +75,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} update_manifest={update_manifest}")
 
     # Reboot
-    def cmd_Reboot(self, mode=0):
+    def cmd_reboot(self, mode=0):
         """ Reboot flipper
 
         Parameters
@@ -114,7 +114,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} mode={mode}")
 
     # PowerInfo
-    def cmd_PowerInfo(self):
+    def cmd_power_info(self):
         """ Power info / charging status
 
         Parameters
@@ -139,7 +139,7 @@ class FlipperProtoSys:
         return rep_data.system_power_info_response.key, rep_data.system_power_info_response.value
 
     # DeviceInfo
-    def cmd_DeviceInfo(self):
+    def cmd_device_info(self):
         """ Device Info
 
         Return
@@ -160,7 +160,7 @@ class FlipperProtoSys:
         return rep_data.system_device_info_response.key, rep_data.system_device_info_response.value
 
     # ProtobufVersion
-    def cmd_ProtobufVersion(self):
+    def cmd_protobuf_version(self):
         """ Protobuf Version
 
         Parameters
@@ -185,7 +185,7 @@ class FlipperProtoSys:
         return rep_data.system_protobuf_version_response.major, rep_data.system_protobuf_version_response.minor
 
     # GetDateTime
-    def cmd_GetDateTime(self):
+    def cmd_get_datetime(self):
         """ Get system Date and Time
 
         Parameters
@@ -209,7 +209,7 @@ class FlipperProtoSys:
         return MessageToDict(rep_data.system_get_datetime_response)['datetime']
 
     # SetDateTime
-    def cmd_SetDateTime(self, arg_datetm=None):
+    def cmd_set_datetime(self, arg_datetm=None):
         """ Set system Date and Time
 
         Parameters
@@ -255,7 +255,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} arg_datetm={arg_datetm}")
 
     # Ping
-    def cmd_System_Ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
+    def cmd_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
         """ Ping flipper
 
         Parameters
@@ -287,7 +287,7 @@ class FlipperProtoSys:
         return rep_data.system_ping_response.data
 
     # PlayAudiovisualAlert
-    def cmd_Audiovisual_Alert(self):
+    def cmd_audiovisual_alert(self):
         """ Launch audiovisual alert on flipper ??
 
         Parameters
@@ -312,7 +312,7 @@ class FlipperProtoSys:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # pylint: disable=protected-access
-    def cmd_Stop_Session(self):
+    def cmd_stop_session(self):
         """ Stop RPC session
 
         Parameters
