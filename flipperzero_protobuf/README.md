@@ -3,7 +3,7 @@
 ### [Application Calls](flipper_app.py) ###
 ---
 
-cmd_LockStatus()
+cmd_lock_status()
 > Get LockScreen Status
 
 cmd_app_start(name, args)
@@ -64,10 +64,10 @@ cmd_gui_send_input(key_arg)
 ### [Storage Calls](flipper_storage.py) ###
 ---
 
-cmd_BackupCreate(archive_path)
+cmd_backup_create(archive_path)
 > Create Backup
 
-cmd_BackupRestore(archive_path)
+cmd_backup_restore(archive_path)
 > Backup Restore
 
 cmd_read(path)
@@ -100,37 +100,37 @@ cmd_storage_list(path")
 ### [System Calls](flipper_sys.py) ###
 ---
 
-cmd_FactoryReset()
+cmd_factory_reset()
 > Factory Reset
 
-cmd_Update(update_manifest)
+cmd_update(update_manifest)
 > Update
 
-cmd_Reboot(mode)
+cmd_reboot(mode)
 > Reboot flipper
 
-cmd_PowerInfo()
+cmd_power_info()
 > Power info / charging status
 
-cmd_DeviceInfo()
+cmd_device_info()
 > Device Info
 
-cmd_ProtobufVersion()
+cmd_protobuf_version()
 > Protobuf Version
 
-cmd_GetDateTime()
+cmd_get_datetime()
 > Get system Date and Time
 
-cmd_SetDateTime(arg_datetm)
+cmd_set_datetime(arg_datetm)
 > Set system Date and Time
 
-cmd_System_Ping(data_bytes)
+cmd_system_ping(data_bytes)
 > Ping flipper
 
-cmd_Audiovisual_Alert()
+cmd_audiovisual_alert()
 > Launch audiovisual alert on flipper ??
 
-cmd_Stop_Session()
+cmd_stop_session()
 > Stop RPC session
 
 -----

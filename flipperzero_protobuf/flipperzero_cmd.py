@@ -683,7 +683,7 @@ class FlipperCMD:
 
     def do_stop_session(self, cmd, argv):
         """stop RPC session"""
-        self.flip.cmd_Stop_Session()
+        self.flip.cmd_stop_session()
 
 def main():
 

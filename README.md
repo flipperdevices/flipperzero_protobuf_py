@@ -153,11 +153,11 @@ def main():
     print_hex(ping_rep)
 
     print("\n\n]DeviceInfo")
-    ping_rep = proto.cmd_DeviceInfo()
+f   ping_rep = proto.cmd_device_info()
     print(ping_rep)
 
     print("\n\nGetDateTime")
-    dtime_resp = proto.cmd_GetDateTime()
+    dtime_resp = proto.cmd_get_datetime()
     dt = dict2datetime(dtime_resp)
     print(dt.ctime())
 

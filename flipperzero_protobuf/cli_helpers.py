@@ -8,8 +8,7 @@ from .flipper_base import cmdException
 
 
 def print_hex(bytes_data):
-    # print("".join('{:02x} '.format(x) for x in bytes_data))
-    print("".join(f'{x:02x} ') for x in bytes_data)
+    print("".join(f'{x:02x} ' for x in bytes_data))
 
 
 SCREEN_H = 128

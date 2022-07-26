@@ -11,7 +11,7 @@ __all__ = ['FlipperProtoApp']
 class FlipperProtoApp:
 
     # LockStatus
-    def cmd_LockStatus(self):
+    def cmd_lock_status(self):
         """ Get LockScreen Status
 
         Returns
