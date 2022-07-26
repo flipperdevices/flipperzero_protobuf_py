@@ -123,8 +123,6 @@ class FlipperProtoBase:
             if r.startswith('>: '):
                 break
 
-
-
     def start_rpc_session(self):
         """ start rpc session """
         # wait for prompt
@@ -134,7 +132,6 @@ class FlipperProtoBase:
         self._serial.write(b"start_rpc_session\r")
         self._serial.read_until(b'\n')
         self._in_session = True
-
 
     def _read_varint_32(self):
         """Read varint from serial port"""

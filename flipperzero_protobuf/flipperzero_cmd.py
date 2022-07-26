@@ -20,7 +20,6 @@ _DEBUG = 0
 #    pass
 
 
-
 class FlipperCMD:
 
     class QuitException(Exception):
@@ -45,7 +44,6 @@ class FlipperCMD:
         self.debug = debug
         self.flip._debug = self.debug
         self.verbose = verbose
-
 
     def gen_cmd_table(self):
         """gen_cmd_table doc"""
@@ -92,31 +90,29 @@ class FlipperCMD:
 
         cmd = argv.pop(0).upper()
 
-
         if cmd in self.cmd_table:
             self.cmd_table[cmd](cmd, argv)
         else:
             print("Unknown command : ", cmd)  # str(" ").join(argv)
 
-    def do_quit(self, cmd, argv):
+    def do_quit(self, cmd, argv):   # pylint: disable=unused-argument
         """Exit Program"""
         raise self.QuitException("Quit interactive mode")
 
-    def do_print_cwd(self, cmd, argv):
+    def do_print_cwd(self, cmd, argv):   # pylint: disable=unused-argument
         """print local working directory"""
         print(os.getcwd())
 
-    def do_cmd_help(self, cmd, argv):
+    def do_cmd_help(self, cmd, argv):    # pylint: disable=unused-argument
         """print command list"""
-        self.print_cmd_help()
+        self.print_cmd_help(cmd, argv)
 
-    def print_cmd_help(self, _cmd, _argv):
+    def print_cmd_help(self, cmd, argv):   # pylint: disable=unused-argument
         """print command list"""
 
         for k, v in sorted(self.cmd_set.items()):
             if v.__doc__:
                 print(f" {' '.join(k):<20s}:", v.__doc__.split('\n')[0].strip())
-
 
     def print_cmd_hist(self, cmd, argv):
         """Print command history"""
@@ -174,10 +170,9 @@ class FlipperCMD:
 
         self.flip._debug = self.debug
 
-    def do_send_cmd(self, cmd, argv):
+    def do_send_cmd(self, cmd, argv):  # pylint: disable=unused-argument
         """Semd non rpc command to flipper"""
         cmd_str = " ".join(argv)
-
         self.flip.send_cmd(cmd_str)
 
     # pylint: disable=protected-access
@@ -299,7 +294,7 @@ class FlipperCMD:
                 endl = ""
 
                 if line['type'] == 'DIR':
-                    name = line['name'] + '/'
+                    name = line['name'] + '/'           # ("-" if line['type'] == 'DIR' else "+" )
                 else:
                     name = line['name']
 
@@ -573,7 +568,7 @@ class FlipperCMD:
                 #     print(f"copy {ROOT} / {f} -> {remdir} / {f}")
                 try:
                     self._put_file(f"{ROOT}/{f}", f"{remdir}/{f}")
-                except cmdException as e:
+                except cmdException as _e:
                     # if self.debug:
                     #     print(f"{remdir}/{f} : {e} : SKIPPING")
                     continue
@@ -624,7 +619,6 @@ class FlipperCMD:
         """get Filesystem info"""
 
         targfs = ['/ext', '/int']
-
 
         if len(argv) > 0:
             targ = argv.pop(0)
@@ -678,13 +672,14 @@ class FlipperCMD:
         else:
             print(f"{targ:<25s}\t{stat_resp['size']:>6d}")
 
-    def do_start_session(self, cmd, argv):
+    def do_start_session(self, cmd, argv):   # pylint: disable=unused-argument
         """(re) start RPC session"""
         self.flip.start_rpc_session()
 
-    def do_stop_session(self, cmd, argv):
+    def do_stop_session(self, cmd, argv):     # pylint: disable=unused-argument
         """stop RPC session"""
         self.flip.cmd_stop_session()
+
 
 def main():
 
