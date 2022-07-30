@@ -26,7 +26,7 @@ class FlipperCMD:
         def __init__(self, msg):
             Exception.__init__(self, msg)
 
-    def __init__(self, proto=None, debug=_DEBUG, verbose=0):
+    def __init__(self, proto=None, **kwargs):
 
         if proto is None:
             self.flip = FlipperProto()
@@ -41,9 +41,9 @@ class FlipperCMD:
         # for i in range(50):
         #    self.cmdHistory.append( f"history {i}")
 
-        self.debug = debug
+        self.debug = kwargs.get('debug', _DEBUG)
         self.flip._debug = self.debug
-        self.verbose = verbose
+        self.verbose = kwargs.get('verbose', 0)
 
     def gen_cmd_table(self):
         """gen_cmd_table doc"""
@@ -62,6 +62,7 @@ class FlipperCMD:
             ("PUT", "PUTFILE"): self.do_put_file,
             ("PUT-TREE", "PUTTREE"): self.do_put_tree,
             ("STAT",): self.do_stat,
+            ("SET",): self.set_opt,
             ("DF", "INFO"): self.do_info,
             # ("CD", "CHDIR", "!CD", "!CHDIR"): self.do_chdir,
             ("CD", "CHDIR"): self.do_chdir,
@@ -70,10 +71,11 @@ class FlipperCMD:
             ("RCD", "RCHDIR"): self.set_rdir,
             # ("RPWD", "RWD"):,
             ("HISTORY", "HIST"): self.print_cmd_hist,
-            ("DEBUG",): self.set_debug,
+            # ("DEBUG",): self.set_debug,
             ("STOP_SESSION",): self.do_stop_session,
             ("START_SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self.do_send_cmd,
+            ("REBOOT",): self.do_reboot,
             ("QUIT", "EXIT"): self.do_quit,
             ("HELP", "?"): self.print_cmd_help,
         }
@@ -107,6 +109,7 @@ class FlipperCMD:
         """print command list"""
         self.print_cmd_help(cmd, argv)
 
+    # prints first line ot __doc__ string
     def print_cmd_help(self, cmd, argv):   # pylint: disable=unused-argument
         """print command list"""
 
@@ -140,8 +143,38 @@ class FlipperCMD:
         for i in range(start_at, readline.get_current_history_length()):
             print(str(readline.get_history_item(i + 1)))
 
+    def set_opt(self, cmd, argv):     # pylint: disable=unused-argument
+        """set or print current option value"""
+        if len(argv) < 2:
+            print(f"\tverbose:\t{self.verbose}\n"
+                  f"\tdebug:  \t{self.debug}\n"
+                  f"\tremote-dir:\t{self.rdir}\n"
+                  f"\tPort:  \t{self.flip.port()}\n")
+            return
+
+        # print(f"set_opt {argv[0].upper()}")
+        if argv[0].upper() == "DEBUG":
+            self._set_debug(argv[0], argv[1:])
+            return
+
+        if argv[0].upper() == "REMOTE-DIR":
+            self.set_rdir(argv[0], argv[1:])
+            return
+
+        if argv[0].upper() == "VERBOSE":
+            argv.pop(0)
+            opt = argv.pop(0).upper()
+            if opt in ["ON", "TRUE", "T", "YES", "Y", "1"]:
+                self.verbose = 1
+            elif opt in ["OFF", "FALSE", "F", "NO", "Y", "0"]:
+                self.verbose = 0
+            print(f"\tverbose:\t{self.verbose}\n")
+            return
+
+        raise cmdException(f"{cmd}: {argv[0]}: value not recognised")
+
     # pylint: disable=protected-access
-    def set_debug(self, cmd, argv):
+    def _set_debug(self, cmd, argv):
         """set or print current debug value
             DEBUG: [DEBUG_LEVEL]\n"
                   "\tshows current level if no arg is given")
@@ -224,7 +257,7 @@ class FlipperCMD:
 
     def do_list(self, cmd, argv):
         """list files and dirs on Flipper device"""
-        # pylint: disable=protected-access
+        # pylint: disable=protected-access,too-many-branches
 
         targ = self.rdir
         long_format = False
@@ -457,6 +490,9 @@ class FlipperCMD:
             if self.debug:
                 print(cmd, remote_filen, local_filen)
 
+            if self.verbose:
+                print(f"copy {remote_filen} -> {local_filen}")
+
             file_data = self.flip.cmd_read(remote_filen)
             # print(f"getting {len(file_data)} bytes")
             with open(local_filen, 'wb') as fd:
@@ -501,6 +537,9 @@ class FlipperCMD:
 
         # print(cmd, local_filen, remote_filen)
 
+        if self.verbose:
+            print(f"copy {local_filen} -> {remote_filen}")
+
         with open(local_filen, 'rb') as fd:
             file_data = fd.read()
 
@@ -508,10 +547,13 @@ class FlipperCMD:
         self.flip.cmd_write(remote_filen, file_data)
 
     def do_put_tree(self, cmd, argv):
+        # pylint: disable=protected-access,too-many-branches
         """copy directory tree to flipper"""
 
         excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
         check_md5 = False
+
+        verbose = self.debug or self.verbose
 
         syntax_str = f"Syntax :\n\t{cmd} [-md5] <local_directory> <remote_destination>"
         if (len(argv) < 2 or argv[0] in ["?", "help"]):
@@ -558,14 +600,14 @@ class FlipperCMD:
             remdir = os.path.normpath(remote_dir + '/' + dt)
 
             for d in dirs:
-                # if self.debug:
-                #     print(f"mkdir {remdir}/{d}")
+                if verbose:
+                    print(f"mkdir {remdir}/{d}")
                 self._mkdir_path(f"{remdir}/{d}")
             for f in FILES:
                 # if not f.isalnum() or '+' in f:
                 #    continue
-                # if self.debug:
-                #     print(f"copy {ROOT} / {f} -> {remdir} / {f}")
+                if verbose:
+                    print(f"copy {ROOT} / {f} -> {remdir} / {f}")
                 try:
                     self._put_file(f"{ROOT}/{f}", f"{remdir}/{f}")
                 except cmdException as _e:
@@ -586,7 +628,14 @@ class FlipperCMD:
     def do_get_tree(self, cmd, argv):
         """copy directory tree from flipper"""
 
+        verbose = self.debug or self.verbose
+
+        if self.debug:
+            verbose = True
+
         syntax_str = f"Syntax :\n\t{cmd} <local_directory> <remote_destination>"
+
+        #  add more logic here like with put-tree
         remote_dir = argv.pop(0)
         local_dir = argv.pop(0)
 
@@ -606,12 +655,12 @@ class FlipperCMD:
             locdir = os.path.normpath(local_dir + '/' + dt)
 
             for d in dirs:
-                if self.debug:
+                if verbose:
                     print(f"mkdir {locdir} / {d}")
                 os.makedirs(f"{locdir}/{d}")
 
             for f in FILES:
-                if self.debug:
+                if verbose:
                     print(f"copy {ROOT} / {f} -> {locdir} / {f}")
                 self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
@@ -626,10 +675,6 @@ class FlipperCMD:
             if not targ.startswith('/'):
                 targ = os.path.normpath(self.rdir + '/' + targ)
             targfs = [targ]
-
-        # if self.debug:
-
-        # print(cmd, targ)
 
         for t in targfs:
             info_resp = self.flip.cmd_info(t)
@@ -680,6 +725,24 @@ class FlipperCMD:
         """stop RPC session"""
         self.flip.cmd_stop_session()
 
+    def do_reboot(self, cmd, argv):
+        """reboot flipper
+
+            REBOOT [MODE]
+            MODE can be 'OS', 'DFU' or 'UPDATE'
+        """
+
+        if (len(argv) < 1 or argv[0] == "?"):
+            raise cmdException(f"Syntax :\n\t{cmd} [OS | DFU | UPDATE]")
+
+        mode = argv.pop(0)
+
+        if mode not in ['OS', 'DFU', 'UPDATE']:
+            raise cmdException(f"Syntax :\n\t{cmd} [OS | DFU | UPDATE]")
+
+        self.flip.cmd_reboot(mode)
+        self.QuitException("REBOOT")
+
 
 def main():
 
@@ -724,6 +787,8 @@ def main():
                 continue
 
             break
+
+        # except google.protobuf.message.DecodeError as e:
 
         except Exception as e:
             print(f"Exception: {e}")

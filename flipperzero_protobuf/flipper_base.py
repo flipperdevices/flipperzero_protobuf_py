@@ -49,6 +49,9 @@ class FlipperProtoBase:
 
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
+    def port(self):
+        return self._serial.port
+
     def _find_port(self):
         """find serial device"""
 
