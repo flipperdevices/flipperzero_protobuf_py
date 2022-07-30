@@ -96,7 +96,7 @@ class FlipperProtoSys:
 
         if mode not in ['OS', 'DFU', 'UPDATE']:
             raise InputTypeException("Invalid Reboot mode")
-        cmd_data.mode = cmd_data.getattr(mode)
+        cmd_data.mode = getattr(cmd_data, mode)
 
         try:
 

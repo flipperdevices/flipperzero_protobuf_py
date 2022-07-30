@@ -49,6 +49,9 @@ class FlipperProtoBase:
 
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
+    def port(self):
+        return self._serial.port
+
     def _find_port(self):
         """find serial device"""
 
@@ -123,8 +126,6 @@ class FlipperProtoBase:
             if r.startswith('>: '):
                 break
 
-
-
     def start_rpc_session(self):
         """ start rpc session """
         # wait for prompt
@@ -134,7 +135,6 @@ class FlipperProtoBase:
         self._serial.write(b"start_rpc_session\r")
         self._serial.read_until(b'\n')
         self._in_session = True
-
 
     def _read_varint_32(self):
         """Read varint from serial port"""

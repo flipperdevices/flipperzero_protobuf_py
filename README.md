@@ -171,3 +171,10 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+---
+
+See Also:<br>
+[flipperdevices/flipperzero-protobuf](http://github.com/flipperdevices/flipperzero-protobuf)<br>
+[flipperdevices/go-flipper](https://github.com/flipperdevices/go-flipper)
+
