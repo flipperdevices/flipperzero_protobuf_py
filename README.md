@@ -78,7 +78,11 @@ Entering interactive mode
     HISTORY                :	print command History
     HELP, ?                :	print command list
     DEBUG                  :	set or print current debug value
+    SET                    :    set or print current option value
+
+    REBOOT                 :    reboot flipper
     EXIT, QUIT             :	exit program
+
 ```
 
 ```
