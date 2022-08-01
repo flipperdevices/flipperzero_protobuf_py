@@ -20,7 +20,7 @@ __all__ = ['FlipperProtoSys']
 class FlipperProtoSys:
 
     # FactoryReset
-    def cmd_factory_reset(self):
+    def rpc_factory_reset(self):
         """ Factory Reset
 
         Parameters
@@ -38,13 +38,13 @@ class FlipperProtoSys:
         """
 
         cmd_data = system_pb2.FactoryResetRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_factory_reset_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_factory_reset_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # Update
-    def cmd_update(self, update_manifest=""):
+    def rpc_update(self, update_manifest=""):
         """ Update
 
         Parameters
@@ -69,13 +69,13 @@ class FlipperProtoSys:
         cmd_data = system_pb2.UpdateRequest()
         cmd_data.update_manifest = update_manifest
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_update_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_update_request')
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} update_manifest={update_manifest}")
 
     # Reboot
-    def cmd_reboot(self, mode=0):
+    def rpc_reboot(self, mode=0):
         """ Reboot flipper
 
         Parameters
@@ -101,10 +101,10 @@ class FlipperProtoSys:
         try:
 
             # nothing happens if only cmd_send is called and response is not read
-            # rep_data = self._cmd_send(cmd_data, 'system_reboot_request')
+            # rep_data = self._rpc_send(cmd_data, 'system_reboot_request')
 
             # gets SerialException from attempt to read response
-            rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_reboot_request')
+            rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_reboot_request')
         # except serial.serialutil.SerialException as _e:
         except Exception as _e:
             return
@@ -114,7 +114,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} mode={mode}")
 
     # PowerInfo
-    def cmd_power_info(self):
+    def rpc_power_info(self):
         """ Power info / charging status
 
         Parameters
@@ -131,7 +131,7 @@ class FlipperProtoSys:
 
         """
         cmd_data = system_pb2.PowerInfoRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_power_info_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_power_info_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
@@ -139,7 +139,7 @@ class FlipperProtoSys:
         return rep_data.system_power_info_response.key, rep_data.system_power_info_response.value
 
     # DeviceInfo
-    def cmd_device_info(self):
+    def rpc_device_info(self):
         """ Device Info
 
         Return
@@ -152,7 +152,7 @@ class FlipperProtoSys:
 
         """
         cmd_data = system_pb2.DeviceInfoRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_device_info_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_device_info_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
@@ -160,7 +160,7 @@ class FlipperProtoSys:
         return rep_data.system_device_info_response.key, rep_data.system_device_info_response.value
 
     # ProtobufVersion
-    def cmd_protobuf_version(self):
+    def rpc_protobuf_version(self):
         """ Protobuf Version
 
         Parameters
@@ -177,7 +177,7 @@ class FlipperProtoSys:
 
         """
         cmd_data = system_pb2.ProtobufVersionRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_protobuf_version_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_protobuf_version_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
@@ -185,7 +185,7 @@ class FlipperProtoSys:
         return rep_data.system_protobuf_version_response.major, rep_data.system_protobuf_version_response.minor
 
     # GetDateTime
-    def cmd_get_datetime(self):
+    def rpc_get_datetime(self):
         """ Get system Date and Time
 
         Parameters
@@ -203,13 +203,13 @@ class FlipperProtoSys:
 
         """
         cmd_data = system_pb2.GetDateTimeRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_get_datetime_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_get_datetime_request')
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
         return MessageToDict(rep_data.system_get_datetime_response)['datetime']
 
     # SetDateTime
-    def cmd_set_datetime(self, arg_datetm=None):
+    def rpc_set_datetime(self, arg_datetm=None):
         """ Set system Date and Time
 
         Parameters
@@ -249,13 +249,13 @@ class FlipperProtoSys:
         else:
             raise InputTypeException("Invalid datetime value")
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_set_datetime_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_set_datetime_request')
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} arg_datetm={arg_datetm}")
 
     # Ping
-    def cmd_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
+    def rpc_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
         """ Ping flipper
 
         Parameters
@@ -279,7 +279,7 @@ class FlipperProtoSys:
             raise InputTypeException("Invalid Ping data value")
 
         cmd_data.data = data
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'system_ping_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'system_ping_request')
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} data={data}")
@@ -287,7 +287,7 @@ class FlipperProtoSys:
         return rep_data.system_ping_response.data
 
     # PlayAudiovisualAlert
-    def cmd_audiovisual_alert(self):
+    def rpc_audiovisual_alert(self):
         """ Launch audiovisual alert on flipper ??
 
         Parameters
@@ -305,14 +305,14 @@ class FlipperProtoSys:
         """
 
         cmd_data = system_pb2.PlayAudiovisualAlertRequest()
-        rep_data = self._cmd_send_and_read_answer(
+        rep_data = self._rpc_send_and_read_answer(
             cmd_data, 'system_play_audiovisual_alert_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # pylint: disable=protected-access
-    def cmd_stop_session(self):
+    def rpc_stop_session(self):
         """ Stop RPC session
 
         Parameters
@@ -330,7 +330,7 @@ class FlipperProtoSys:
         """
 
         cmd_data = flipper_pb2.StopSession()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'stop_session')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'stop_session')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)

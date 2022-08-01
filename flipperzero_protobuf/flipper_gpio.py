@@ -56,7 +56,7 @@ class FlipperProtoGpio:
     """
 
     # GetPinMode
-    def cmd_gpio_get_pin_mode(self, pin):
+    def rpc_gpio_get_pin_mode(self, pin):
         """ get GPIO pin mode
 
         Parameters
@@ -96,7 +96,7 @@ class FlipperProtoGpio:
         # if _debug:
         #    print(f"gpio_pb2.GetPinMode pin={pin} cmd_data.pin={cmd_data.pin}")
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_get_pin_mode")
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_get_pin_mode")
 
         # gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[0].name
         if rep_data.command_status != 0:
@@ -106,7 +106,7 @@ class FlipperProtoGpio:
         return gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[rep_data.gpio_get_pin_mode_response.mode].name
 
     # SetPinMode
-    def cmd_gpio_set_pin_mode(self, pin, mode):
+    def rpc_gpio_set_pin_mode(self, pin, mode):
         """ set GPIO pin mode
 
         Parameters
@@ -145,13 +145,13 @@ class FlipperProtoGpio:
             raise InputTypeException("Invalid mode")
         cmd_data.mode = getattr(gpio_pb2, mode)
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
 
     # WritePin
-    def cmd_gpio_write_pin(self, pin, value):
+    def rpc_gpio_write_pin(self, pin, value):
         """ write GPIO pin
 
         Parameters
@@ -186,13 +186,13 @@ class FlipperProtoGpio:
 
         cmd_data.value = value
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_write_pin")
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_write_pin")
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} value={value}")
 
     # ReadPin
-    def cmd_gpio_read_pin(self, pin):
+    def rpc_gpio_read_pin(self, pin):
         """ query GPIO pin
 
         Parameters
@@ -228,7 +228,7 @@ class FlipperProtoGpio:
                 raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_read_pin")
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_read_pin")
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}")
@@ -236,7 +236,7 @@ class FlipperProtoGpio:
         return rep_data.read_pin_response.value
 
     # SetInputPull
-    def cmd_gpio_set_input_pull(self, pin, pull_mode):
+    def rpc_gpio_set_input_pull(self, pin, pull_mode):
         """ Set GPIO pill Input
 
         Parameters
@@ -275,7 +275,7 @@ class FlipperProtoGpio:
             raise InputTypeException("Invalid pull_mode")
         cmd_data.pull_mode = getattr(gpio_pb2, pull_mode)
 
-        rep_data = self._cmd_send_and_read_answer(cmd_data, "gpio_set_input_pull")
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_set_input_pull")
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}")

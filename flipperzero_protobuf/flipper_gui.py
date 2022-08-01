@@ -27,7 +27,7 @@ __all__ = ['FlipperProtoGui']
 class FlipperProtoGui:
 
     # StartVirtualDisplay
-    def cmd_start_virtual_display(self, data):
+    def rpc_start_virtual_display(self, data):
         """Start Virtual Display
 
         Parameters
@@ -46,12 +46,12 @@ class FlipperProtoGui:
 
         cmd_data = gui_pb2.StartVirtualDisplayRequest()
         cmd_data.first_frame.data = data
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'gui_start_virtual_display_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_start_virtual_display_request')
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StopVirtualDisplay
-    def cmd_stop_virtual_display(self):
+    def rpc_stop_virtual_display(self):
         """Stop Virtual Display
 
         Parameters
@@ -69,12 +69,12 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StopVirtualDisplayRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'gui_stop_virtual_display_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_stop_virtual_display_request')
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StartScreenStream
-    def cmd_gui_start_screen_stream(self):
+    def rpc_gui_start_screen_stream(self):
         """Start screen stream
 
         Parameters
@@ -92,12 +92,12 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StartScreenStreamRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'gui_start_screen_stream_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_start_screen_stream_request')
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StopScreenStream
-    def _cmd_gui_stop_screen_stream(self):
+    def _rpc_gui_stop_screen_stream(self):
         """Stop screen stream
 
         Parameters
@@ -115,12 +115,12 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StopScreenStreamRequest()
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'gui_stop_screen_stream_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_stop_screen_stream_request')
 
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
-    def cmd_gui_snapshot_screen(self):
+    def rpc_gui_snapshot_screen(self):
         """Snapshot screen
 
         Parameters
@@ -137,13 +137,13 @@ class FlipperProtoGui:
 
         """
 
-        self.cmd_gui_start_screen_stream()
-        data = self._cmd_read_answer(0)
-        self.cmd_gui_stop_screen_stream()
+        self,rpc_gui_start_screen_stream()
+        data = self._rpc_read_answer(0)
+        self,rpc_gui_stop_screen_stream()
         return data.gui_screen_frame.data
 
     # SendInputEvent
-    def cmd_gui_send_input_event_request(self, key, itype):
+    def rpc_gui_send_input_event_request(self, key, itype):
         """Send Input Event Request Key
 
         Parameters
@@ -166,12 +166,12 @@ class FlipperProtoGui:
         cmd_data = gui_pb2.SendInputEventRequest()
         cmd_data.key = getattr(gui_pb2, key)
         cmd_data.type = getattr(gui_pb2, itype)
-        rep_data = self._cmd_send_and_read_answer(cmd_data, 'gui_send_input_event_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_send_input_event_request')
 
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} {key}, {itype}")
 
-    def cmd_gui_send_input(self, key_arg):
+    def rpc_gui_send_input(self, key_arg):
         """Send Input Event Request Type
 
         Parameters
@@ -201,6 +201,6 @@ class FlipperProtoGui:
         if ikey not in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'OK', 'BACK']:
             raise InputTypeException('Incorrect key')
 
-        self.cmd_gui_send_input_event_request(ikey, 'PRESS')
-        self.cmd_gui_send_input_event_request(ikey, itype)
-        self.cmd_gui_send_input_event_request(ikey, 'RELEASE')
+        self,rpc_gui_send_input_event_request(ikey, 'PRESS')
+        self,rpc_gui_send_input_event_request(ikey, itype)
+        self,rpc_gui_send_input_event_request(ikey, 'RELEASE')

@@ -153,20 +153,20 @@ def main():
     proto = FlipperProto()
 
     print("\n\nPing")
-    ping_rep = proto.cmd_system_ping()
+    ping_rep = proto.rcp_system_ping()
     print_hex(ping_rep)
 
     print("\n\n]DeviceInfo")
-    ping_rep = proto.cmd_device_info()
+    ping_rep = proto.rcp_device_info()
     print(ping_rep)
 
     print("\n\nGetDateTime")
-    dtime_resp = proto.cmd_get_datetime()
+    dtime_resp = proto.rcp_get_datetime()
     dt = dict2datetime(dtime_resp)
     print(dt.ctime())
 
     print("\n\nList files")
-    list_resp = proto.cmd_storage_list('/ext')
+    list_resp = proto.rcp_storage_list('/ext')
     for li in list_resp:
         print(f"[{li['type']}]\t{li['name']}")
 
