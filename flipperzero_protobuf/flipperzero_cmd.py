@@ -6,6 +6,7 @@ import sys
 # import readline
 import shlex
 # import pprint
+import argparse
 
 
 from .flipperCmd import FlipperCMD
@@ -16,17 +17,49 @@ from .flipper_base import cmdException    # FlipperProtoBase
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
 
 
+
+def arg_opts():
+
+    parser = argparse.ArgumentParser(add_help=True,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+        )
+
+    parser.add_argument('-v', '--verbose', dest="verbose",
+                        default=0,
+                        help='Increase debug verbosity', action='count')
+
+    parser.add_argument("-p", "--port", dest="serial_port",
+                        default=None,
+                        help="Serial Port")
+
+    data_grp = parser.add_mutually_exclusive_group()
+
+    data_grp.add_argument("-i", "--interactive", dest="interactive",
+                        default=False, action='store_true',
+                        help="Interactive Mode")
+
+    data_grp.add_argument("-c", "--cmd-file", dest="cmd_file",
+                        type=argparse.FileType('r', encoding='UTF-8'),
+                        default=None,
+                        help="Command File")
+
+    return parser.parse_known_args()
+
 def main():
 
     # global rdir
     interactive = False
 
-    fcmd = FlipperCMD()
+    arg, u = arg_opts()
+
+    fcmd = FlipperCMD(serial_port=arg.serial_port, verbose=arg.verbose)
     # proto = FlipperProto()
 
-    argv = sys.argv[1:]
+    # argv = sys.argv[1:]
 
-    if len(argv) == 0:
+    argv = u
+
+    if len(argv) == 0 and arg.cmd_file is None:
         print("Entering interactive mode")
         interactive = True
 
@@ -34,7 +67,15 @@ def main():
     while 1:
         try:
 
-            if interactive is True:
+            if arg.cmd_file:
+                for l in arg.cmd_file:
+                    if fcmd.verbose or fcmd.debug:
+                        print("cmd=", l)
+                    argv = shlex.split(l, comments=True, posix=True)
+                    fcmd.run_comm(argv)
+                break
+
+            elif interactive is True:
                 # print(f"{fcmd.rdir} flipper> ", end="")
                 prompt = f"{fcmd.rdir} flipper> "
                 argv = shlex.split(input(prompt), comments=True, posix=True)
@@ -68,7 +109,7 @@ def main():
 
         # finally:
 
-        if interactive is not True:
+        if interactive is not True or arg.cmd_file is not None:
             break
 
 

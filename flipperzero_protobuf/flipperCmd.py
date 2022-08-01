@@ -27,8 +27,11 @@ class FlipperCMD:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, proto=None, **kwargs):
 
+        self.debug = kwargs.get('debug', _DEBUG)
+
         if proto is None:
-            self.flip = FlipperProto()
+            serial_port = kwargs.get('serial_port', None)
+            self.flip = FlipperProto(serial_port=serial_port, debug=self.debug)
 
         self.cmd_table = {}
         self.gen_cmd_table()
@@ -37,8 +40,6 @@ class FlipperCMD:
         self.prevError = 'OK'
         self.local_time = time.localtime()
 
-        self.debug = kwargs.get('debug', _DEBUG)
-        self.flip._debug = self.debug
         self.verbose = kwargs.get('verbose', 0)
 
     def gen_cmd_table(self):
@@ -713,7 +714,7 @@ class FlipperCMD:
     def do_info(self, _cmd, argv):
         """get Filesystem info"""
 
-        targfs = ['/ext', '/int']
+        targfs = ['/ext'] # '/int'
 
         if len(argv) > 0:
             targ = argv.pop(0)
