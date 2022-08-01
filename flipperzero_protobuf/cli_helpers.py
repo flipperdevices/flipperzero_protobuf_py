@@ -11,8 +11,8 @@ def print_hex(bytes_data):
     print("".join(f'{x:02x} ' for x in bytes_data))
 
 
-SCREEN_H = 128
-SCREEN_W = 64
+_SCREEN_H = 128
+_SCREEN_W = 64
 
 
 def calc_file_md5(fname):
@@ -32,6 +32,36 @@ def calc_file_md5(fname):
         hsum = hashlib.md5(fd.read()).hexdigest()
 
     return hsum
+
+
+def _write_screen(dat):
+    for y in range(0, _SCREEN_W, 2):
+        for x in range(1, _SCREEN_H + 1):
+            if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
+                print('\u2588', end='')
+            if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 1:
+                print('\u2584', end='')
+            if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 0:
+                print('\u2580', end='')
+            if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 0:
+                print(' ', end='')
+        print()
+
+
+def _write_pbm_file(dat, dest):
+    """ write Black & White bitmap in simple Netpbm format"""
+    with open(dest, "w", encoding="utf-8") as fd:
+        print(f"P1\n{_SCREEN_H + 1} {_SCREEN_W}", file=fd)
+        for y in range(0, _SCREEN_W):
+            print(numpy.array2string(dat[:, y], max_line_width=300)[1:-1], file=fd)
+
+
+def _write_ppm_file(dat, dest):
+    """ write Orange and Black color RGB image stored in PPM format"""
+    with open(dest, "w", encoding="utf-8") as fd:
+        print(f"P3\n{_SCREEN_H + 1} {_SCREEN_W}\n255", file=fd)
+        for y in range(0, _SCREEN_W):
+            print(" ".join(['255 165 000' if c == '1' else '000 000 000' for c in dat[:, y]]))
 
 
 def print_screen(screen_bytes, dest=None):
@@ -54,31 +84,18 @@ def print_screen(screen_bytes, dest=None):
     dat = _dump_screen(screen_bytes)
 
     if dest is None:     # maybe also .txt files ?
-        for y in range(0, SCREEN_W, 2):
-            for x in range(1, SCREEN_H + 1):
-                if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
-                    print('\u2588', end='')
-                if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 1:
-                    print('\u2584', end='')
-                if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 0:
-                    print('\u2580', end='')
-                if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 0:
-                    print(' ', end='')
-            print()
+        _write_screen(dat)
+        return
 
-    elif dest.endswith('.pbm'):    # Black & White bitmap in simple Netpbm format
-        with open(dest, "w", encoding="utf-8") as fd:
-            print(f"P1\n{SCREEN_H + 1} {SCREEN_W}", file=fd)
-            for y in range(0, SCREEN_W):
-                print(numpy.array2string(dat[:, y], max_line_width=300)[1:-1], file=fd)
-    elif dest.endswith('.ppm'):    # Orange and Black color RGB image stored in PPM format
-        with open(dest, "w", encoding="utf-8") as fd:
-            print(f"P3\n{SCREEN_H + 1} {SCREEN_W}\n255", file=fd)
-            for y in range(0, SCREEN_W):
-                print(" ".join(['255 165 000' if c == '1' else '000 000 000' for c in dat[:, y]]))
+    if dest.endswith('.pbm'):    # Black & White bitmap in simple Netpbm format
+        _write_pbm_file(dat, dest)
+        return
 
-    else:
-        raise cmdException("invalid filename")
+    if dest.endswith('.ppm'):    # Orange and Black color RGB image stored in PPM format
+        _write_ppm_file(dat, dest)
+        return
+
+    raise cmdException("invalid filename: {dest}")
 
 
 def _dump_screen(screen_bytes):
@@ -99,13 +116,13 @@ def _dump_screen(screen_bytes):
     def get_bin(x):
         return format(x, '08b')
 
-    scr = numpy.zeros((SCREEN_H + 1, SCREEN_W + 1), dtype=int)
+    scr = numpy.zeros((_SCREEN_H + 1, _SCREEN_W + 1), dtype=int)
     data = screen_bytes
 
     x = y = 0
     basey = 0
 
-    for i in range(0, int(SCREEN_H * SCREEN_W / 8)):
+    for i in range(0, int(_SCREEN_H * _SCREEN_W / 8)):
         tmp = get_bin(data[i])[::-1]
 
         y = basey
@@ -114,14 +131,14 @@ def _dump_screen(screen_bytes):
             scr[x][y] = c
             y += 1
 
-        if (i + 1) % SCREEN_H == 0:
+        if (i + 1) % _SCREEN_H == 0:
             basey += 8
             x = 0
 
     return scr
 
 
-def flipper_tree_walk(dpath, proto):
+def flipper_tree_walk(dpath, proto, filedata=False):
     """Directory tree generator for flipper
 
     Parameters
@@ -149,12 +166,15 @@ def flipper_tree_walk(dpath, proto):
         if li['type'] == "DIR":
             dlist.append(li['name'])
         else:
-            flist.append(li['name'])
+            if filedata:
+                flist.append(li)
+            else:
+                flist.append(li['name'])
 
     # print(dlist)
     yield dpath, dlist, flist
     for d in dlist:
-        yield from flipper_tree_walk(dpath + '/' + d, proto)
+        yield from flipper_tree_walk(dpath + '/' + d, proto, filedata=filedata)
 
 
 def datetime2dict(dt=None):
@@ -210,3 +230,41 @@ def dict2datetime(d):
     tdict = d.copy()    # we dont want to destroy the caller's data
     del tdict['weekday']
     return datetime.datetime(**tdict)
+
+
+def get_dir_size(flip, dir_path):
+
+    total = 0
+    for ROOT, DIRS, FILES in flipper_tree_walk(dir_path, flip, filedata=True):
+        for d in DIRS:
+            total += get_dir_size(flip, f"{ROOT}/{d}")
+        for f in FILES:
+            total += f['size']
+
+    return total
+
+
+def calc_n_print_du(flip, dir_path):
+
+    if len(dir_path) > 1:
+        dir_path = dir_path.rstrip('/')
+
+    flist = flip.cmd_storage_list(dir_path)
+
+    flist.sort(key=lambda x: (x['type'], x['name'].lower()))
+
+    flist = flip.cmd_storage_list(dir_path)
+
+    total_size = 0
+    for line in flist:
+        if line['type'] == 'DIR':
+            dsize = get_dir_size(flip, f"{dir_path}/{line['name']}")
+            total_size += dsize
+            n = line['name'] + '/'
+            print(f"{n:<25s}\t{dsize:>9d}\tDIR")
+            continue
+
+        total_size += line['size']
+        print(f"{line['name']:<25s}\t{line['size']:>9d}")
+
+    print(f"Total: {total_size}")
