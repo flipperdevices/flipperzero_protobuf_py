@@ -157,7 +157,7 @@ def main():
     print_hex(ping_rep)
 
     print("\n\n]DeviceInfo")
-f   ping_rep = proto.cmd_device_info()
+    ping_rep = proto.cmd_device_info()
     print(ping_rep)
 
     print("\n\nGetDateTime")
