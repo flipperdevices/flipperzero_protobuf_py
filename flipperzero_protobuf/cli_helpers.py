@@ -158,7 +158,7 @@ def flipper_tree_walk(dpath, proto, filedata=False):
                 list of filenames in dirpath
 
     """
-    list_resp = proto,rpc_storage_list(dpath)
+    list_resp = proto.rpc_storage_list(dpath)
     dlist = []
     flist = []
 
@@ -249,11 +249,11 @@ def calc_n_print_du(flip, dir_path):
     if len(dir_path) > 1:
         dir_path = dir_path.rstrip('/')
 
-    flist = flip,rpc_storage_list(dir_path)
+    flist = flip.rpc_storage_list(dir_path)
 
     flist.sort(key=lambda x: (x['type'], x['name'].lower()))
 
-    flist = flip,rpc_storage_list(dir_path)
+    flist = flip.rpc_storage_list(dir_path)
 
     total_size = 0
     for line in flist:

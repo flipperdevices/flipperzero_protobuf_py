@@ -137,9 +137,9 @@ class FlipperProtoGui:
 
         """
 
-        self,rpc_gui_start_screen_stream()
+        self.rpc_gui_start_screen_stream()
         data = self._rpc_read_answer(0)
-        self,rpc_gui_stop_screen_stream()
+        self.rpc_gui_stop_screen_stream()
         return data.gui_screen_frame.data
 
     # SendInputEvent
@@ -201,6 +201,6 @@ class FlipperProtoGui:
         if ikey not in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'OK', 'BACK']:
             raise InputTypeException('Incorrect key')
 
-        self,rpc_gui_send_input_event_request(ikey, 'PRESS')
-        self,rpc_gui_send_input_event_request(ikey, itype)
-        self,rpc_gui_send_input_event_request(ikey, 'RELEASE')
+        self.rpc_gui_send_input_event_request(ikey, 'PRESS')
+        self.rpc_gui_send_input_event_request(ikey, itype)
+        self.rpc_gui_send_input_event_request(ikey, 'RELEASE')
