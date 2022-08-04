@@ -11,7 +11,7 @@ __all__ = ['FlipperProtoApp']
 class FlipperProtoApp:
 
     # LockStatus
-    def rcp_lock_status(self):
+    def rpc_lock_status(self):
         """ Get LockScreen Status
 
         Returns
@@ -24,7 +24,7 @@ class FlipperProtoApp:
 
         """
         cmd_data = application_pb2.LockStatusRequest()
-        data = self._rcp_send_and_read_answer(cmd_data, 'app_lock_status_request')
+        data = self._rpc_send_and_read_answer(cmd_data, 'app_lock_status_request')
 
         if data.command_status != 0:
             raise cmdException(self.Status_values_by_number[data.command_status].name)
@@ -32,7 +32,7 @@ class FlipperProtoApp:
         return data.app_lock_status_response.locked
 
     # Start
-    def rcp_app_start(self, name, args):
+    def rpc_app_start(self, name, args):
         """ Start/Run application
 
         Parameters
@@ -48,7 +48,7 @@ class FlipperProtoApp:
         cmd_data = application_pb2.StartRequest()
         cmd_data.name = name
         cmd_data.args = args
-        rep_data = self._rcp_send_and_read_answer(cmd_data, 'app_start_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_start_request')
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 

@@ -184,7 +184,7 @@ class FlipperProtoBase:
 
     def _rpc_send_and_read_answer(self, cmd_data, cmd_name, has_next=False, command_id=None):
         """Send command and read answer"""
-        self._rcp_send(cmd_data, cmd_name, has_next=has_next, command_id=command_id)
+        self._rpc_send(cmd_data, cmd_name, has_next=has_next, command_id=command_id)
         return self._rpc_read_answer()
 
     def _rpc_read_answer(self, command_id=None):
