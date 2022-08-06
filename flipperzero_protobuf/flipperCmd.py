@@ -13,7 +13,7 @@ import time
 from .flipper_base import cmdException    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 from .flipper_proto import FlipperProto
-from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5, calc_n_print_du
+from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5, calc_n_print_du, dict2datetime
 
 _DEBUG = 0
 
@@ -22,7 +22,7 @@ _DEBUG = 0
 #
 # the docstring for class methods should be in the form of
 # description on first line then syntax on the seconds line o
-# 
+#
 #         """display disk usage statistic
 #         Syntax:\n\tdu <fipper_dir>
 #         """
@@ -31,12 +31,12 @@ _DEBUG = 0
 #
 
 class FlipperCMD:
+    # pylint: disable=too-many-instance-attributes
 
     class QuitException(Exception):
         def __init__(self, msg):
             Exception.__init__(self, msg)
 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, proto=None, **kwargs):
 
         self.debug = kwargs.get('debug', _DEBUG)
@@ -45,7 +45,7 @@ class FlipperCMD:
             serial_port = kwargs.get('serial_port', None)
             self.flip = FlipperProto(serial_port=serial_port, debug=self.debug)
 
-        self.cmd_table = {}
+        self._cmd_table = {}
         self._gen_cmd_table()
 
         self.rdir = '/ext'
@@ -73,6 +73,7 @@ class FlipperCMD:
             ("PUT-TREE", "PUTTREE"): self.do_put_tree,
             ("STAT",): self.do_stat,
             ("SET",): self._set_opt,
+            ("TIME",): self.do_time,
             ("DF", "INFO"): self.do_info,
             # ("CD", "CHDIR", "!CD", "!CHDIR"): self.do_chdir,
             ("CD", "CHDIR"): self._do_chdir,
@@ -94,14 +95,14 @@ class FlipperCMD:
         for k, v in self.cmd_set.items():
             # print(f"len {type(k)} k{len(k)} {k}")
             for c in k:
-                self.cmd_table[c] = v
+                self._cmd_table[c] = v
 
     def run_comm(self, argv):
 
         cmd = argv.pop(0).upper()
 
-        if cmd in self.cmd_table:
-            self.cmd_table[cmd](cmd, argv)
+        if cmd in self._cmd_table:
+            self._cmd_table[cmd](cmd, argv)
         else:
             print("Unknown command : ", cmd)  # str(" ").join(argv)
 
@@ -117,7 +118,7 @@ class FlipperCMD:
         """print command list"""
         self.print_cmd_help(cmd, argv)
 
-    # prints first line ot __doc__ string
+    # prints first line of __doc__ string
     def print_cmd_help(self, cmd, argv):   # pylint: disable=unused-argument
         """print command list"""
 
@@ -192,6 +193,17 @@ class FlipperCMD:
             return
 
         raise cmdException(f"{cmd}: {argv[0]}: value not recognised")
+
+    def do_time(self, cmd, argv):    # pylint: disable=unused-argument
+        """Get Current time from Flipper
+        Syntax:\n\tdu <fipper_dir>
+        """
+        if (argv and argv[0] == '?'):
+            raise cmdException(f"Syntax:\n\t{cmd}\n"
+                               "\tdisplay time")
+        dtime_resp = self.flip.rpc_get_datetime()
+        dt = dict2datetime(dtime_resp)
+        print(dt.ctime())
 
     def _remote_path(self, path):
         if path.startswith('/'):
@@ -321,7 +333,7 @@ class FlipperCMD:
 
     def do_list(self, cmd, argv):
         """list files and dirs on Flipper device
-        Syntax:\n\tls [-l] [-m] <flipper_directory> 
+        Syntax:\n\tls [-l] [-m] <flipper_directory>
         """
         # pylint: disable=protected-access,too-many-branches
 
@@ -444,6 +456,16 @@ class FlipperCMD:
             if not new_fn.startswith('/'):
                 new_fn = os.path.normpath(self.rdir + '/' + new_fn)
 
+            # flipper does not line the trailing '/'
+            new_fn = new_fn.rstrip('/')
+            old_fn = old_fn.rstrip('/')
+
+            # is destination a directory?
+            stat_resp = self.flip._rpc_stat(new_fn)
+            if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
+                bname = os.path.basename(old_fn)
+                new_fn = f"{new_fn}/{bname}"
+
             if self.debug:
                 print(cmd, old_fn, new_fn)
 
@@ -561,11 +583,16 @@ class FlipperCMD:
             if not remote_filen.startswith('/'):
                 remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
+            # is destination a directory?
+            if os.path.isdir(local_filen):
+                bname = os.path.basename(remote_filen)
+                local_filen = local_filen + '/' + bname
+
             if self.debug:
                 print(cmd, remote_filen, local_filen)
 
-            if self.verbose:
-                print(f"copy {remote_filen} -> {local_filen}")
+            # if self.verbose:
+            print(f"get {remote_filen} -> {local_filen}\n")
 
             # _get_file(remote_filen, local_filen)
 
@@ -608,10 +635,11 @@ class FlipperCMD:
         if not remote_filen.startswith('/'):
             remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
+        # is destination a directory?
         stat_resp = self.flip._rpc_stat(remote_filen)
-        # print("stat_resp=", stat_resp)
         if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
-            remote_filen = remote_filen + '/' + local_filen
+            bname = os.path.basename(local_filen)
+            remote_filen = remote_filen + '/' + bname
 
         # print(cmd, local_filen, remote_filen)
 
@@ -633,7 +661,6 @@ class FlipperCMD:
         """copy directory tree to flipper
         PUT-TREE  <local_directort> <flipper_directory>
         """
-
         excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
         check_md5 = False
 
@@ -715,19 +742,39 @@ class FlipperCMD:
         verbose = self.debug or self.verbose
 
         syntax_str = f"Syntax :\n\t{cmd} <local_directory> <remote_destination>"
+        if (len(argv) < 1 or argv[0] in ["?", "help"]):
+            raise cmdException(syntax_str)
 
         #  add more logic here like with put-tree
         remote_dir = argv.pop(0)
-        local_dir = argv.pop(0)
+
+        if argv:
+            local_dir = argv.pop(0)
+        else:
+            local_dir = '.'
+
+        if verbose:
+            print(f"{cmd} '{remote_dir}' '{local_dir}'")
 
         if not remote_dir.startswith('/'):
             remote_dir_full = os.path.normpath(self.rdir + '/' + remote_dir)
         else:
             remote_dir_full = remote_dir
 
+        if verbose:
+            print(f"'{remote_dir}' -> '{remote_dir_full}'")
+
         stat_resp = self.flip._rpc_stat(remote_dir_full)
         if stat_resp is None or stat_resp.get('type', "") == 'FILE':
             raise cmdException(f"{syntax_str}\n\t{remote_dir}: is a file, expected directory")
+
+        if os.path.isdir(local_dir) and not remote_dir.endswith('/'):
+            local_dir = local_dir + '/' + os.path.basename(remote_dir_full)
+            if not os.path.exists(local_dir):
+                os.makedirs(local_dir)
+
+        if verbose:
+            print(f"{cmd} '{remote_dir_full}' '{os.path.abspath(local_dir)}'")
 
         remote_dir_len = len(remote_dir_full)
         for ROOT, dirs, FILES in flipper_tree_walk(remote_dir_full, self.flip):
@@ -748,7 +795,7 @@ class FlipperCMD:
     def do_info(self, _cmd, argv):
         """get Filesystem info"""
 
-        targfs = ['/ext'] # '/int'
+        targfs = ['/ext']  # '/int'
 
         if len(argv) > 0:
             targ = argv.pop(0)

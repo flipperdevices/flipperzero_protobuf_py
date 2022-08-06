@@ -2,7 +2,7 @@
 # ppylint: disable=line-too-long, no-member, too-many-branches, unused-import, unused-argument
 
 # import os
-import sys
+# import sys
 # import readline
 import shlex
 # import pprint
@@ -17,12 +17,10 @@ from .flipper_base import cmdException    # FlipperProtoBase
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
 
 
-
 def arg_opts():
 
     parser = argparse.ArgumentParser(add_help=True,
-        formatter_class=argparse.RawDescriptionHelpFormatter
-        )
+                        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-v', '--verbose', dest="verbose",
                         default=0,
@@ -35,15 +33,16 @@ def arg_opts():
     data_grp = parser.add_mutually_exclusive_group()
 
     data_grp.add_argument("-i", "--interactive", dest="interactive",
-                        default=False, action='store_true',
-                        help="Interactive Mode")
+                          default=False, action='store_true',
+                          help="Interactive Mode")
 
     data_grp.add_argument("-c", "--cmd-file", dest="cmd_file",
-                        type=argparse.FileType('r', encoding='UTF-8'),
-                        default=None,
-                        help="Command File")
+                          type=argparse.FileType('r', encoding='UTF-8'),
+                          default=None,
+                          help="Command File")
 
     return parser.parse_known_args()
+
 
 def main():
 
@@ -75,7 +74,7 @@ def main():
                     fcmd.run_comm(argv)
                 break
 
-            elif interactive is True:
+            if interactive is True:
                 # print(f"{fcmd.rdir} flipper> ", end="")
                 prompt = f"{fcmd.rdir} flipper> "
                 argv = shlex.split(input(prompt), comments=True, posix=True)

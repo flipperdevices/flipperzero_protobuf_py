@@ -44,8 +44,12 @@ class FlipperProtoBase:
         if isinstance(serial_port, serial.Serial):
             self._serial = serial_port
         else:
-            self._serial = self._open_serial(serial_port)
-            self.start_rpc_session()
+            try:
+                self._serial = self._open_serial(serial_port)
+                self.start_rpc_session()
+            except serial.serialutil.SerialException as e:
+                print(f"SerialException: {e}")
+                sys.exit(0)
 
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
@@ -82,6 +86,7 @@ class FlipperProtoBase:
             print(f"Using port {serial_dev}")
 
         # open serial port
+        # serial.serialutil.SerialException
         # flipper = serial.Serial(sys.argv[1], timeout=1)
         flipper = serial.Serial(serial_dev, timeout=1)
         flipper.baudrate = 230400
