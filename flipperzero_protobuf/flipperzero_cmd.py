@@ -2,7 +2,7 @@
 # ppylint: disable=line-too-long, no-member, too-many-branches, unused-import, unused-argument
 
 # import os
-import sys
+# import sys
 # import readline
 import shlex
 # import pprint
@@ -75,7 +75,7 @@ def main():
                     fcmd.run_comm(argv)
                 break
 
-            elif interactive is True:
+            if interactive is True:
                 # print(f"{fcmd.rdir} flipper> ", end="")
                 prompt = f"{fcmd.rdir} flipper> "
                 argv = shlex.split(input(prompt), comments=True, posix=True)
