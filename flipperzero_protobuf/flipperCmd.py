@@ -24,7 +24,7 @@ _DEBUG = 0
 # description on first line then syntax on the seconds line o
 #
 #         """display disk usage statistic
-#         Syntax:\n\tdu <fipper_dir>
+#         du <fipper_dir>
 #         """
 #
 #
@@ -53,6 +53,8 @@ class FlipperCMD:
         self._local_time = time.localtime()
 
         self.verbose = kwargs.get('verbose', 0)
+
+        self.excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
 
     def _gen_cmd_table(self):
         """_gen_cmd_table doc"""
@@ -96,6 +98,9 @@ class FlipperCMD:
             # print(f"len {type(k)} k{len(k)} {k}")
             for c in k:
                 self._cmd_table[c] = v
+
+    def get_cmd_keys(self):
+        return self._cmd_table.keys()
 
     def run_comm(self, argv):
 
@@ -195,11 +200,13 @@ class FlipperCMD:
     def _set_opt(self, cmd, argv):     # pylint: disable=unused-argument
         """set or print current option value"""
         if len(argv) < 2:
+            excl = ' '.join(self.excludes)
             print(f"\tverbose:\t{self.verbose}\n"
                   f"\tdebug:  \t{self.debug}\n"
                   f"\tremote-dir:\t{self.rdir}\n"
-                  f"\tPort:  \t{self.flip.port()}\n"
-                  f"\tCWD:  \t{os.getcwd()}\n")
+                  f"\tPort:   \t{self.flip.port()}\n"
+                  f"\texcludes: \t{excl}\n"
+                  f"\tCWD:    \t{os.getcwd()}\n")
             return
 
         # print(f"set_opt {argv[0].upper()}")
@@ -207,6 +214,10 @@ class FlipperCMD:
             val = self._interpret_val(argv[1])
             if val is not None:
                 self.debug = val
+            return
+
+        if argv[0].upper() == "EXCLUDES":
+            self.excludes=argv[1:]
             return
 
         if argv[0].upper() == "REMOTE-DIR":
@@ -517,7 +528,7 @@ class FlipperCMD:
             raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")
 
     def _mkdir_path(self, targ):
-        """Simplified mkdir"""
+        """Simplified mkdir for internal use"""
 
         subpath = ""
         for p in targ.split('/'):
@@ -533,7 +544,7 @@ class FlipperCMD:
             Make directories on flipper device
         """
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
-            raise cmdException(f"Syntax :\n\t{cmd} file")
+            raise cmdException(f"Syntax :\n\t{cmd} <directory>")
 
         targ = argv.pop(0)
         if not targ.startswith('/'):
@@ -700,7 +711,7 @@ class FlipperCMD:
         """copy directory tree to flipper
         PUT-TREE  <local_directort> <flipper_directory>
         """
-        excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
+        # excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
         check_md5 = False
 
         verbose = self.debug or self.verbose
@@ -738,8 +749,8 @@ class FlipperCMD:
 
         local_dir_len = len(local_dir_full)
         for ROOT, dirs, FILES in os.walk(local_dir_full, topdown=True):
-            dirs[:] = [de for de in dirs if de not in excludes and de[0] != '.' and '+' not in de]
-            FILES[:] = [de for de in FILES if de not in excludes and de[0] != '.']
+            dirs[:] = [de for de in dirs if de not in self.excludes and de[0] != '.' and '+' not in de]
+            FILES[:] = [de for de in FILES if de not in self.excludes and de[0] != '.']
 
             dt = ROOT[local_dir_len:]
 
@@ -817,6 +828,7 @@ class FlipperCMD:
 
         remote_dir_len = len(remote_dir_full)
         for ROOT, dirs, FILES in flipper_tree_walk(remote_dir_full, self.flip):
+            dirs[:] = [de for de in dirs if de not in self.excludes]
 
             dt = ROOT[remote_dir_len:]
             locdir = os.path.normpath(local_dir + '/' + dt)
