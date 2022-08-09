@@ -46,6 +46,8 @@ class FlipperProtoBase:
         else:
             try:
                 self._serial = self._open_serial(serial_port)
+                # print("._get_startup_info")
+                self.device_info = self._get_startup_info()
                 self.start_rpc_session()
             except serial.serialutil.SerialException as e:
                 print(f"SerialException: {e}")
@@ -55,6 +57,25 @@ class FlipperProtoBase:
 
     def port(self):
         return self._serial.port
+
+    def _get_startup_info(self):
+        # cache some data
+        ret = {}
+        self._serial.read_until(b'>: ')
+        self._serial.write(b"!\r")
+        while True:
+            r = self._serial.readline().decode('utf-8')
+
+            if r.startswith('>: '):
+                break
+            if r.startswith('\r\n'):
+                break
+
+            if len(r) > 5:
+                k, v = r.split(':')
+                ret[k.strip()] = v.strip()
+
+        return ret
 
     def _find_port(self):
         """find serial device"""
@@ -69,7 +90,7 @@ class FlipperProtoBase:
 
         return None
 
-    def _open_serial(self, dev=None):   # get_startup_info=False):
+    def _open_serial(self, dev=None):
         """open serial device"""
 
         serial_dev = dev or self._find_port()
@@ -98,20 +119,6 @@ class FlipperProtoBase:
 
         # wait for prompt
         # flipper.read_until(b'>: ')
-
-        # cache some data
-        # if get_startup_info:
-        #     flipper.write(b"!\r\r")
-        #     while True:
-        #
-        #         r = flipper.readline().decode('utf-8')
-        #
-        #         if r.startswith('>: '):
-        #             break
-        #
-        #         if len(r) > 5:
-        #             k, v = r.split(':')
-        #             self.info[k.strip()] = v.strip()
 
         return flipper
 

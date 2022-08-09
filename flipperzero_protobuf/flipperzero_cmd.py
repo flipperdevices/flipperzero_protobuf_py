@@ -60,6 +60,7 @@ def main():
 
     if len(argv) == 0 and arg.cmd_file is None:
         print("Entering interactive mode")
+        print("Device Name :", fcmd.flip.device_info.get('hardware_name', "Unknown"))
         interactive = True
 
     lineno = 1
@@ -67,10 +68,10 @@ def main():
         try:
 
             if arg.cmd_file:
-                for l in arg.cmd_file:
+                for line in arg.cmd_file:
                     if fcmd.verbose or fcmd.debug:
-                        print("cmd=", l)
-                    argv = shlex.split(l, comments=True, posix=True)
+                        print("cmd=", line)
+                    argv = shlex.split(line, comments=True, posix=True)
                     fcmd.run_comm(argv)
                 break
 
@@ -87,18 +88,24 @@ def main():
 
         except (EOFError, fcmd.QuitException, KeyboardInterrupt) as _e:
             interactive = False
+            print("")
             # print(_e)
             break
 
         except cmdException as e:
-            print("cmdException", e)
+            print("Command Error", e)
 
-        except ValueError:
+        except ValueError as e:
             print("ValueError", e)
             if interactive:
                 continue
-
             break
+
+        except IOError as e:
+            # do we need reconnect code ???
+            print("IOError", e)
+            if interactive:
+                continue
 
         # except google.protobuf.message.DecodeError as e:
 

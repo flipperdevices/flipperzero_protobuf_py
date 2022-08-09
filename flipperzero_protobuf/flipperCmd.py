@@ -75,16 +75,16 @@ class FlipperCMD:
             ("SET",): self._set_opt,
             ("TIME",): self.do_time,
             ("DF", "INFO"): self.do_info,
+            ("DEV-INFO",): self.do_devinfo,
             # ("CD", "CHDIR", "!CD", "!CHDIR"): self.do_chdir,
-            ("CD", "CHDIR"): self._do_chdir,
-            ("PWD",): self._do_print_cwd,
+            ("LCD", "LCHDIR"): self._do_chdir,
+            ("LPWD",): self._do_print_cwd,
             ("PRINT-SCREEN",): self.do_print_screen,
-            ("RCD", "RCHDIR"): self._set_rdir,
-            # ("RPWD", "RWD"):,
+            ("CD", "CHDIR", "RCD"): self._set_rdir,
+            # ("PWD",):,
             ("HISTORY", "HIST"): self._print_cmd_hist,
-            # ("DEBUG",): self.set_debug,
-            ("STOP_SESSION",): self.do_stop_session,
-            ("START_SESSION",): self.do_start_session,
+            ("STOP_SESSION", "STOP-SESSION"): self.do_stop_session,
+            ("START_SESSION", "START-SESSION"): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self._do_send_cmd,
             ("REBOOT",): self.do_reboot,
             ("QUIT", "EXIT"): self.do_quit,
@@ -107,11 +107,15 @@ class FlipperCMD:
             print("Unknown command : ", cmd)  # str(" ").join(argv)
 
     def do_quit(self, cmd, argv):   # pylint: disable=unused-argument
-        """Exit Program"""
+        """Exit Program
+        QUIT
+        """
         raise self.QuitException("Quit interactive mode")
 
     def _do_print_cwd(self, cmd, argv):   # pylint: disable=unused-argument
-        """print local working directory"""
+        """print local working directory
+        LPWD
+        """
         print(os.getcwd())
 
     def do_cmd_help(self, cmd, argv):    # pylint: disable=unused-argument
@@ -126,9 +130,17 @@ class FlipperCMD:
             if v.__doc__:
                 print(f" {' '.join(k):<20s}:", v.__doc__.split('\n')[0].strip())
 
+    def _get_cmd_syntax(self, cmdname):
+        if cmdname in self._cmd_table and self._cmd_table[cmdname].__doc__:
+            ret = self._cmd_table[cmdname].__doc__.split('\n')[1].rstrip()
+        else:
+            ret = cmdname
+
+        return ret
+
     def _print_cmd_hist(self, cmd, argv):
         """Print command history
-            Syntax:\n\t{cmd} [count]
+            history [count]
         """
 
         show_count = 20
@@ -153,6 +165,21 @@ class FlipperCMD:
 
         for i in range(start_at, readline.get_current_history_length()):
             print(str(readline.get_history_item(i + 1)))
+
+    def do_devinfo(self, cmd, argv):
+        """print device info
+        Dev-Info
+        """
+        if argv:
+            if argv[0] == '?' or len(argv) > 1:
+                raise cmdException(f"Syntax:\n\t{cmd} [key]\n"
+                                   "\tprint system info")
+            if argv[0] in self.flip.device_info:
+                print(f"{argv[0]:<25s} = {self.flip.device_info[argv[0]]}")
+                return
+
+        for k, v in self.flip.device_info.items():
+            print(f"{k:<25s} = {v}")
 
     def _interpret_val(self, opt):
         opt = opt.upper()
@@ -195,13 +222,23 @@ class FlipperCMD:
         raise cmdException(f"{cmd}: {argv[0]}: value not recognised")
 
     def do_time(self, cmd, argv):    # pylint: disable=unused-argument
-        """Get Current time from Flipper
-        Syntax:\n\tdu <fipper_dir>
+        """Set or Get Current time from Flipper
+        time [SET]
         """
-        if (argv and argv[0] == '?'):
-            raise cmdException(f"Syntax:\n\t{cmd}\n"
-                               "\tdisplay time")
+        set_time = False
+        if argv:
+            if argv[0].upper() in ['SET', 'SET-TIME']:
+                set_time = True
+            else:
+                raise cmdException(f"Syntax:\n\t{cmd} [SET]\n"
+                                   "\tdisplay time")
+
+        if set_time:
+            # system time used it called without arg
+            self.flip.rpc_set_datetime()
+
         dtime_resp = self.flip.rpc_get_datetime()
+
         dt = dict2datetime(dtime_resp)
         print(dt.ctime())
 
@@ -213,7 +250,7 @@ class FlipperCMD:
 
     def _do_disk_usage(self, cmd, argv):
         """display disk usage statistic
-        Syntax:\n\tdu <fipper_dir>
+        DU <fipper_dir>
         """
         if (not argv or argv[0] == '?'):
             raise cmdException(f"Syntax:\n\t{cmd} <DIR>\n"
@@ -225,7 +262,7 @@ class FlipperCMD:
 
     def _do_zip(self, cmd, argv):
         """Generate Zip Archive
-        Syntax:\n\tzip <zipfile> <fipper_dir>
+        ZIP <zipfile> <fipper_dir>
         """
         if (not argv or argv[0] == '?' or len(argv) < 2):
             raise cmdException(f"Syntax:\n\t{cmd} <zipfile> <DIR>\n"
@@ -276,14 +313,16 @@ class FlipperCMD:
         zf.writestr(zfi, file_data)
 
     def _do_send_cmd(self, cmd, argv):  # pylint: disable=unused-argument
-        """Semd non rpc command to flipper"""
+        """Semd non rpc command to flipper
+        SEND <command string>
+        """
         cmd_str = " ".join(argv)
         self.flip.send_cmd(cmd_str)
 
     # pylint: disable=protected-access
     def _set_rdir(self, cmd, argv):
         """change current directory on flipper
-            Syntax:\n\trcd <DIR>\n
+           cd <DIR>\n
         """
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
             raise cmdException(f"Syntax:\n\t{cmd} <DIR>\n"
@@ -316,7 +355,7 @@ class FlipperCMD:
 
     def do_print_screen(self, cmd, argv):
         """Take screendump in ascii or PBM format
-            Syntax:\n\tPRINT-SCREEN [filename.pbm]
+            PRINT-SCREEN [filename.pbm]
         """
         outf = None
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
@@ -333,7 +372,7 @@ class FlipperCMD:
 
     def do_list(self, cmd, argv):
         """list files and dirs on Flipper device
-        Syntax:\n\tls [-l] [-m] <flipper_directory>
+        ls [-l] [-m] <flipper_directory>
         """
         # pylint: disable=protected-access,too-many-branches
 
@@ -420,7 +459,7 @@ class FlipperCMD:
 
     def do_del(self, cmd, argv):
         """delete file of directory on flipper device
-        Syntax:\n\tDEL <file>
+        DEL <file>
         """
         error_str = f"Syntax :\n\t{cmd} [-r] file"
         if not argv or argv[0] == '?':
@@ -793,7 +832,9 @@ class FlipperCMD:
                 self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
     def do_info(self, _cmd, argv):
-        """get Filesystem info"""
+        """get Filesystem info
+            INFO [filesystem]
+        """
 
         targfs = ['/ext']  # '/int'
 
@@ -848,11 +889,15 @@ class FlipperCMD:
             print(f"{targ:<25s}\t{stat_resp['size']:>6d}")
 
     def do_start_session(self, cmd, argv):   # pylint: disable=unused-argument
-        """(re) start RPC session"""
+        """(re) start RPC session
+        START-SESSION
+        """
         self.flip.start_rpc_session()
 
     def do_stop_session(self, cmd, argv):     # pylint: disable=unused-argument
-        """stop RPC session"""
+        """stop RPC session
+        STOP-SESSION
+        """
         self.flip.rpc_stop_session()
 
     def do_reboot(self, cmd, argv):

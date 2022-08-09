@@ -51,37 +51,34 @@ Using port /dev/cu.usbmodemflip_UOhBaby
 Entering interactive mode
 
 /ext flipper> help
-    DF, INFO               :	get FS info
-
-    LS, LIST               :	list files and dirs
-    RM, DEL, DELETE        :	delete file or dir
-    MD, MKDIR              :	creates a new directory
-    MV, RENAME             :	rename file or dir
-
-    STAT                   :	get info about file or dir
-    CD, CHDIR              :	change local working directory
-    PWD                    :	print local working directory
-
-    MD5, MD5SUM            :	md5 hash of the file
-
-    PUT, PUTFILE           :	copy file to flipper
-    PUT-TREE               :	copy directory tree to flipper
-    GET, GETFILE           :	copy file from flipper
-    GET-TREE               :	copy directory tree from flipper
-
-    CAT                    :	read file to screen
-
-    PRINT-SCREEN           :	screendump in ascii or PBM format
-
-    RCD, RCHDIR            :	change current directory on flipper
-
-    HISTORY                :	print command History
-    HELP, ?                :	print command list
-    DEBUG                  :	set or print current debug value
-    SET                    :    set or print current option value
-
-    REBOOT                 :    reboot flipper
-    EXIT, QUIT             :	exit program
+    CAT                 : read flipper file to screen
+    CD CHDIR            : change current directory on flipper
+    DEV-INFO            : print device info
+    DF INFO             : get Filesystem info
+    DU DISK-USAGE       : display disk usage statistic
+    GET GETFILE         : copy file from flipper
+    GET-TREE GETTREE    : copy directory tree from flipper
+    HELP ?              : print command list
+    HISTORY HIST        : Print command history
+    LCD LCHDIR          : Change local current directory
+    LPWD                : print local working directory
+    LS LIST             : list files and dirs on Flipper device
+    MD MKDIR            : create a new directory
+    MD5SUM MD5          : md5 hash of the file
+    MV RENAME           : rename file or dir
+    PRINT-SCREEN        : Take screendump in ascii or PBM format
+    PUT PUTFILE         : copy file to flipper
+    PUT-TREE PUTTREE    : copy directory tree to flipper
+    QUIT EXIT           : Exit Program
+    REBOOT              : reboot flipper
+    RM DEL DELETE       : delete file of directory on flipper device
+    SEND SEND-COMMAND   : Semd non rpc command to flipper
+    SET                 : set or print current option value
+    STAT                : get info about file or dir
+    START-SESSION       : (re) start RPC session
+    STOP-SESSION        : stop RPC session
+    TIME                : Set or Get Current time from Flipper
+    ZIP                 : Generate Zip Archive
 
 ```
 
