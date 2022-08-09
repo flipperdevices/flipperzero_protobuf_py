@@ -20,7 +20,7 @@ __all__ = ['FlipperProtoSys']
 class FlipperProtoSys:
 
     # FactoryReset
-    def rpc_factory_reset(self):
+    def rpc_factory_reset(self) -> None:
         """ Factory Reset
 
         Parameters
@@ -44,7 +44,7 @@ class FlipperProtoSys:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # Update
-    def rpc_update(self, update_manifest=""):
+    def rpc_update(self, update_manifest="") -> None:
         """ Update
 
         Parameters
@@ -53,6 +53,8 @@ class FlipperProtoSys:
 
         Returns
         ----------
+        None
+
         code ; str
             0 OK
             1 ManifestPathInvalid
@@ -75,7 +77,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} update_manifest={update_manifest}")
 
     # Reboot
-    def rpc_reboot(self, mode=0):
+    def rpc_reboot(self, mode=0) -> None:
         """ Reboot flipper
 
         Parameters
@@ -84,6 +86,10 @@ class FlipperProtoSys:
             0 = OS
             1 = DFU
             2 = UPDATE
+
+        Returns
+        ----------
+        None
 
         Raises
         ----------
@@ -114,7 +120,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} mode={mode}")
 
     # PowerInfo
-    def rpc_power_info(self):
+    def rpc_power_info(self) -> tuple[str, str]:
         """ Power info / charging status
 
         Parameters
@@ -139,7 +145,7 @@ class FlipperProtoSys:
         return rep_data.system_power_info_response.key, rep_data.system_power_info_response.value
 
     # DeviceInfo
-    def rpc_device_info(self):
+    def rpc_device_info(self) -> tuple[str, str]:
         """ Device Info
 
         Return
@@ -160,7 +166,7 @@ class FlipperProtoSys:
         return rep_data.system_device_info_response.key, rep_data.system_device_info_response.value
 
     # ProtobufVersion
-    def rpc_protobuf_version(self):
+    def rpc_protobuf_version(self) -> tuple[int, int]:
         """ Protobuf Version
 
         Parameters
@@ -185,7 +191,7 @@ class FlipperProtoSys:
         return rep_data.system_protobuf_version_response.major, rep_data.system_protobuf_version_response.minor
 
     # GetDateTime
-    def rpc_get_datetime(self):
+    def rpc_get_datetime(self) -> dict:
         """ Get system Date and Time
 
         Parameters
@@ -209,7 +215,7 @@ class FlipperProtoSys:
         return MessageToDict(rep_data.system_get_datetime_response)['datetime']
 
     # SetDateTime
-    def rpc_set_datetime(self, arg_datetm=None):
+    def rpc_set_datetime(self, arg_datetm=None) -> None:
         """ Set system Date and Time
 
         Parameters
@@ -255,7 +261,7 @@ class FlipperProtoSys:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} arg_datetm={arg_datetm}")
 
     # Ping
-    def rpc_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])):
+    def rpc_system_ping(self, data=bytes([0xde, 0xad, 0xbe, 0xef])) -> list:
         """ Ping flipper
 
         Parameters
@@ -264,7 +270,7 @@ class FlipperProtoSys:
 
         Returns
         ----------
-        None
+        list
 
         Raises
         ----------
@@ -287,7 +293,7 @@ class FlipperProtoSys:
         return rep_data.system_ping_response.data
 
     # PlayAudiovisualAlert
-    def rpc_audiovisual_alert(self):
+    def rpc_audiovisual_alert(self) -> None:
         """ Launch audiovisual alert on flipper ??
 
         Parameters
@@ -312,7 +318,7 @@ class FlipperProtoSys:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # pylint: disable=protected-access
-    def rpc_stop_session(self):
+    def rpc_stop_session(self) -> None:
         """ Stop RPC session
 
         Parameters

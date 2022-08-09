@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+
+""" command funtions and methods for command line app.
+
+FlipperCMD
+
+"""
+# Written By: Peter Shipley github.com/evilpete
+#
+#  From python flipperzero_protobuf pkg
+
 # ppylint: disable=line-too-long, no-member, too-many-branches, unused-import, unused-argument
 
 import os
@@ -19,14 +29,12 @@ _DEBUG = 0
 
 
 #
-#
 # the docstring for class methods should be in the form of
 # description on first line then syntax on the seconds line o
 #
 #         """display disk usage statistic
 #         du <fipper_dir>
 #         """
-#
 #
 #
 
@@ -99,14 +107,21 @@ class FlipperCMD:
             for c in k:
                 self._cmd_table[c] = v
 
-    def get_cmd_keys(self):
+    def get_cmd_keys(self) -> list:
         return self._cmd_table.keys()
 
-    def run_comm(self, argv):
+    def run_comm(self, argv) -> None:
 
         cmd = argv.pop(0).upper()
 
         if cmd in self._cmd_table:
+
+            # handle help here insteqd of everywhere else
+            if argv and argv[0] == '?':
+                print("==")
+                print(self._get_cmd_syntax(cmd))
+                return
+
             self._cmd_table[cmd](cmd, argv)
         else:
             print("Unknown command : ", cmd)  # str(" ").join(argv)
@@ -130,6 +145,14 @@ class FlipperCMD:
     # prints first line of __doc__ string
     def print_cmd_help(self, cmd, argv):   # pylint: disable=unused-argument
         """print command list"""
+
+        if argv and argv[0].upper() in self._cmd_table:
+            hcmd = argv[0].upper()
+            if self._cmd_table[hcmd].__doc__:
+                hlist = self._cmd_table[hcmd].__doc__.split('\n')
+                print(hlist[0])
+                print("\t", hlist[1].strip())
+                return
 
         for k, v in sorted(self.cmd_set.items()):
             if v.__doc__:
@@ -171,19 +194,15 @@ class FlipperCMD:
         for i in range(start_at, readline.get_current_history_length()):
             print(str(readline.get_history_item(i + 1)))
 
-    def do_devinfo(self, cmd, argv):
+    def do_devinfo(self, cmd, argv):  # pylint: disable=unused-argument
         """print device info
         Dev-Info
         """
-        if argv:
-            if argv[0] == '?' or len(argv) > 1:
-                raise cmdException(f"Syntax:\n\t{cmd} [key]\n"
-                                   "\tprint system info")
-            if argv[0] in self.flip.device_info:
-                print(f"{argv[0]:<25s} = {self.flip.device_info[argv[0]]}")
-                return
+        if argv and argv[0] in self.flip.device_info:
+            print(f"{argv[0]:<25s} = {self.flip.device_info[argv[0]]}")
+            return
 
-        for k, v in self.flip.device_info.items():
+        for k, v in sorted(self.flip.device_info.items()):
             print(f"{k:<25s} = {v}")
 
     def _interpret_val(self, opt):
@@ -198,7 +217,9 @@ class FlipperCMD:
         return None
 
     def _set_opt(self, cmd, argv):     # pylint: disable=unused-argument
-        """set or print current option value"""
+        """set or print current option value
+        SET [Key Value]
+        """
         if len(argv) < 2:
             excl = ' '.join(self.excludes)
             print(f"\tverbose:\t{self.verbose}\n"
@@ -217,7 +238,7 @@ class FlipperCMD:
             return
 
         if argv[0].upper() == "EXCLUDES":
-            self.excludes=argv[1:]
+            self.excludes = argv[1:]
             return
 
         if argv[0].upper() == "REMOTE-DIR":
@@ -241,8 +262,9 @@ class FlipperCMD:
             if argv[0].upper() in ['SET', 'SET-TIME']:
                 set_time = True
             else:
-                raise cmdException(f"Syntax:\n\t{cmd} [SET]\n"
-                                   "\tdisplay time")
+                print(f"Unknown Arg/Option: {argv[0]}")
+                # raise cmdException(f"Syntax:\n\t{cmd} [SET]\n"
+                #                    "\tdisplay time")
 
         if set_time:
             # system time used it called without arg
@@ -253,7 +275,7 @@ class FlipperCMD:
         dt = dict2datetime(dtime_resp)
         print(dt.ctime())
 
-    def _remote_path(self, path):
+    def _remote_path(self, path) -> str:
         if path.startswith('/'):
             return path
 
@@ -331,7 +353,7 @@ class FlipperCMD:
         self.flip.send_cmd(cmd_str)
 
     # pylint: disable=protected-access
-    def _set_rdir(self, cmd, argv):
+    def _set_rdir(self, cmd, argv) -> None:
         """change current directory on flipper
            cd <DIR>\n
         """
@@ -470,11 +492,11 @@ class FlipperCMD:
 
     def do_del(self, cmd, argv):
         """delete file of directory on flipper device
-        DEL <file>
+        DEL [-r] <file>
         """
         error_str = f"Syntax :\n\t{cmd} [-r] file"
-        if not argv or argv[0] == '?':
-            raise cmdException(error_str)
+        # if not argv or argv[0] == '?':
+        #     raise cmdException(error_str)
 
         recursive = False
         if argv and argv[0] in ['-r', '-R']:
@@ -539,7 +561,7 @@ class FlipperCMD:
             self.flip._mkdir_path(subpath)
 
     def do_mkdir(self, cmd, argv):
-        """create a new directory
+        """Create a new directory
             MKDIR <directory>
             Make directories on flipper device
         """
@@ -557,7 +579,7 @@ class FlipperCMD:
 
     def _do_chdir(self, cmd, argv):
         """Change local current directory
-        RCD  <directory>
+        LCD  <directory>
         """
         # pylint: disable=broad-except, unused-argument
         if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
@@ -612,6 +634,7 @@ class FlipperCMD:
         print(read_resp.decode('utf-8'))
 
     def _get_file(self, remote_filen, local_filen):
+        """Simplified get file for internal use"""
         file_data = self.flip.rpc_read(remote_filen)
         with open(local_filen, 'wb') as fd:
             fd.write(file_data)
@@ -710,6 +733,8 @@ class FlipperCMD:
         # pylint: disable=protected-access,too-many-branches
         """copy directory tree to flipper
         PUT-TREE  <local_directort> <flipper_directory>
+        If the source_file ends in a /, the contents of
+        the directory are copied rather than the directory itself.
         """
         # excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
         check_md5 = False
@@ -787,6 +812,8 @@ class FlipperCMD:
     def do_get_tree(self, cmd, argv):
         """copy directory tree from flipper
         GET-TREE   <flipper_directory> <local_directort>
+        If the source_file ends in a /, the contents of
+        the directory are copied rather than the directory itself.
         """
 
         verbose = self.debug or self.verbose
@@ -848,7 +875,7 @@ class FlipperCMD:
             INFO [filesystem]
         """
 
-        targfs = ['/ext']  # '/int'
+        targfs = ['/ext', '/int']
 
         if len(argv) > 0:
             targ = argv.pop(0)
@@ -869,7 +896,7 @@ class FlipperCMD:
         print()
 
     def do_stat(self, cmd, argv):
-        """get info about file or dir
+        """get info about file or directory
         Stat <flipper_file>
         """
 

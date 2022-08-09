@@ -13,7 +13,6 @@ run_local
 *.so
 
 callstuff*.py
-test_cmd.py
 
 # Distribution / packaging
 .Python

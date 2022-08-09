@@ -55,10 +55,10 @@ class FlipperProtoBase:
 
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
-    def port(self):
+    def port(self) -> str:
         return self._serial.port
 
-    def _get_startup_info(self):
+    def _get_startup_info(self) -> dict:
         # cache some data
         ret = {}
         self._serial.read_until(b'>: ')
@@ -77,7 +77,7 @@ class FlipperProtoBase:
 
         return ret
 
-    def _find_port(self):
+    def _find_port(self) -> str | None:
         """find serial device"""
 
         ports = serial.tools.list_ports.comports()
@@ -90,7 +90,7 @@ class FlipperProtoBase:
 
         return None
 
-    def _open_serial(self, dev=None):
+    def _open_serial(self, dev=None) -> serial.Serial:
         """open serial device"""
 
         serial_dev = dev or self._find_port()
@@ -122,7 +122,7 @@ class FlipperProtoBase:
 
         return flipper
 
-    def send_cmd(self, cmd_str):
+    def send_cmd(self, cmd_str) -> None:
         """ send non rpc command to flipper """
         if self._in_session:
             raise cmdException('rpc_session is active')
@@ -138,7 +138,7 @@ class FlipperProtoBase:
             if r.startswith('>: '):
                 break
 
-    def start_rpc_session(self):
+    def start_rpc_session(self) -> None:
         """ start rpc session """
         # wait for prompt
         self._serial.read_until(b'>: ')
@@ -148,7 +148,7 @@ class FlipperProtoBase:
         self._serial.read_until(b'\n')
         self._in_session = True
 
-    def _read_varint_32(self):
+    def _read_varint_32(self) -> int:
         """Read varint from serial port"""
         MASK = (1 << 32) - 1
 
@@ -168,13 +168,13 @@ class FlipperProtoBase:
                 raise Varint32Exception(
                     'Too many bytes when decoding varint.')
 
-    def _get_command_id(self):
+    def _get_command_id(self) -> int:
         """Increment and get command id"""
         self._command_id += 1
         result = self._command_id
         return result
 
-    def _rpc_send(self, cmd_data, cmd_name, has_next=None, command_id=None):
+    def _rpc_send(self, cmd_data, cmd_name, has_next=None, command_id=None) -> None:
         """Send command"""
 
         if self._in_session is False:

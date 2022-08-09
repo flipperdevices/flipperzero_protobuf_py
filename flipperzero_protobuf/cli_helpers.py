@@ -7,7 +7,7 @@ import numpy
 from .flipper_base import cmdException
 
 
-def print_hex(bytes_data):
+def print_hex(bytes_data) -> None:
     print("".join(f'{x:02x} ' for x in bytes_data))
 
 
@@ -15,7 +15,7 @@ _SCREEN_H = 128
 _SCREEN_W = 64
 
 
-def calc_file_md5(fname):
+def calc_file_md5(fname) -> str:
     """Calculate md5 hash for file
 
     Parameters
@@ -34,7 +34,7 @@ def calc_file_md5(fname):
     return hsum
 
 
-def _write_screen(dat):
+def _write_screen(dat) -> None:
     for y in range(0, _SCREEN_W, 2):
         for x in range(1, _SCREEN_H + 1):
             if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
@@ -48,7 +48,7 @@ def _write_screen(dat):
         print()
 
 
-def _write_pbm_file(dat, dest):
+def _write_pbm_file(dat, dest) -> None:
     """ write Black & White bitmap in simple Netpbm format"""
     with open(dest, "w", encoding="utf-8") as fd:
         print(f"P1\n{_SCREEN_H + 1} {_SCREEN_W}", file=fd)
@@ -56,7 +56,7 @@ def _write_pbm_file(dat, dest):
             print(numpy.array2string(dat[:, y], max_line_width=300)[1:-1], file=fd)
 
 
-def _write_ppm_file(dat, dest):
+def _write_ppm_file(dat, dest) -> None:
     """ write Orange and Black color RGB image stored in PPM format"""
     with open(dest, "w", encoding="utf-8") as fd:
         print(f"P3\n{_SCREEN_H + 1} {_SCREEN_W}\n255", file=fd)
@@ -64,7 +64,7 @@ def _write_ppm_file(dat, dest):
             print(" ".join(['255 165 000' if c == '1' else '000 000 000' for c in dat[:, y]]))
 
 
-def print_screen(screen_bytes, dest=None):
+def print_screen(screen_bytes, dest=None) -> None:
     """convert screendump data into ascii or .pbm for format
 
     Parameters
@@ -98,7 +98,7 @@ def print_screen(screen_bytes, dest=None):
     raise cmdException("invalid filename: {dest}")
 
 
-def _dump_screen(screen_bytes):
+def _dump_screen(screen_bytes) -> numpy.ndarray:
     """process` screendump data
 
     Parameters
@@ -113,7 +113,7 @@ def _dump_screen(screen_bytes):
 
     # pylint: disable=multiple-statements
 
-    def get_bin(x):
+    def get_bin(x) -> str:
         return format(x, '08b')
 
     scr = numpy.zeros((_SCREEN_H + 1, _SCREEN_W + 1), dtype=int)
@@ -138,7 +138,7 @@ def _dump_screen(screen_bytes):
     return scr
 
 
-def flipper_tree_walk(dpath, proto, filedata=False):
+def flipper_tree_walk(dpath, proto, filedata=False) -> Iterator[str, list, list]:
     """Directory tree generator for flipper
 
     Parameters
@@ -177,7 +177,7 @@ def flipper_tree_walk(dpath, proto, filedata=False):
         yield from flipper_tree_walk(dpath + '/' + d, proto, filedata=filedata)
 
 
-def datetime2dict(dt=None):
+def datetime2dict(dt=None) -> dict:
     """Convert datetime obj into type dict
 
     Parameters
@@ -209,7 +209,7 @@ def datetime2dict(dt=None):
     return datetime_dict
 
 
-def dict2datetime(d):
+def dict2datetime(d) -> datetime.datetime:
     """Convert type dict into datetime obj
 
     Parameters
@@ -232,7 +232,7 @@ def dict2datetime(d):
     return datetime.datetime(**tdict)
 
 
-def get_dir_size(flip, dir_path):
+def get_dir_size(flip, dir_path) -> int:
 
     total = 0
     for ROOT, DIRS, FILES in flipper_tree_walk(dir_path, flip, filedata=True):
@@ -244,7 +244,7 @@ def get_dir_size(flip, dir_path):
     return total
 
 
-def calc_n_print_du(flip, dir_path):
+def calc_n_print_du(flip, dir_path) -> None:
 
     if len(dir_path) > 1:
         dir_path = dir_path.rstrip('/')

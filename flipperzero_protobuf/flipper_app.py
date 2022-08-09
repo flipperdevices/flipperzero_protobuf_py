@@ -11,7 +11,7 @@ __all__ = ['FlipperProtoApp']
 class FlipperProtoApp:
 
     # LockStatus
-    def rpc_lock_status(self):
+    def rpc_lock_status(self) -> bool:
         """ Get LockScreen Status
 
         Returns
@@ -32,13 +32,17 @@ class FlipperProtoApp:
         return data.app_lock_status_response.locked
 
     # Start
-    def rpc_app_start(self, name, args):
+    def rpc_app_start(self, name, args) -> None:
         """ Start/Run application
 
         Parameters
         ----------
         name : str
         args : str
+
+        Returns
+        ----------
+        None
 
         Raises
         ----------
@@ -53,8 +57,12 @@ class FlipperProtoApp:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppExit
-    def rpc_app_exit(self):
+    def rpc_app_exit(self) -> None:
         """Send exit command to app
+
+        Returns
+        ----------
+        None
 
         Raises
         ----------
@@ -67,8 +75,19 @@ class FlipperProtoApp:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppLoadFile
-    def rpc_app_load_file(self, path):
-        """Send load file command to app"""
+    def rpc_app_load_file(self, path) -> None:
+        """Send load file command to app.
+
+        Returns
+        ----------
+        None
+
+        Raises
+        ----------
+        cmdException
+
+        """
+
         cmd_data = application_pb2.AppLoadFileRequest()
         cmd_data.path = path
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_load_file_request')
@@ -76,8 +95,19 @@ class FlipperProtoApp:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonPress
-    def rpc_app_button_press(self, args):
-        """Send button press command to app"""
+    def rpc_app_button_press(self, args) -> None:
+        """Send button press command to app.
+
+        Returns
+        ----------
+        None
+
+        Raises
+        ----------
+        cmdException
+
+        """
+
         cmd_data = application_pb2.AppButtonPressRequest()
         cmd_data.args = args
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_button_press_request')
@@ -85,8 +115,16 @@ class FlipperProtoApp:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonRelease
-    def rpc_app_button_release(self):
+    def rpc_app_button_release(self) -> None:
         """Send button release command to app
+
+        Returns
+        ----------
+        None
+
+        Raises
+        ----------
+        cmdException
 
         """
         cmd_data = application_pb2.AppButtonReleaseRequest()

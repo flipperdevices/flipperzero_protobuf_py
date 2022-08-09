@@ -27,7 +27,7 @@ __all__ = ['FlipperProtoGui']
 class FlipperProtoGui:
 
     # StartVirtualDisplay
-    def rpc_start_virtual_display(self, data):
+    def rpc_start_virtual_display(self, data) -> None:
         """Start Virtual Display
 
         Parameters
@@ -51,7 +51,7 @@ class FlipperProtoGui:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StopVirtualDisplay
-    def rpc_stop_virtual_display(self):
+    def rpc_stop_virtual_display(self) -> None:
         """Stop Virtual Display
 
         Parameters
@@ -74,7 +74,7 @@ class FlipperProtoGui:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StartScreenStream
-    def rpc_gui_start_screen_stream(self):
+    def rpc_gui_start_screen_stream(self) -> None:
         """Start screen stream
 
         Parameters
@@ -97,7 +97,7 @@ class FlipperProtoGui:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
     # StopScreenStream
-    def _rpc_gui_stop_screen_stream(self):
+    def _rpc_gui_stop_screen_stream(self) -> None:
         """Stop screen stream
 
         Parameters
@@ -120,7 +120,7 @@ class FlipperProtoGui:
         if rep_data.command_status != 0:
             raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
 
-    def rpc_gui_snapshot_screen(self):
+    def rpc_gui_snapshot_screen(self) -> bytes:
         """Snapshot screen
 
         Parameters
@@ -143,7 +143,7 @@ class FlipperProtoGui:
         return data.gui_screen_frame.data
 
     # SendInputEvent
-    def rpc_gui_send_input_event_request(self, key, itype):
+    def rpc_gui_send_input_event_request(self, key, itype) -> None:
         """Send Input Event Request Key
 
         Parameters
@@ -171,7 +171,7 @@ class FlipperProtoGui:
         if rep_data.command_status != 0:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} {key}, {itype}")
 
-    def rpc_gui_send_input(self, key_arg):
+    def rpc_gui_send_input(self, key_arg) -> None:
         """Send Input Event Request Type
 
         Parameters

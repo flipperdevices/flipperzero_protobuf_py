@@ -16,7 +16,7 @@ class FlipperProtoStorage():
     # BackupRestore
     # BackupCreate
 
-    def rpc_backup_create(self, archive_path=None):
+    def rpc_backup_create(self, archive_path=None) -> None:
         """ Create Backup
 
         Parameters
@@ -41,7 +41,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
-    def rpc_backup_restore(self, archive_path=None):
+    def rpc_backup_restore(self, archive_path=None) -> None:
         """ Backup Restore
 
         Parameters
@@ -66,7 +66,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
-    def rpc_read(self, path=None):
+    def rpc_read(self, path=None) -> bytes:
         """ read file from flipperzero device
 
         Parameters
@@ -103,7 +103,7 @@ class FlipperProtoStorage():
 
         return b''.join(storage_response)
 
-    def rpc_write(self, path=None, data=""):
+    def rpc_write(self, path=None, data="") -> None:
         """ write file from flipperzero device
 
         Parameters
@@ -145,7 +145,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
-    def rpc_info(self, path=None):
+    def rpc_info(self, path=None) -> dict:
         """ get filesystem info
 
         Parameters
@@ -179,7 +179,7 @@ class FlipperProtoStorage():
 
         return MessageToDict(message=rep_data.storage_info_response)
 
-    def _rpc_stat(self, path=None):
+    def _rpc_stat(self, path=None) -> dict | None:
         """
         stat without cmdException
         """
@@ -196,7 +196,7 @@ class FlipperProtoStorage():
 
         return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
-    def rpc_stat(self, path=None):
+    def rpc_stat(self, path=None) -> dict:
         """ get info or file or directory file from flipperzero device
 
         Parameters
@@ -222,7 +222,7 @@ class FlipperProtoStorage():
 
         return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
-    def rpc_md5sum(self, path=None):
+    def rpc_md5sum(self, path=None) -> str:
         """ get md5 of file
 
         Parameters
@@ -248,7 +248,7 @@ class FlipperProtoStorage():
 
         return rep_data.storage_md5sum_response.md5sum
 
-    def _mkdir_path(self, path):
+    def _mkdir_path(self, path) -> None:
 
         if self._debug:
             print(f"\n_mkdir_path path={path}")
@@ -257,7 +257,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_mkdir_request')
         return rep_data.command_status
 
-    def rpc_mkdir(self, path):
+    def rpc_mkdir(self, path) -> None:
         """ creates a new directory
 
         Parameters
@@ -290,7 +290,7 @@ class FlipperProtoStorage():
 
         return rep_data.command_status
 
-    def rpc_delete(self, path=None, recursive=False):
+    def rpc_delete(self, path=None, recursive=False) -> None:
         """ delete file or dir
 
         Parameters
@@ -320,7 +320,7 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
-    def rpc_rename_file(self, old_path=None, new_path=None):
+    def rpc_rename_file(self, old_path=None, new_path=None) -> None:
         """ rename file or dir
 
         Parameters
@@ -349,9 +349,9 @@ class FlipperProtoStorage():
         if rep_data.command_status != 0:
             raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} old_path={old_path} new_path={new_path}")
 
-        return rep_data.command_status
+        # return  # rep_data.command_status
 
-    def rpc_storage_list(self, path="/ext"):
+    def rpc_storage_list(self, path="/ext") -> list:
         """ get file & dir listing
 
         Parameters

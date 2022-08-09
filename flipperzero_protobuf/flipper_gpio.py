@@ -56,7 +56,7 @@ class FlipperProtoGpio:
     """
 
     # GetPinMode
-    def rpc_gpio_get_pin_mode(self, pin):
+    def rpc_gpio_get_pin_mode(self, pin) -> str:
         """ get GPIO pin mode
 
         Parameters
@@ -106,7 +106,7 @@ class FlipperProtoGpio:
         return gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[rep_data.gpio_get_pin_mode_response.mode].name
 
     # SetPinMode
-    def rpc_gpio_set_pin_mode(self, pin, mode):
+    def rpc_gpio_set_pin_mode(self, pin, mode) -> None:
         """ set GPIO pin mode
 
         Parameters
@@ -124,6 +124,10 @@ class FlipperProtoGpio:
         mode : str
             0 = 'OUTPUT'
             1 = 'INPUT'
+
+        Returns:
+        ----------
+        None
 
         Raises
         ----------
@@ -151,7 +155,7 @@ class FlipperProtoGpio:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
 
     # WritePin
-    def rpc_gpio_write_pin(self, pin, value):
+    def rpc_gpio_write_pin(self, pin, value) -> None:
         """ write GPIO pin
 
         Parameters
@@ -167,6 +171,10 @@ class FlipperProtoGpio:
             7 = 'PA7'
 
         value : int
+
+        Returns:
+        ----------
+        None
 
         Raises
         ----------
@@ -192,7 +200,7 @@ class FlipperProtoGpio:
             raise cmdException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} value={value}")
 
     # ReadPin
-    def rpc_gpio_read_pin(self, pin):
+    def rpc_gpio_read_pin(self, pin) -> int:
         """ query GPIO pin
 
         Parameters
@@ -236,7 +244,7 @@ class FlipperProtoGpio:
         return rep_data.read_pin_response.value
 
     # SetInputPull
-    def rpc_gpio_set_input_pull(self, pin, pull_mode):
+    def rpc_gpio_set_input_pull(self, pin, pull_mode) -> None:
         """ Set GPIO pill Input
 
         Parameters
@@ -255,6 +263,10 @@ class FlipperProtoGpio:
             0 = 'NO'
             1 = 'UP'
             2 = 'DOWN'
+
+        Returns:
+        ----------
+        None
 
         Raises
         ----------

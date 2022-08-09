@@ -43,9 +43,12 @@ def arg_opts():
 
     return parser.parse_known_args()
 
+
 volcab = []
-cmd_comp_cache = { }
-def cmd_complete(text,state):
+cmd_comp_cache = {}
+
+
+def cmd_complete(text, state) -> list:
 
     #print(f"Call {text} {state}")
     buf = readline.get_line_buffer()
@@ -66,7 +69,8 @@ def cmd_complete(text,state):
     cmd_comp_cache[text] = results
     return results[state]
 
-def main():
+
+def main() -> None:
 
     # global rdir
     interactive = False
