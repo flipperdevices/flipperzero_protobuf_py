@@ -4,6 +4,7 @@
 
 import sys
 import os
+from typing import Union
 import serial
 import serial.tools.list_ports
 
@@ -12,6 +13,8 @@ from google.protobuf.internal.encoder import _VarintBytes
 # pylint: disable=line-too-long, no-member
 
 from .flipperzero_protobuf_compiled import flipper_pb2
+
+VERSION = '0.1.20220806'
 
 __all__ = ['Varint32Exception', 'InputTypeException', 'cmdException',
            'FlipperProtoBase']
@@ -31,7 +34,7 @@ class cmdException(Exception):
 
 
 class FlipperProtoBase:
-    def __init__(self, serial_port=None, debug=0):
+    def __init__(self, serial_port=None, debug=0) -> None:
 
         self.rdir = '/ext'
 
@@ -77,7 +80,7 @@ class FlipperProtoBase:
 
         return ret
 
-    def _find_port(self) -> str | None:
+    def _find_port(self) -> Union[str, None]:  # -> str | None:
         """find serial device"""
 
         ports = serial.tools.list_ports.comports()
@@ -194,12 +197,12 @@ class FlipperProtoBase:
                                       ) + flipper_message.SerializeToString())
         self._serial.write(data)
 
-    def _rpc_send_and_read_answer(self, cmd_data, cmd_name, has_next=False, command_id=None):
+    def _rpc_send_and_read_answer(self, cmd_data, cmd_name, has_next=False, command_id=None) -> flipper_pb2.Main:
         """Send command and read answer"""
         self._rpc_send(cmd_data, cmd_name, has_next=has_next, command_id=command_id)
         return self._rpc_read_answer()
 
-    def _rpc_read_answer(self, command_id=None):
+    def _rpc_read_answer(self, command_id=None) -> flipper_pb2.Main:
         """Read answer from serial port and filter by command id"""
         # message->DebugString()
 
@@ -215,7 +218,7 @@ class FlipperProtoBase:
                 break
         return data
 
-    def _rpc_read_any(self):
+    def _rpc_read_any(self) -> flipper_pb2.Main:
         """Read answer from serial port"""
         length = self._read_varint_32()
         data = flipper_pb2.Main()

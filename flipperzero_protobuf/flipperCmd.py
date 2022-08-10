@@ -541,10 +541,7 @@ class FlipperCMD:
             if self.debug:
                 print(cmd, old_fn, new_fn)
 
-            rename_resp = self.flip.rpc_rename_file(old_fn, new_fn)
-
-            if self.debug:
-                print(f"rename_resp={rename_resp}")
+            self.flip.rpc_rename_file(old_fn, new_fn)
 
         else:
             raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")

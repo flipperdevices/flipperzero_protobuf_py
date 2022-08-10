@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 # import hashlib
+from typing import Union
+
+
 
 from google.protobuf.json_format import MessageToDict
 from .flipperzero_protobuf_compiled import storage_pb2
@@ -179,7 +182,7 @@ class FlipperProtoStorage():
 
         return MessageToDict(message=rep_data.storage_info_response)
 
-    def _rpc_stat(self, path=None) -> dict | None:
+    def _rpc_stat(self, path=None) -> Union[dict, None]:  # -> dict | None:
         """
         stat without cmdException
         """
