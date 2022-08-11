@@ -1,11 +1,11 @@
 
 from .flipper_proto import FlipperProto
 
-from .cli_helpers import *
+# from .cli_helpers import *
 
-__all__ = ["FlipperProto", "cli_helpers"]
+__all__ = ["FlipperProto"]
 
 __pdoc__ = {
     'flipperzero_protobuf_compiled': False,
-    # 'flipperzero_protobuf.flipperCmd': False
+    'flipperzero_protobuf.flipperCmd': False
 }

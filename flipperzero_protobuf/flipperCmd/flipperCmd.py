@@ -20,10 +20,10 @@ import time
 
 
 # from google.protobuf.json_format import MessageToDict
-from .flipper_base import cmdException    # FlipperProtoBase
+from ..flipper_base import cmdException    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
-from .flipper_proto import FlipperProto
-from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5, calc_n_print_du, dict2datetime
+from ..flipper_proto import FlipperProto
+from ..cli_helpers import print_screen, flipper_tree_walk, calc_file_md5, calc_n_print_du, dict2datetime
 
 _DEBUG = 0
 

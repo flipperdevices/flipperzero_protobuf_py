@@ -3,8 +3,6 @@
 # import hashlib
 from typing import Union
 
-
-
 from google.protobuf.json_format import MessageToDict
 from .flipperzero_protobuf_compiled import storage_pb2
 from .flipper_base import cmdException
