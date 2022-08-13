@@ -59,6 +59,7 @@ class FlipperCMD:
         self.rdir = '/ext'
         self.prevError = 'OK'
         self._local_time = time.localtime()
+        self.color_ls = False
 
         self.verbose = kwargs.get('verbose', 0)
 
@@ -93,8 +94,8 @@ class FlipperCMD:
             ("CD", "CHDIR", "RCD"): self._set_rdir,
             # ("PWD",):,
             ("HISTORY", "HIST"): self._print_cmd_hist,
-            ("STOP_SESSION", "STOP-SESSION"): self.do_stop_session,
-            ("START_SESSION", "START-SESSION"): self.do_start_session,
+            ("STOP-SESSION",): self.do_stop_session,
+            ("START-SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self._do_send_cmd,
             ("REBOOT",): self.do_reboot,
             ("QUIT", "EXIT"): self.do_quit,
@@ -108,10 +109,11 @@ class FlipperCMD:
                 self._cmd_table[c] = v
 
     def get_cmd_keys(self) -> list:
+        """returns list of commands"""
         return self._cmd_table.keys()
 
     def run_comm(self, argv) -> None:
-
+        """run command line"""
         cmd = argv.pop(0).upper()
 
         if cmd in self._cmd_table:
@@ -181,13 +183,11 @@ class FlipperCMD:
             if argv[0].lstrip('-').isdigit():
                 show_count = int(argv[0].lstrip('-'))
 
-        # show_count = show_count * -1
-
         start_at = readline.get_current_history_length() - show_count
-        print(f"{start_at} = {readline.get_current_history_length()} - {show_count}")
+        # print(f"{start_at} = {readline.get_current_history_length()} - {show_count}")
         start_at = max(start_at, 0)
 
-        print(f"show_count={show_count} start_at={start_at}")
+        # print(f"show_count={show_count} start_at={start_at}")
         # for hist in self.cmdHistory[start_at:]:
         #    print(f"   {hist}")
 
@@ -214,6 +214,9 @@ class FlipperCMD:
         if opt in ["OFF", "FALSE", "F", "NO", "Y", "0"]:
             return 0
 
+        if opt.isdigit():
+            return int(opt)
+
         return None
 
     def _set_opt(self, cmd, argv):     # pylint: disable=unused-argument
@@ -224,6 +227,7 @@ class FlipperCMD:
             excl = ' '.join(self.excludes)
             print(f"\tverbose:\t{self.verbose}\n"
                   f"\tdebug:  \t{self.debug}\n"
+                  f"\tColor:    \t{self.color_ls}\n"
                   f"\tremote-dir:\t{self.rdir}\n"
                   f"\tPort:   \t{self.flip.port()}\n"
                   f"\texcludes: \t{excl}\n"
@@ -231,6 +235,12 @@ class FlipperCMD:
             return
 
         # print(f"set_opt {argv[0].upper()}")
+        if argv[0].upper() == "COLOR":
+            val = self._interpret_val(argv[1])
+            if val is not None:
+                self.color_ls = val
+            return
+
         if argv[0].upper() == "DEBUG":
             val = self._interpret_val(argv[1])
             if val is not None:
@@ -402,6 +412,18 @@ class FlipperCMD:
 
     # storage_pb2.File.DIR == 1
     # storage_pb2.File.FILE == 0
+    # Colors
+    @staticmethod
+    def pink(t):
+        return f'\033[95m{t}\033[0m'
+
+    @staticmethod
+    def blue(t):
+        return f'\033[94m{t}\033[0m'
+    # def magenta(t):  return f'\033[93m{t}\033[0m'
+    # def yellow(t):  return f'\033[93m{t}\033[0m'
+    # def green(t):   return f'\033[92m{t}\033[0m'
+    # def red(t):     return f'\033[91m{t}\033[0m'
 
     def do_list(self, cmd, argv):
         """list files and dirs on Flipper device
@@ -451,6 +473,7 @@ class FlipperCMD:
         # if self.debug:
         #     print("Storage List result: ", targ)
 
+        # should split off file list printing into sub func
         if long_format:
             # dir_fmt = "{:<25s}\t   DIR"
             # file_fmt = "{:<25s}\t{:>6d}\t{}"
@@ -477,18 +500,23 @@ class FlipperCMD:
                 endl = ""
 
                 if line['type'] == 'DIR':
-                    name = line['name'] + '/'           # ("-" if line['type'] == 'DIR' else "+" )
+                    if self.color_ls:
+                        name = self.blue(line['name'])
+                    else:
+                        name = line['name'] + '/'           # ("-" if line['type'] == 'DIR' else "+" )
                 else:
-                    name = line['name']
+                    if self.color_ls:
+                        name = self.pink(line['name'])
+                    else:
+                        name = line['name']
 
                 if j % 4 == 1:
                     endl = '\n'
 
-                print(f"{name:<25s}", end=endl)
+                print(f"{name:<35s}", end=endl)
 
         # add blank line
         print()
-        # pprint.pprint(flist)
 
     def do_del(self, cmd, argv):
         """delete file of directory on flipper device
@@ -510,6 +538,9 @@ class FlipperCMD:
 
         if not targ.startswith('/'):
             targ = os.path.normpath(self.rdir + '/' + targ)
+
+        if self.verbose:
+            print(f"{cmd} {'-r' if recursive else ''} {targ}")
 
         self.flip.rpc_delete(targ, recursive=recursive)
 
@@ -769,6 +800,9 @@ class FlipperCMD:
         if stat_resp is not None and stat_resp.get('type', "") == 'FILE':
             raise cmdException(f"{syntax_str}\n\t{remote_dir}: exists as a file")
 
+        if verbose:
+            print(f"{cmd} '{local_dir_full}' '{remote_dir}")
+
         local_dir_len = len(local_dir_full)
         for ROOT, dirs, FILES in os.walk(local_dir_full, topdown=True):
             dirs[:] = [de for de in dirs if de not in self.excludes and de[0] != '.' and '+' not in de]
@@ -846,6 +880,8 @@ class FlipperCMD:
             local_dir = local_dir + '/' + os.path.basename(remote_dir_full)
             if not os.path.exists(local_dir):
                 os.makedirs(local_dir)
+        else:
+            os.makedirs(local_dir)
 
         if verbose:
             print(f"{cmd} '{remote_dir_full}' '{os.path.abspath(local_dir)}'")

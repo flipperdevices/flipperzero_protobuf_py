@@ -3,19 +3,19 @@
 
 # import os
 # import sys
-import readline
 import shlex
 # import pprint
 import argparse
 
 
-#from .flipperCmd import FlipperCMD
+# from .flipperCmd import FlipperCMD
 from . import FlipperCMD
 # from google.protobuf.json_format import MessageToDict
 from ..flipper_base import cmdException    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 # from .flipper_proto import FlipperProto
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
+from .cmd_complete import Cmd_Complete
 
 
 def arg_opts():
@@ -45,32 +45,6 @@ def arg_opts():
     return parser.parse_known_args()
 
 
-volcab = []
-cmd_comp_cache = {}
-
-
-def cmd_complete(text, state) -> list:
-
-    #print(f"Call {text} {state}")
-    buf = readline.get_line_buffer()
-    #print(f"buf= >{buf}<")
-    #print()
-    #ct = readline.get_completion_type()
-    #print(f"ct={ct}\n\n")
-
-    if buf[-1] == ' ' and buf.strip().upper() in volcab:
-        return [None]
-
-    text = text.upper()
-    if text in cmd_comp_cache:
-        # print(f"Cache {text} {state}", cmd_comp_cache[text])
-        return cmd_comp_cache[text][state]
-
-    results = [x for x in volcab if x.startswith(text)] + [None]
-    cmd_comp_cache[text] = results
-    return results[state]
-
-
 def main() -> None:
 
     # global rdir
@@ -91,12 +65,14 @@ def main() -> None:
         interactive = True
 
         # set up comand complete only in interactive mode
-        volcab.extend(sorted(fcmd.get_cmd_keys()))
-        readline.parse_and_bind("tab: complete")
-        readline.set_completer(cmd_complete)
-        completer_delims = readline.get_completer_delims()
-        completer_delims = completer_delims.replace("-", "")
-        readline.set_completer_delims(completer_delims)
+        # volcab.extend(sorted(fcmd.get_cmd_keys()))
+        # readline.parse_and_bind("tab: complete")
+        # readline.set_completer(cmd_complete)
+        # completer_delims = readline.get_completer_delims()
+        # completer_delims = completer_delims.replace("-", "")
+        # readline.set_completer_delims(completer_delims)
+        compl = Cmd_Complete()
+        compl.setup(volcab=fcmd.get_cmd_keys())
 
     lineno = 1
     while 1:
@@ -112,10 +88,12 @@ def main() -> None:
 
             if interactive is True:
                 # print(f"{fcmd.rdir} flipper> ", end="")
-                prompt = f"{fcmd.rdir} flipper> "
+                prompt = f"{lineno} {fcmd.rdir} flipper> "
+                compl.prompt = prompt
                 argv = shlex.split(input(prompt), comments=True, posix=True)
-                if argv is None or len(argv) == 0:
-                    print()
+                # if argv is None or len(argv) == 0:
+                if not argv:
+                    # print()
                     continue
 
             lineno += 1

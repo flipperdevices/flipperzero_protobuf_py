@@ -7,7 +7,9 @@ import numpy
 
 from .flipper_base import cmdException
 
-__ALL__ = ["print_hex", "calc_file_md5", "flipper_tree_walk", "datetime2dict", "dict2datetime", "get_dir_size", "calc_n_print_du"]
+__ALL__ = ["print_hex", "calc_file_md5", "flipper_tree_walk",
+           "datetime2dict", "dict2datetime", "get_dir_size",
+           "calc_n_print_du"]
 
 
 def print_hex(bytes_data) -> None:
