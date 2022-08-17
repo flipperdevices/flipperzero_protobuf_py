@@ -83,6 +83,8 @@ def main() -> None:
                     if fcmd.verbose or fcmd.debug:
                         print("cmd=", line)
                     argv = shlex.split(line, comments=True, posix=True)
+                    if not argv or argv[0][0] == '#':
+                        continue
                     fcmd.run_comm(argv)
                 break
 

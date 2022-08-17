@@ -14,6 +14,7 @@ FlipperCMD
 import os
 import sys
 import readline
+import string
 import zipfile
 import time
 # import pprint
@@ -38,6 +39,9 @@ _DEBUG = 0
 #
 #
 
+VALID_STR = string.ascii_letters + string.digits + "$%-_@~`!\."
+# valid_set = set(valid_str)
+
 class FlipperCMD:
     # pylint: disable=too-many-instance-attributes
 
@@ -61,6 +65,8 @@ class FlipperCMD:
         self._local_time = time.localtime()
         self.color_ls = False
 
+        self.valid_set = set(VALID_STR)
+
         self.verbose = kwargs.get('verbose', 0)
 
         self.excludes = [".thumbs", ".AppleDouble", ".RECYCLER", ".Spotlight-V100", '__pycache__']
@@ -79,6 +85,8 @@ class FlipperCMD:
             ("MD5SUM", "MD5"): self.do_md5sum,
             ("CAT",): self.do_cat_file,
             ("GET", "GETFILE"): self.do_get_file,
+            ("GETT",): self.new_get_file,
+            ("PUTT",): self.new_put_file,
             ("GET-TREE", "GETTREE"): self.do_get_tree,
             ("PUT", "PUTFILE"): self.do_put_file,
             ("PUT-TREE", "PUTTREE"): self.do_put_tree,
@@ -115,6 +123,19 @@ class FlipperCMD:
     def run_comm(self, argv) -> None:
         """run command line"""
         cmd = argv.pop(0).upper()
+
+        if cmd == 'SLEEP':
+            sleep_time = 5
+            if argv:
+                sleep_time = int(argv[0])
+            if self.verbose:
+                print(f"{cmd} {sleep_time}")
+            time.sleep(sleep_time)
+            return
+
+        if cmd in ['ECHO', "PRINT"]:
+            print(" ".join(argv))
+            return
 
         if cmd in self._cmd_table:
 
@@ -549,33 +570,32 @@ class FlipperCMD:
             RENAME <old_name> <new_name>
             renames or move file on flipper device
         """
-        if (len(argv) > 1 and argv[0] != "?"):
-            old_fn = argv.pop(0)
-            new_fn = argv.pop(0)
-
-            if not old_fn.startswith('/'):
-                old_fn = os.path.normpath(self.rdir + '/' + old_fn)
-
-            if not new_fn.startswith('/'):
-                new_fn = os.path.normpath(self.rdir + '/' + new_fn)
-
-            # flipper does not line the trailing '/'
-            new_fn = new_fn.rstrip('/')
-            old_fn = old_fn.rstrip('/')
-
-            # is destination a directory?
-            stat_resp = self.flip._rpc_stat(new_fn)
-            if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
-                bname = os.path.basename(old_fn)
-                new_fn = f"{new_fn}/{bname}"
-
-            if self.debug:
-                print(cmd, old_fn, new_fn)
-
-            self.flip.rpc_rename_file(old_fn, new_fn)
-
-        else:
+        if len(argv) != 2 or (argv and argv[0] == "?"):
             raise cmdException(f"Syntax :\n\t{cmd} <old_name> <new_name>")
+
+        old_fn = argv.pop(0)
+        new_fn = argv.pop(0)
+
+        if not old_fn.startswith('/'):
+            old_fn = os.path.normpath(self.rdir + '/' + old_fn)
+
+        if not new_fn.startswith('/'):
+            new_fn = os.path.normpath(self.rdir + '/' + new_fn)
+
+        # flipper does not line the trailing '/'
+        new_fn = new_fn.rstrip('/')
+        old_fn = old_fn.rstrip('/')
+
+        # is destination a directory?
+        stat_resp = self.flip._rpc_stat(new_fn)
+        if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
+            bname = os.path.basename(old_fn)
+            new_fn = f"{new_fn}/{bname}"
+
+        if self.debug:
+            print(cmd, old_fn, new_fn)
+
+        self.flip.rpc_rename_file(old_fn, new_fn)
 
     def _mkdir_path(self, targ):
         """Simplified mkdir for internal use"""
@@ -600,7 +620,7 @@ class FlipperCMD:
         if not targ.startswith('/'):
             targ = os.path.normpath(self.rdir + '/' + targ)
 
-        if self.debug:
+        if self.debug or self.verbose:
             print(cmd, targ)
 
         self.flip.rpc_mkdir(targ)
@@ -663,53 +683,173 @@ class FlipperCMD:
 
     def _get_file(self, remote_filen, local_filen):
         """Simplified get file for internal use"""
+
+        if self.verbose:
+            print(f"get {remote_filen} -> {local_filen}\n")
+
         file_data = self.flip.rpc_read(remote_filen)
         with open(local_filen, 'wb') as fd:
             fd.write(file_data)
+
+    def _valid_filename(self, fname):
+        #print(f"_valid_filename: {fname}")
+        #print(set(fname) - self.valid_set)
+        return set(fname) <= self.valid_set
+
+    def new_get_file(self, cmd, argv):
+        """copy file from flipper
+        GET <flipper_file> <local_filename>
+        """
+
+        print("new_get_file:", cmd, argv)
+
+        arg_len = len(argv)
+
+        if arg_len == 1:
+            print("arg_len 1")
+
+            remote_filen = argv.pop(0)
+            local_filen  = os.path.basename(remote_filen)
+
+            if not remote_filen.startswith('/'):
+                remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
+
+
+            self._get_file(remote_filen, local_filen)
+            return
+
+        if arg_len == 2:
+            print("arg_len 2")
+
+            remote_filen = argv.pop(0)
+            local_filen = argv.pop(0)
+
+            if os.path.isdir(local_filen):
+                local_name = local_filen + "/" + os.path.basename(remote_filen)
+
+            if not remote_filen.startswith('/'):
+                remote_name = os.path.normpath(self.rdir + '/' + remote_filen)
+
+            self._get_file(remote_name, local_name)
+            return
+
+        # arg_len > 2
+        print("arg_len 3")
+        local_filen = argv.pop(-1)
+        remote_list = argv
+
+        # print("remote_list:", remote_list)
+        # print("local_filen:", local_filen)
+        if not os.path.isdir(local_filen):
+            print(f"{local_filen}: Not a directory")
+            return
+
+        for f in remote_list:
+
+            local_name = local_filen + '/' + os.path.basename(f)
+
+            if not f.startswith('/'):
+                remote_name = os.path.normpath(self.rdir + '/' + f)
+
+            self._get_file(remote_name, local_name)
 
     def do_get_file(self, cmd, argv):
         """copy file from flipper
         GET <flipper_file> <local_filename>
         """
-        if (len(argv) >= 1 and argv[0] != "?"):
-            remote_filen = argv.pop(0)
-            if argv:
-                local_filen = argv.pop(0)
-            else:
-                local_filen = "."
 
-            if os.path.isdir(local_filen):
-                local_filen = local_filen + "/" + os.path.basename(remote_filen)
+        if (len(argv) < 1 or argv[0] == "?"):
+            raise cmdException(f"Syntax :\n\t{cmd} <remote_filename> <local_filename>")
+
+        remote_filen = argv.pop(0)
+        if argv:
+            local_filen = argv.pop(0)
+        else:
+            local_filen = "."
+
+        if os.path.isdir(local_filen):
+            local_filen = local_filen + "/" + os.path.basename(remote_filen)
+
+        if not remote_filen.startswith('/'):
+            remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
+
+        # is destination a directory?
+        if os.path.isdir(local_filen):
+            bname = os.path.basename(remote_filen)
+            local_filen = local_filen + '/' + bname
+
+        if self.debug:
+            print(cmd, remote_filen, local_filen)
+
+        if self.verbose:
+            print(f"get {remote_filen} -> {local_filen}\n")
+
+        # self._get_file(remote_filen, local_filen)
+
+        file_data = self.flip.rpc_read(remote_filen)
+        # print(f"getting {len(file_data)} bytes")
+        with open(local_filen, 'wb') as fd:
+            fd.write(file_data)
+
+    def _put_file(self, local_filen, remote_filen):
+        """Simplified put file """
+        if self.verbose:
+            print(f"copy {local_filen} -> {remote_filen}")
+
+        with open(local_filen, 'rb') as fd:
+            file_data = fd.read()
+
+        self.flip.rpc_write(remote_filen, file_data)
+
+
+    def new_put_file(self, cmd, argv):
+        """copy file to flipper
+        PUT  <local_filename> <flipper_file>
+        """
+        if (len(argv) < 1 or argv[0] == "?"):
+            raise cmdException(f"Syntax :\n\t{cmd} <local_file> <remote_file_or_dir>")
+
+        arg_len = len(argv)
+
+        if arg_len == 1:
+            local_filen = argv.pop(0)
+            remote_filen = os.path.normpath(self.rdir + '/' + os.path.basename(local_filen))
+
+            self._put_file(local_filen, remote_filen)
+            return
+
+        if arg_len == 2:
+            local_filen = argv.pop(0)
+            remote_filen = argv.pop(0)
 
             if not remote_filen.startswith('/'):
                 remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
             # is destination a directory?
-            if os.path.isdir(local_filen):
-                bname = os.path.basename(remote_filen)
-                local_filen = local_filen + '/' + bname
+            stat_resp = self.flip._rpc_stat(remote_filen)
+            if stat_resp is not None and stat_resp.get('type', "") == 'DIR':
+                bname = os.path.basename(local_filen)
+                remote_filen = remote_filen + '/' + bname
 
-            if self.debug:
-                print(cmd, remote_filen, local_filen)
+            self._put_file(local_filen, remote_filen)
+            return
 
-            # if self.verbose:
-            print(f"get {remote_filen} -> {local_filen}\n")
+        # arg_len > 2
+        remote_filen = argv.pop(-1)
+        local_list = argv
 
-            # _get_file(remote_filen, local_filen)
+        if not remote_filen.startswith('/'):
+            remote_filen = os.path.normpath(self.rdir + '/' + remote_filen)
 
-            file_data = self.flip.rpc_read(remote_filen)
-            # print(f"getting {len(file_data)} bytes")
-            with open(local_filen, 'wb') as fd:
-                fd.write(file_data)
-        else:
-            raise cmdException(f"Syntax :\n\t{cmd} <remote_filename> <local_filename>")
+        # is destination a directory?
+        stat_resp = self.flip._rpc_stat(remote_filen)
+        if stat_resp is not None and stat_resp.get('type', "") != 'DIR':
+            print(f"{remote_filen}: Not a directory")
+            return
 
-    def _put_file(self, local_filen, remote_filen):
-        """Simplified put file """
-        with open(local_filen, 'rb') as fd:
-            file_data = fd.read()
-
-        self.flip.rpc_write(remote_filen, file_data)
+        for f in local_list:
+            remote_name = remote_filen + '/' + os.path.basename(f)
+            self._put_file(f, remote_name)
 
     def do_put_file(self, cmd, argv):
         """copy file to flipper
@@ -747,7 +887,7 @@ class FlipperCMD:
         if self.verbose:
             print(f"copy {local_filen} -> {remote_filen}")
 
-        # _put_file(local_filen, remote_filen)
+        # self._put_file(local_filen, remote_filen)
 
         with open(local_filen, 'rb') as fd:
             file_data = fd.read()
@@ -790,11 +930,13 @@ class FlipperCMD:
 
         local_dir_full = os.path.abspath(local_dir)
         local_dir_targ = os.path.split(local_dir_full)[1]
-        # remote_dir_targ = os.path.split(remote_dir)[1]
+        remote_dir_targ = os.path.split(remote_dir)[1]
 
-        # if local_dir.endswith('/') or local_dir_targ == remote_dir_targ:
+        if local_dir.endswith('/') or local_dir_targ == remote_dir_targ:
+            self._mkdir_path(remote_dir)
+        else:
+            remote_dir = remote_dir + '/' + local_dir_targ
 
-        remote_dir = remote_dir + '/' + local_dir_targ
         stat_resp = self.flip._rpc_stat(remote_dir)
 
         if stat_resp is not None and stat_resp.get('type', "") == 'FILE':
@@ -819,8 +961,11 @@ class FlipperCMD:
             for f in FILES:
                 # if not f.isalnum() or '+' in f:
                 #    continue
-                if verbose:
-                    print(f"copy {ROOT} / {f} -> {remdir} / {f}")
+                # if verbose:
+                #     print(f"copy {ROOT} / {f} -> {remdir} / {f}")
+                if not self._valid_filename(f):
+                    print(f"Skipping Invalid filename {f}")
+                    continue
                 try:
                     self._put_file(f"{ROOT}/{f}", f"{remdir}/{f}")
                 except cmdException as _e:
@@ -861,16 +1006,16 @@ class FlipperCMD:
         else:
             local_dir = '.'
 
-        if verbose:
-            print(f"{cmd} '{remote_dir}' '{local_dir}'")
+        # if verbose:
+        #    print(f"{cmd} '{remote_dir}' '{local_dir}'")
 
         if not remote_dir.startswith('/'):
             remote_dir_full = os.path.normpath(self.rdir + '/' + remote_dir)
         else:
             remote_dir_full = remote_dir
 
-        if verbose:
-            print(f"'{remote_dir}' -> '{remote_dir_full}'")
+        # if verbose:
+        #     print(f"'{remote_dir}' -> '{remote_dir_full}'")
 
         stat_resp = self.flip._rpc_stat(remote_dir_full)
         if stat_resp is None or stat_resp.get('type', "") == 'FILE':
@@ -899,8 +1044,8 @@ class FlipperCMD:
                 os.makedirs(f"{locdir}/{d}")
 
             for f in FILES:
-                if verbose:
-                    print(f"copy {ROOT} / {f} -> {locdir} / {f}")
+                # if verbose:
+                #     print(f"copy {ROOT} / {f} -> {locdir} / {f}")
                 self._get_file(f"{ROOT}/{f}", f"{locdir}/{f}")
 
     def do_info(self, _cmd, argv):

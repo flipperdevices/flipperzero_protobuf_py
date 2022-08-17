@@ -87,9 +87,9 @@ class FlipperProtoBase:
         for port, desc, hwid in ports:
             if self._debug:
                 print(f"{port}: {desc} [{hwid}]")
-            if desc.startswith("Flipper"):
+
+            if desc.startswith("Flipper") or desc.startswith("Rogue"):
                 return port
-            # print("{}: {} [{}]".format(port, desc, hwid))
 
         return None
 
