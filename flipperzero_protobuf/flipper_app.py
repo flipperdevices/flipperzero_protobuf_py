@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
+"""
+FlipperProto App function Class
+"""
 
 # pylint: disable=line-too-long, no-member
 
 from .flipperzero_protobuf_compiled import application_pb2
-from .flipper_base import cmdException
+from .flipper_base import FlipperProtoException
 
 __all__ = ['FlipperProtoApp']
 
 
 class FlipperProtoApp:
+    """
+    FlipperProto App function Class
+    """
 
     # LockStatus
     def rpc_lock_status(self) -> bool:
@@ -20,14 +26,14 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
         cmd_data = application_pb2.LockStatusRequest()
         data = self._rpc_send_and_read_answer(cmd_data, 'app_lock_status_request')
 
         if data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[data.command_status].name)
 
         return data.app_lock_status_response.locked
 
@@ -46,7 +52,7 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
         cmd_data = application_pb2.StartRequest()
@@ -54,7 +60,7 @@ class FlipperProtoApp:
         cmd_data.args = args
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_start_request')
         if rep_data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppExit
     def rpc_app_exit(self) -> None:
@@ -66,13 +72,13 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
         cmd_data = application_pb2.AppExitRequest()
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_exit_request')
         if rep_data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppLoadFile
     def rpc_app_load_file(self, path) -> None:
@@ -84,7 +90,7 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
 
@@ -92,7 +98,7 @@ class FlipperProtoApp:
         cmd_data.path = path
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_load_file_request')
         if rep_data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonPress
     def rpc_app_button_press(self, args) -> None:
@@ -104,7 +110,7 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
 
@@ -112,7 +118,7 @@ class FlipperProtoApp:
         cmd_data.args = args
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_button_press_request')
         if rep_data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
 
     # AppButtonRelease
     def rpc_app_button_release(self) -> None:
@@ -124,10 +130,10 @@ class FlipperProtoApp:
 
         Raises
         ----------
-        cmdException
+        FlipperProtoException
 
         """
         cmd_data = application_pb2.AppButtonReleaseRequest()
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'app_button_release_request')
         if rep_data.command_status != 0:
-            raise cmdException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)

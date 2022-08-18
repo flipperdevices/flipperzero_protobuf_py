@@ -1,4 +1,6 @@
 
+"""FlipperProto Class Init"""
+
 from .flipper_proto import FlipperProto
 
 # from .cli_helpers import *

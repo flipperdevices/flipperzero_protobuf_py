@@ -1,3 +1,6 @@
+"""
+command Completion callback class for FlipperCMD interface.
+"""
 
 import sys
 import readline
@@ -7,6 +10,7 @@ __all__ = ['Cmd_Complete']
 
 
 class Cmd_Complete():  # Custom completer
+    """Command Completion callback class for FlipperCMD interface."""
 
     def __init__(self, **kwargs):
 
@@ -18,6 +22,7 @@ class Cmd_Complete():  # Custom completer
         self.prompt = ">"
 
     def setup(self, volcab=None):
+        """Command Completion setup callback."""
 
         if volcab:
             self.volcab = sorted(volcab)
@@ -33,6 +38,7 @@ class Cmd_Complete():  # Custom completer
         # readline.set_completion_display_matches_hook(self.display_matches)
 
     def cmd_complete(self, text, state) -> list:
+        """Command Completion callback hook."""
 
         # print(f"Call '{text}' {state}")
         buf = readline.get_line_buffer()
@@ -59,7 +65,8 @@ class Cmd_Complete():  # Custom completer
 
         # https://stackoverflow.com/questions/20625642/autocomplete-with-readline-in-python3
 
-    def display_matches(self, substitution, matches, _longest_match_length):
+    def display_matches(self, _substitution, matches, _longest_match_length):
+        """Command Completion display callback hook."""
         # line_buffer = readline.get_line_buffer()
         columns = environ.get("COLUMNS", 80)
 

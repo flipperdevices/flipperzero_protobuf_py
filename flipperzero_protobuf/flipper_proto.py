@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Meta command class for FlipperProto"""
 
 # pylint: disable=too-few-public-methods
 

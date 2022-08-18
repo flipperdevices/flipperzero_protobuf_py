@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
+"""command helper funtions FlipperProto Class"""
 
 import datetime
 import hashlib
 from collections.abc import Iterator
 import numpy
 
-from .flipper_base import cmdException
+from .flipper_base import InputTypeException
 
 __ALL__ = ["print_hex", "calc_file_md5", "flipper_tree_walk",
-           "datetime2dict", "dict2datetime", "get_dir_size",
+           "datetime2dict", "dict2datetime",
            "calc_n_print_du"]
 
 
 def print_hex(bytes_data) -> None:
+    """print bytes in hex"""
     print("".join(f'{x:02x} ' for x in bytes_data))
 
 
@@ -40,6 +42,7 @@ def calc_file_md5(fname) -> str:
 
 
 def _write_screen(dat) -> None:
+    """ write image data to terminal screen"""
     for y in range(0, _SCREEN_W, 2):
         for x in range(1, _SCREEN_H + 1):
             if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
@@ -84,6 +87,10 @@ def print_screen(screen_bytes, dest=None) -> None:
             prints screen data as ascii
             If dest filename is given screen data is writen as pbm image
 
+    Raises
+    ----------
+        InputTypeException
+
     """
 
     dat = _dump_screen(screen_bytes)
@@ -100,7 +107,7 @@ def print_screen(screen_bytes, dest=None) -> None:
         _write_ppm_file(dat, dest)
         return
 
-    raise cmdException("invalid filename: {dest}")
+    raise InputTypeException("invalid filename: {dest}")
 
 
 def _dump_screen(screen_bytes) -> numpy.ndarray:
@@ -145,6 +152,7 @@ def _dump_screen(screen_bytes) -> numpy.ndarray:
 
 def flipper_tree_walk(dpath, proto, filedata=False) -> Iterator[str, list, list]:
     """Directory tree generator for flipper
+        writen to have simular call interface as os.walk()
 
     Parameters
     ----------
@@ -237,12 +245,12 @@ def dict2datetime(d) -> datetime.datetime:
     return datetime.datetime(**tdict)
 
 
-def get_dir_size(flip, dir_path) -> int:
-
+def _get_dir_size(flip, dir_path) -> int:
+    """calculate disk usage statistics for flipper folder and sub folders."""
     total = 0
     for ROOT, DIRS, FILES in flipper_tree_walk(dir_path, flip, filedata=True):
         for d in DIRS:
-            total += get_dir_size(flip, f"{ROOT}/{d}")
+            total += _get_dir_size(flip, f"{ROOT}/{d}")
         for f in FILES:
             total += f['size']
 
@@ -250,6 +258,7 @@ def get_dir_size(flip, dir_path) -> int:
 
 
 def calc_n_print_du(flip, dir_path) -> None:
+    """prints folder  disk usage statistics."""
 
     if len(dir_path) > 1:
         dir_path = dir_path.rstrip('/')
@@ -263,7 +272,7 @@ def calc_n_print_du(flip, dir_path) -> None:
     total_size = 0
     for line in flist:
         if line['type'] == 'DIR':
-            dsize = get_dir_size(flip, f"{dir_path}/{line['name']}")
+            dsize = _get_dir_size(flip, f"{dir_path}/{line['name']}")
             total_size += dsize
             n = line['name'] + '/'
             print(f"{n:<25s}\t{dsize:>9d}\tDIR")
