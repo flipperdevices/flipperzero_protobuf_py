@@ -1,9 +1,9 @@
 
-
 import os.path
-from setuptools import setup, find_packages
-from distutils.command.install_scripts import install_scripts
 import ssl
+from distutils.command.install_scripts import install_scripts
+
+from setuptools import setup, find_packages
 # from version import tag_version
 
 # ssl._create_default_https_context = ssl._create_unverified_context
@@ -12,12 +12,11 @@ import ssl
 # python setup.py --dry-run --verbose install
 # python setup.py install --record files.txt
 
-from distutils.core import setup
+#from distutils.core import setup
 
 # version = '0.1.20220811'
 
 exec(open("./flipperzero_protobuf/version.py").read())
-
 
 setup(
     name='flipperzero_protobuf',
@@ -52,7 +51,14 @@ setup(
     description='Python API wrapper for flipperzero_protobuf.',
     # long_description=open('README.txt').read(),
     # cmdclass = { 'install_scripts': install_scripts_and_symlinks }
-    install_requires=['numpy==1.21.4', 'protobuf==4.21.3', 'pyserial'],
+    install_requires=[
+        'pyreadline; platform_system == "Windows"',
+        'numpy==1.21.4', 'protobuf==4.21.3', 'pyserial'
+    ],
+    # extras_require={
+    #     'platform_system=="Windows"': [ 'pyreadline' ],
+    # },
+
     entry_points={
            'console_scripts': [
                # 'flipperzero_cmd = flipperzero_protobuf.flipperCmd.flipperzero_cmd:main'
@@ -60,4 +66,3 @@ setup(
           ],
       }
 )
-

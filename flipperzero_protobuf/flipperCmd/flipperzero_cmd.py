@@ -24,6 +24,10 @@ def arg_opts():
     parser = argparse.ArgumentParser(add_help=True,
                         formatter_class=argparse.RawDescriptionHelpFormatter)
 
+    parser.add_argument('--debug', dest="debug",
+                        default=0,
+                        help='Increase debug verbosity', action='store_true')
+
     parser.add_argument('-v', '--verbose', dest="verbose",
                         default=0,
                         help='Increase debug verbosity', action='count')
@@ -54,7 +58,7 @@ def main() -> None:
 
     arg, u = arg_opts()
 
-    fcmd = FlipperCMD(serial_port=arg.serial_port, verbose=arg.verbose)
+    fcmd = FlipperCMD(serial_port=arg.serial_port, verbose=arg.verbose, debug=arg.debug)
     # proto = FlipperProto()
 
     # argv = sys.argv[1:]

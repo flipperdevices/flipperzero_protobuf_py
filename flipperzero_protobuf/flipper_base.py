@@ -87,6 +87,8 @@ class FlipperProtoBase:
 
         return ret
 
+    # COM4: USB Serial Device (COM4) [USB VID:PID=0483:5740 SER=FLIP_UNYANA LOCATION=1-3:x.0]
+    # /dev/cu.usbmodemflip_Unyana1: Flipper Unyana [USB VID:PID=0483:5740 SER=flip_Unyana LOCATION=20-2]
     def _find_port(self) -> Union[str, None]:  # -> str | None:
         """find serial device"""
 
@@ -95,8 +97,13 @@ class FlipperProtoBase:
             if self._debug:
                 print(f"{port}: {desc} [{hwid}]")
 
-            if desc.startswith("Flipper") or desc.startswith("Rogue"):
+            a = hwid.split()
+            if 'VID:PID=0483:5740' in a:
                 return port
+
+            # a[2].startswith("SER=flip")
+            # if desc.startswith("Flipper") or desc.startswith("Rogue"):
+            #     return port
 
         return None
 
