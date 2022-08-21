@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# ppylint: disable=line-too-long, no-member, too-many-branches, unused-import, unused-argument
+"""flipper command line app"""
 
 # import os
 # import sys
@@ -9,9 +9,9 @@ import argparse
 
 
 # from .flipperCmd import FlipperCMD
-from . import FlipperCMD
+from . import FlipperCMD, cmdException
 # from google.protobuf.json_format import MessageToDict
-from ..flipper_base import cmdException    # FlipperProtoBase
+from ..flipper_base import InputTypeException, FlipperProtoException, Varint32Exception    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 # from .flipper_proto import FlipperProto
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
@@ -19,6 +19,7 @@ from .cmd_complete import Cmd_Complete
 
 
 def arg_opts():
+    """argument parse"""
 
     parser = argparse.ArgumentParser(add_help=True,
                         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -46,6 +47,7 @@ def arg_opts():
 
 
 def main() -> None:
+    """"Main call start funtion"""
 
     # global rdir
     interactive = False
@@ -60,8 +62,14 @@ def main() -> None:
     argv = u
 
     if len(argv) == 0 and arg.cmd_file is None:
-        print("Entering interactive mode")
-        print("Device Name :", fcmd.flip.device_info.get('hardware_name', "Unknown"))
+        print("Entering Interactive Mode")
+        print("  Device Name:", fcmd.flip.device_info.get('hardware_name', "Unknown"))
+        print(f"  Firmware: v{fcmd.flip.device_info['firmware_version']} "
+              f"{fcmd.flip.device_info['firmware_build_date']}")
+        print("  Serial Port:", fcmd.flip.port())
+        print(f"  FlipperProto version: {fcmd.flip.version}")
+        print("  Protobuf Version:", fcmd.flip.rpc_protobuf_version())
+        print("\n")
         interactive = True
 
         # set up comand complete only in interactive mode
@@ -83,6 +91,8 @@ def main() -> None:
                     if fcmd.verbose or fcmd.debug:
                         print("cmd=", line)
                     argv = shlex.split(line, comments=True, posix=True)
+                    if not argv or argv[0][0] == '#':
+                        continue
                     fcmd.run_comm(argv)
                 break
 
@@ -105,14 +115,22 @@ def main() -> None:
             # print(_e)
             break
 
-        except cmdException as e:
+        except (cmdException, FlipperProtoException) as e:
             print("Command Error", e)
+            if interactive:
+                continue
+            break
 
-        except ValueError as e:
+        except (InputTypeException, ValueError) as e:
             print("ValueError", e)
             if interactive:
                 continue
             break
+
+        except Varint32Exception as e:
+            print("Protobuf protocal error", e)
+            if interactive:
+                continue
 
         except IOError as e:
             # do we need reconnect code ???

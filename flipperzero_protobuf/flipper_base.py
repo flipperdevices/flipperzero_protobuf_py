@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-# pylint: disable=too-few-public-methods
+"""FlipperProto Class init function calls"""
 
 import sys
 import os
@@ -12,36 +11,39 @@ from google.protobuf.internal.encoder import _VarintBytes
 
 # pylint: disable=line-too-long, no-member
 
+from .version import __version__
 from .flipperzero_protobuf_compiled import flipper_pb2
 
-VERSION = '0.1.20220806'
+# VERSION = '0.1.20220806'
 
-__all__ = ['Varint32Exception', 'InputTypeException', 'cmdException',
-           'FlipperProtoBase']
+__all__ = ['Varint32Exception', 'InputTypeException',
+           'FlipperProtoBase', 'FlipperProtoException']
 
 
 class Varint32Exception(Exception):
-    pass
+    """Protobuf protocal communication error Exception"""
 
 
 class InputTypeException(Exception):
-    pass
+    """FlipperProto input error Exception"""
 
 
-class cmdException(Exception):
+class FlipperProtoException(Exception):
+    """FlipperProto callback Exception"""
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
 
 class FlipperProtoBase:
-    def __init__(self, serial_port=None, debug=0) -> None:
+    """Meta base Class for FlipperProto"""
 
-        self.rdir = '/ext'
+    def __init__(self, serial_port=None, debug=0) -> None:
 
         # self.info = {}
 
         self._debug = debug
-        self._in_session = False
+        self._in_session = False        # flag if connecion if in RPC or command mode
+        self.version = __version__
 
         self._command_id = 0
         if isinstance(serial_port, serial.Serial):
@@ -56,12 +58,17 @@ class FlipperProtoBase:
                 print(f"SerialException: {e}")
                 sys.exit(0)
 
+        # for easy lookup later
         self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
 
     def port(self) -> str:
+        """Return serial port"""
+        if self._serial is None:
+            return ""
         return self._serial.port
 
     def _get_startup_info(self) -> dict:
+        """read / record info during startip"""
         # cache some data
         ret = {}
         self._serial.read_until(b'>: ')
@@ -87,9 +94,9 @@ class FlipperProtoBase:
         for port, desc, hwid in ports:
             if self._debug:
                 print(f"{port}: {desc} [{hwid}]")
-            if desc.startswith("Flipper"):
+
+            if desc.startswith("Flipper") or desc.startswith("Rogue"):
                 return port
-            # print("{}: {} [{}]".format(port, desc, hwid))
 
         return None
 
@@ -128,7 +135,7 @@ class FlipperProtoBase:
     def send_cmd(self, cmd_str) -> None:
         """ send non rpc command to flipper """
         if self._in_session:
-            raise cmdException('rpc_session is active')
+            raise FlipperProtoException('rpc_session is active')
 
         self._serial.read_until(b'>: ')
         self._serial.write(cmd_str + '\r')
@@ -181,7 +188,7 @@ class FlipperProtoBase:
         """Send command"""
 
         if self._in_session is False:
-            raise cmdException('rpc_session is not active')
+            raise FlipperProtoException('rpc_session is not active')
 
         flipper_message = flipper_pb2.Main()
         if command_id is None:
@@ -207,7 +214,7 @@ class FlipperProtoBase:
         # message->DebugString()
 
         if self._in_session is False:
-            raise cmdException('rpc_session is not active')
+            raise FlipperProtoException('rpc_session is not active')
 
         if command_id is None:
             command_id = self._command_id

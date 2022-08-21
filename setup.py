@@ -14,16 +14,17 @@ import ssl
 
 from distutils.core import setup
 
-version = '0.1.20220806'
+# version = '0.1.20220811'
+
+exec(open("./flipperzero_protobuf/version.py").read())
+
 
 setup(
     name='flipperzero_protobuf',
-    version=version,
+    version=__version__,
     # author='Peter Shipley',
     author_email='peter.shipley@gmail.com, hello@flipperzero.one',
-    packages=['flipperzero_protobuf', 'flipperzero_protobuf/flipperzero_protobuf_compiled'],
-    # packages=find_packages(),
-    # scripts=['flipperzero_cmd.py'],
+    packages=['flipperzero_protobuf', 'flipperzero_protobuf/flipperCmd', 'flipperzero_protobuf/flipperzero_protobuf_compiled'],
     url='https://github.com/evilpete/flipperzero_protobuf_py',
     git='https://github.com/evilpete/flipperzero_protobuf_py.git',
     classifiers=[
@@ -43,6 +44,7 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
     ],
+
     python_requires='>=3',
 
     license='BSD',
@@ -53,7 +55,8 @@ setup(
     install_requires=['numpy==1.21.4', 'protobuf==4.21.3', 'pyserial'],
     entry_points={
            'console_scripts': [
-               'flipperzero_cmd = flipperzero_protobuf.flipperzero_cmd:main'
+               # 'flipperzero_cmd = flipperzero_protobuf.flipperCmd.flipperzero_cmd:main'
+               'flipperCmd = flipperzero_protobuf.flipperCmd.flipperzero_cmd:main'
           ],
       }
 )

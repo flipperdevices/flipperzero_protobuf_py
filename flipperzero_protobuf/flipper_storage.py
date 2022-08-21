@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+"""
+FlipperProto Storage File I/O function Class
+"""
 
 # import hashlib
 from typing import Union
 
 from google.protobuf.json_format import MessageToDict
 from .flipperzero_protobuf_compiled import storage_pb2
-from .flipper_base import cmdException
+from .flipper_base import FlipperProtoException
 
 # pylint: disable=line-too-long, no-member
 
@@ -13,6 +16,9 @@ __all__ = ['FlipperProtoStorage']
 
 
 class FlipperProtoStorage():
+    """
+    FlipperProto Storage File I/O function Class
+    """
 
     # BackupRestore
     # BackupCreate
@@ -31,7 +37,7 @@ class FlipperProtoStorage():
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         cmd_data = storage_pb2.BackupCreateRequest()
@@ -40,7 +46,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_backup_create_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
     def rpc_backup_restore(self, archive_path=None) -> None:
         """ Backup Restore
@@ -56,7 +62,7 @@ class FlipperProtoStorage():
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         cmd_data = storage_pb2.BackupRestoreRequest()
@@ -65,7 +71,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_backup_restore_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
+            raise FlipperProtoException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} archive_path={archive_path}")
 
     def rpc_read(self, path=None) -> bytes:
         """ read file from flipperzero device
@@ -74,6 +80,8 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to file on flipper device
+            paths must be full path
+            paths must not have trailing '/'
 
         Returns
         -------
@@ -81,7 +89,7 @@ class FlipperProtoStorage():
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
 
@@ -92,7 +100,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_read_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         storage_response.append(rep_data.storage_read_response.file.data)
 
@@ -111,12 +119,14 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to file on flipper device
+            path must be full path
+            path must not have trailing '/'
         data : bytes
             data to write
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         if self._debug:
@@ -144,7 +154,7 @@ class FlipperProtoStorage():
 
         rep_data = self._rpc_read_answer()
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
     def rpc_info(self, path=None) -> dict:
         """ get filesystem info
@@ -153,6 +163,8 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to filesystem
+            path must be full path
+            path must not have trailing '/'
 
         Returns:
         ----------
@@ -160,7 +172,7 @@ class FlipperProtoStorage():
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
 
@@ -176,13 +188,13 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_info_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return MessageToDict(message=rep_data.storage_info_response)
 
     def _rpc_stat(self, path=None) -> Union[dict, None]:  # -> dict | None:
         """
-        stat without cmdException
+        stat without FlipperProtoException
         """
 
         # print(f"_rpc_stat path={path}")
@@ -204,10 +216,12 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to file on flipper device
+            path must be full path
+            path must not have trailing '/'
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         if path is None:
@@ -219,7 +233,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_stat_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
@@ -230,10 +244,12 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to file on flipper device
+            path must be full path
+            path must not have trailing '/'
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         if self._debug:
@@ -245,7 +261,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_md5sum_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         return rep_data.storage_md5sum_response.md5sum
 
@@ -264,11 +280,13 @@ class FlipperProtoStorage():
         Parameters
         ----------
         path : str
-            path for ew directory on flipper device
+            path for new directory on flipper device
+            path must be full path
+            path must not have trailing '/'
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
 
@@ -281,7 +299,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_mkdir_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
     def _rpc_delete(self, path=None, recursive=False):
         cmd_data = storage_pb2.DeleteRequest()
@@ -298,10 +316,12 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to file or dir on flipper device
+            path must be full path
+            path must not have trailing '/'
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
 
@@ -319,7 +339,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_delete_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
     def rpc_rename_file(self, old_path=None, new_path=None) -> None:
         """ rename file or dir
@@ -331,9 +351,12 @@ class FlipperProtoStorage():
         new_path : str
             path to file or dir on flipper device
 
+            paths must be full path
+            paths must not have trailing '/'
+
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
 
@@ -348,7 +371,7 @@ class FlipperProtoStorage():
         rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_rename_request')
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} old_path={old_path} new_path={new_path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} old_path={old_path} new_path={new_path}")
 
         # return  # rep_data.command_status
 
@@ -359,6 +382,8 @@ class FlipperProtoStorage():
         ----------
         path : str
             path to filesystem
+            path must be full path to and existng Folder/directory
+            path must not have trailing '/'
 
         Returns:
         ----------
@@ -366,7 +391,7 @@ class FlipperProtoStorage():
 
         Raises
         ----------
-            cmdException
+            FlipperProtoException
 
         """
         # print("f_code.co_name", sys._getframe().f_code.co_name)
@@ -384,7 +409,7 @@ class FlipperProtoStorage():
                 print('+>', i.SerializeToString())
 
         if rep_data.command_status != 0:
-            raise cmdException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(f"{rep_data.command_status} : {self.Status_values_by_number[rep_data.command_status].name} path={path}")
 
         storage_response.extend(MessageToDict(message=rep_data.storage_list_response, including_default_value_fields=True)['file'])
 

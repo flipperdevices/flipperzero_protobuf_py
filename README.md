@@ -167,7 +167,9 @@ def main():
     for li in list_resp:
         print(f"[{li['type']}]\t{li['name']}")
 
-
+    # run Infrared App
+    print("\n\nrun Infrared App")
+    proto.rpc_app_start('Infrared', '/ext/infrared/Tv_Tivo.ir')
 
 if __name__ == '__main__':
     main()
