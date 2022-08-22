@@ -76,16 +76,10 @@ def main() -> None:
         print("\n")
         interactive = True
 
-        # set up comand complete only in interactive mode
-        # volcab.extend(sorted(fcmd.get_cmd_keys()))
-        # readline.parse_and_bind("tab: complete")
-        # readline.set_completer(cmd_complete)
-        # completer_delims = readline.get_completer_delims()
-        # completer_delims = completer_delims.replace("-", "")
-        # readline.set_completer_delims(completer_delims)
         compl = Cmd_Complete()
         compl.setup(volcab=fcmd.get_cmd_keys())
 
+    # I should rewrite this with the python CMD module framework
     lineno = 1
     while 1:
         try:

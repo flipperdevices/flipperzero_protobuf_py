@@ -552,29 +552,32 @@ class FlipperCMD:
                 return
 
         flist = self.flip.rpc_storage_list(targ)
-        flist.sort(key=lambda x: (x['type'], x['name'].lower()))
 
-        # should split off file list printing into sub func
-        if not long_format:
-            fl = [line['name'] if line['type'] != 'DIR' else line['name'] + '/' for line in flist]
-            self._show_flist(fl)
-        else:
-            md5val = ""
-            sizetotal = 0
+        if flist:
 
-            # print(f"{targ}:")
-            for line in flist:
-                if line['type'] == 'DIR':
-                    # print(dir_fmt.format(line['name'])
-                    print(f"{line['name']:<25s}\t   DIR")
-                else:
-                    sizetotal += line['size']
-                    if md5_format:
-                        md5val = self.flip.rpc_md5sum(targ + '/' + line['name'])
+            flist.sort(key=lambda x: (x['type'], x['name'].lower()))
 
-                    print(f"{line['name']:<25s}\t{line['size']:>6d}", md5val)
+            # should split off file list printing into sub func
+            if not long_format:
+                fl = [line['name'] if line['type'] != 'DIR' else line['name'] + '/' for line in flist]
+                self._show_flist(fl)
+            else:
+                md5val = ""
+                sizetotal = 0
 
-            print(f"Total Bytes: {sizetotal}")
+                # print(f"{targ}:")
+                for line in flist:
+                    if line['type'] == 'DIR':
+                        # print(dir_fmt.format(line['name'])
+                        print(f"{line['name']:<25s}\t   DIR")
+                    else:
+                        sizetotal += line['size']
+                        if md5_format:
+                            md5val = self.flip.rpc_md5sum(targ + '/' + line['name'])
+
+                        print(f"{line['name']:<25s}\t{line['size']:>6d}", md5val)
+
+                print(f"Total Bytes: {sizetotal}")
 
         # add blank line
         print()
