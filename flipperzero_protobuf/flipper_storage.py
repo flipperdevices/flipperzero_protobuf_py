@@ -209,6 +209,34 @@ class FlipperProtoStorage():
 
         return MessageToDict(message=rep_data.storage_stat_response.file, including_default_value_fields=True)
 
+    def rpc_timestamp(self, path=None) -> int:
+        """ get info or file or directory file from flipperzero device
+
+        Parameters
+        ----------
+        path : str
+            path to file on flipper device
+            path must be full path
+            path must not have trailing '/'
+
+        Raises
+        ----------
+            FlipperProtoException
+
+        """
+        if path is None:
+            raise ValueError("path can not be None")
+
+        cmd_data = storage_pb2.TimestampRequest()
+        cmd_data.path = path
+
+        rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_timestamp_request')
+
+        if rep_data.command_status != 0:
+            raise FlipperProtoException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+
+        return rep_data.storage_timestamp_response.timestamp
+
     def rpc_stat(self, path=None) -> dict:
         """ get info or file or directory file from flipperzero device
 

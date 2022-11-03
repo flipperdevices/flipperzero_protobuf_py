@@ -95,7 +95,7 @@ class FlipperCMD:
     def _gen_cmd_table(self):
         """_gen_cmd_table doc"""
 
-        # has to be in method to referance itself
+        # has to be in method to reference itself
         self.cmd_set = {
             ("LS", "LIST"): self.do_list,
             ("RM", "DEL", "DELETE"): self.do_del,
@@ -110,6 +110,7 @@ class FlipperCMD:
             ("GET-TREE", "GETTREE"): self.do_get_tree,
             ("PUT", "PUTFILE"): self.do_put_file,
             ("PUT-TREE", "PUTTREE"): self.do_put_tree,
+            ("TIMESTAMP",): self.do_timestamp,
             ("STAT",): self.do_stat,
             ("SET",): self._set_opt,
             ("TIME",): self.do_time,
@@ -1151,6 +1152,28 @@ class FlipperCMD:
                   f"  freeSpace:  {fspace}\n"
                   f"  usedspace:  {tspace - fspace}")
         print()
+
+    def do_timestamp(self, cmd, argv):
+        """get timestamp
+        Stat <flipper_path>
+        """
+
+        if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+            raise cmdException(f"Syntax :\n\t{cmd} file")
+
+        targ = argv.pop(0)
+
+        if not targ.startswith('/'):
+            targ = os.path.normpath(self.rdir + '/' + targ)
+
+        targ = targ.rstrip('/')
+
+        if self.debug:
+            print(cmd, targ)
+
+        timestamp_resp = self.flip.rpc_timestamp(targ)
+
+        print(f"{timestamp_resp}")
 
     def do_stat(self, cmd, argv):
         """get info about file or directory
