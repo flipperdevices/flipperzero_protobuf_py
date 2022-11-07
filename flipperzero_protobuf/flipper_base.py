@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """FlipperProto Class init function calls"""
 
-import sys
 import os
+import sys
 from typing import Union
+
 import serial
 import serial.tools.list_ports
-
 from google.protobuf.internal.encoder import _VarintBytes
+
+from .flipperzero_protobuf_compiled import flipper_pb2
+from .version import __version__
 
 # pylint: disable=line-too-long, no-member
 
-from .version import __version__
-from .flipperzero_protobuf_compiled import flipper_pb2
 
 # VERSION = '0.1.20220806'
 
-__all__ = ['Varint32Exception', 'InputTypeException',
-           'FlipperProtoBase', 'FlipperProtoException']
+__all__ = [
+    "Varint32Exception",
+    "InputTypeException",
+    "FlipperProtoBase",
+    "FlipperProtoException",
+]
 
 
 class Varint32Exception(Exception):
@@ -30,6 +35,7 @@ class InputTypeException(Exception):
 
 class FlipperProtoException(Exception):
     """FlipperProto callback Exception"""
+
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
@@ -42,7 +48,7 @@ class FlipperProtoBase:
         # self.info = {}
 
         self._debug = debug
-        self._in_session = False        # flag if connecion if in RPC or command mode
+        self._in_session = False  # flag if connecion if in RPC or command mode
         self.version = __version__
 
         self._command_id = 0
@@ -59,7 +65,9 @@ class FlipperProtoBase:
                 sys.exit(0)
 
         # for easy lookup later
-        self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name['CommandStatus'].values_by_number
+        self.Status_values_by_number = flipper_pb2.DESCRIPTOR.enum_types_by_name[
+            "CommandStatus"
+        ].values_by_number
 
     def port(self) -> str:
         """Return serial port"""
@@ -71,18 +79,18 @@ class FlipperProtoBase:
         """read / record info during startip"""
         # cache some data
         ret = {}
-        self._serial.read_until(b'>: ')
+        self._serial.read_until(b">: ")
         self._serial.write(b"!\r")
         while True:
-            r = self._serial.readline().decode('utf-8')
+            r = self._serial.readline().decode("utf-8")
 
-            if r.startswith('>: '):
+            if r.startswith(">: "):
                 break
-            if r.startswith('\r\n'):
+            if r.startswith("\r\n"):
                 break
 
             if len(r) > 5:
-                k, v = r.split(':')
+                k, v = r.split(":")
                 ret[k.strip()] = v.strip()
 
         return ret
@@ -98,7 +106,7 @@ class FlipperProtoBase:
                 print(f"{port}: {desc} [{hwid}]")
 
             a = hwid.split()
-            if 'VID:PID=0483:5740' in a:
+            if "VID:PID=0483:5740" in a:
                 return port
 
             # a[2].startswith("SER=flip")
@@ -140,29 +148,29 @@ class FlipperProtoBase:
         return flipper
 
     def send_cmd(self, cmd_str) -> None:
-        """ send non rpc command to flipper """
+        """send non rpc command to flipper"""
         if self._in_session:
-            raise FlipperProtoException('rpc_session is active')
+            raise FlipperProtoException("rpc_session is active")
 
-        self._serial.read_until(b'>: ')
-        self._serial.write(cmd_str + '\r')
+        self._serial.read_until(b">: ")
+        self._serial.write(cmd_str + "\r")
 
         while True:
 
-            r = self._serial.readline().decode('utf-8')
+            r = self._serial.readline().decode("utf-8")
             print(r)
 
-            if r.startswith('>: '):
+            if r.startswith(">: "):
                 break
 
     def start_rpc_session(self) -> None:
-        """ start rpc session """
+        """start rpc session"""
         # wait for prompt
-        self._serial.read_until(b'>: ')
+        self._serial.read_until(b">: ")
 
         # send command and skip answer
         self._serial.write(b"start_rpc_session\r")
-        self._serial.read_until(b'\n')
+        self._serial.read_until(b"\n")
         self._in_session = True
 
     def _read_varint_32(self) -> int:
@@ -172,9 +180,10 @@ class FlipperProtoBase:
         result = 0
         shift = 0
         while 1:
-            b = int.from_bytes(self._serial.read(size=1),
-                               byteorder='little', signed=False)
-            result |= ((b & 0x7f) << shift)
+            b = int.from_bytes(
+                self._serial.read(size=1), byteorder="little", signed=False
+            )
+            result |= (b & 0x7F) << shift
 
             if not b & 0x80:
                 result &= MASK
@@ -182,8 +191,7 @@ class FlipperProtoBase:
                 return result
             shift += 7
             if shift >= 64:
-                raise Varint32Exception(
-                    'Too many bytes when decoding varint.')
+                raise Varint32Exception("Too many bytes when decoding varint.")
 
     def _get_command_id(self) -> int:
         """Increment and get command id"""
@@ -195,7 +203,7 @@ class FlipperProtoBase:
         """Send command"""
 
         if self._in_session is False:
-            raise FlipperProtoException('rpc_session is not active')
+            raise FlipperProtoException("rpc_session is not active")
 
         flipper_message = flipper_pb2.Main()
         if command_id is None:
@@ -203,15 +211,19 @@ class FlipperProtoBase:
         else:
             flipper_message.command_id = command_id
 
-        flipper_message.command_status = flipper_pb2.CommandStatus.Value('OK')
+        flipper_message.command_status = flipper_pb2.CommandStatus.Value("OK")
         if has_next:
             flipper_message.has_next = has_next
         getattr(flipper_message, cmd_name).CopyFrom(cmd_data)
-        data = bytearray(_VarintBytes(flipper_message.ByteSize()
-                                      ) + flipper_message.SerializeToString())
+        data = bytearray(
+            _VarintBytes(flipper_message.ByteSize())
+            + flipper_message.SerializeToString()
+        )
         self._serial.write(data)
 
-    def _rpc_send_and_read_answer(self, cmd_data, cmd_name, has_next=False, command_id=None) -> flipper_pb2.Main:
+    def _rpc_send_and_read_answer(
+        self, cmd_data, cmd_name, has_next=False, command_id=None
+    ) -> flipper_pb2.Main:
         """Send command and read answer"""
         self._rpc_send(cmd_data, cmd_name, has_next=has_next, command_id=command_id)
         return self._rpc_read_answer()
@@ -221,7 +233,7 @@ class FlipperProtoBase:
         # message->DebugString()
 
         if self._in_session is False:
-            raise FlipperProtoException('rpc_session is not active')
+            raise FlipperProtoException("rpc_session is not active")
 
         if command_id is None:
             command_id = self._command_id
