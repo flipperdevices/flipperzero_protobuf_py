@@ -12,10 +12,10 @@ FlipperProto GPIO function Class
 
 # pylint: disable=line-too-long, no-member
 
-from .flipperzero_protobuf_compiled import gpio_pb2
 from .flipper_base import FlipperProtoException, InputTypeException
+from .flipperzero_protobuf_compiled import gpio_pb2
 
-__all__ = ['FlipperProtoGpio']
+__all__ = ["FlipperProtoGpio"]
 
 
 class FlipperProtoGpio:
@@ -60,7 +60,7 @@ class FlipperProtoGpio:
 
     # GetPinMode
     def rpc_gpio_get_pin_mode(self, pin) -> str:
-        """ get GPIO pin mode
+        """get GPIO pin mode
 
         Parameters
         ----------
@@ -88,7 +88,7 @@ class FlipperProtoGpio:
         """
 
         cmd_data = gpio_pb2.GetPinMode()
-        if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+        if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
             raise InputTypeException("Invalid pin")
 
         if isinstance(pin, int):
@@ -103,14 +103,20 @@ class FlipperProtoGpio:
 
         # gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[0].name
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}"
+            )
 
         # return rep_data.gpio_get_pin_mode_response.mode
-        return gpio_pb2.DESCRIPTOR.enum_types_by_name['GpioPinMode'].values_by_number[rep_data.gpio_get_pin_mode_response.mode].name
+        return (
+            gpio_pb2.DESCRIPTOR.enum_types_by_name["GpioPinMode"]
+            .values_by_number[rep_data.gpio_get_pin_mode_response.mode]
+            .name
+        )
 
     # SetPinMode
     def rpc_gpio_set_pin_mode(self, pin, mode) -> None:
-        """ set GPIO pin mode
+        """set GPIO pin mode
 
         Parameters
         ----------
@@ -144,22 +150,24 @@ class FlipperProtoGpio:
         if isinstance(pin, int):
             cmd_data.pin = pin
         else:
-            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+            if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
                 raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
-        if mode not in ['OUTPUT', 'INPUT']:
+        if mode not in ["OUTPUT", "INPUT"]:
             raise InputTypeException("Invalid mode")
         cmd_data.mode = getattr(gpio_pb2, mode)
 
         rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_set_pin_mode")
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} mode={mode}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} mode={mode}"
+            )
 
     # WritePin
     def rpc_gpio_write_pin(self, pin, value) -> None:
-        """ write GPIO pin
+        """write GPIO pin
 
         Parameters
         ----------
@@ -191,7 +199,7 @@ class FlipperProtoGpio:
         if isinstance(pin, int):
             cmd_data.pin = pin
         else:
-            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+            if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
                 raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
@@ -200,11 +208,13 @@ class FlipperProtoGpio:
         rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_write_pin")
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} value={value}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} value={value}"
+            )
 
     # ReadPin
     def rpc_gpio_read_pin(self, pin) -> int:
-        """ query GPIO pin
+        """query GPIO pin
 
         Parameters
         ----------
@@ -235,20 +245,22 @@ class FlipperProtoGpio:
         if isinstance(pin, int):
             cmd_data.pin = pin
         else:
-            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+            if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
                 raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
         rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_read_pin")
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin}"
+            )
 
         return rep_data.read_pin_response.value
 
     # SetInputPull
     def rpc_gpio_set_input_pull(self, pin, pull_mode) -> None:
-        """ Set GPIO pill Input
+        """Set GPIO pill Input
 
         Parameters
         ----------
@@ -282,15 +294,17 @@ class FlipperProtoGpio:
         if isinstance(pin, int):
             cmd_data.pin = pin
         else:
-            if pin not in ['PC0', 'PC1', 'PC3', 'PB2', 'PB3', 'PA4', 'PA6', 'PA7']:
+            if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
                 raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
-        if pull_mode not in ['NO', 'UP', 'DOWN']:
+        if pull_mode not in ["NO", "UP", "DOWN"]:
             raise InputTypeException("Invalid pull_mode")
         cmd_data.pull_mode = getattr(gpio_pb2, pull_mode)
 
         rep_data = self._rpc_send_and_read_answer(cmd_data, "gpio_set_input_pull")
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} pin={pin} pull_mode={pull_mode}"
+            )

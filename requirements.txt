@@ -1,3 +1,7 @@
 numpy==1.22.3
 protobuf==3.20.1
 protoletariat
+Pillow
+isort
+black @ git+https://github.com/psf/black
+pyserial

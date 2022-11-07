@@ -9,7 +9,10 @@ Python API binding/wrappers for Flipper Zero protobuf protocol and command line 
 The command tool `flipperCmd` is terminal based tool for file transfer and remote command.
 It can be run from the command line or as an interactive app.
 
-It is still a work in progress (Alpha) but is functional
+It is still a work in progress (Alpha) but is functional. We are looking for help
+with stabilization of this build, making it work on any system.
+
+If you want to contribute, we run black and isort for code formatting purposes.
 
 ---
 
@@ -72,7 +75,7 @@ Entering interactive mode
     QUIT EXIT           : Exit Program
     REBOOT              : reboot flipper
     RM DEL DELETE       : delete file of directory on flipper device
-    SEND SEND-COMMAND   : Semd non rpc command to flipper
+    SEND SEND-COMMAND   : Send non rpc command to flipper
     SET                 : set or print current option value
     STAT                : get info about file or dir
     START-SESSION       : (re) start RPC session
@@ -181,3 +184,5 @@ See Also:<br>
 [flipperdevices/flipperzero-protobuf](http://github.com/flipperdevices/flipperzero-protobuf)<br>
 [flipperdevices/go-flipper](https://github.com/flipperdevices/go-flipper)
 
+Special thanks:
+Evilpete - for making a wrapper and a code cleanup for our internal tool!

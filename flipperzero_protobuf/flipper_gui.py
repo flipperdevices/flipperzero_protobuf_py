@@ -3,13 +3,14 @@
 FlipperProto Input UI function Class
 """
 
-from .flipperzero_protobuf_compiled import gui_pb2
 from .flipper_base import FlipperProtoException, InputTypeException
+from .flipperzero_protobuf_compiled import gui_pb2
+
 # from .flipper_base import *
 
 # pylint: disable=line-too-long, no-member
 
-__all__ = ['FlipperProtoGui']
+__all__ = ["FlipperProtoGui"]
 
 """
     InputKey
@@ -52,9 +53,13 @@ class FlipperProtoGui:
 
         cmd_data = gui_pb2.StartVirtualDisplayRequest()
         cmd_data.first_frame.data = data
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_start_virtual_display_request')
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "gui_start_virtual_display_request"
+        )
         if rep_data.command_status != 0:
-            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
 
     # StopVirtualDisplay
     def rpc_stop_virtual_display(self) -> None:
@@ -75,9 +80,13 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StopVirtualDisplayRequest()
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_stop_virtual_display_request')
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "gui_stop_virtual_display_request"
+        )
         if rep_data.command_status != 0:
-            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
 
     # StartScreenStream
     def rpc_gui_start_screen_stream(self) -> None:
@@ -98,12 +107,16 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StartScreenStreamRequest()
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_start_screen_stream_request')
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "gui_start_screen_stream_request"
+        )
         if rep_data.command_status != 0:
-            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
 
     # StopScreenStream
-    def _rpc_gui_stop_screen_stream(self) -> None:
+    def rpc_gui_stop_screen_stream(self) -> None:
         """Stop screen stream
 
         Parameters
@@ -121,10 +134,14 @@ class FlipperProtoGui:
         """
 
         cmd_data = gui_pb2.StopScreenStreamRequest()
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_stop_screen_stream_request')
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "gui_stop_screen_stream_request"
+        )
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(self.Status_values_by_number[rep_data.command_status].name)
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
 
     def rpc_gui_snapshot_screen(self) -> bytes:
         """Snapshot screen
@@ -172,10 +189,14 @@ class FlipperProtoGui:
         cmd_data = gui_pb2.SendInputEventRequest()
         cmd_data.key = getattr(gui_pb2, key)
         cmd_data.type = getattr(gui_pb2, itype)
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'gui_send_input_event_request')
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "gui_send_input_event_request"
+        )
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{self.Status_values_by_number[rep_data.command_status].name} {key}, {itype}")
+            raise FlipperProtoException(
+                f"{self.Status_values_by_number[rep_data.command_status].name} {key}, {itype}"
+            )
 
     def rpc_gui_send_input(self, key_arg) -> None:
         """Send Input Event Request Type
@@ -200,13 +221,13 @@ class FlipperProtoGui:
         itype, ikey = key_arg.split(" ")
 
         # if itype != 'SHORT' and itype != 'LONG':
-        if itype not in ['SHORT', 'LONG']:
-            raise InputTypeException('Incorrect type')
+        if itype not in ["SHORT", "LONG"]:
+            raise InputTypeException("Incorrect type")
 
         # if ikey != 'UP' and ikey != 'DOWN' and ikey != 'LEFT' and ikey != 'RIGHT' and ikey != 'OK' and ikey != 'BACK':
-        if ikey not in ['UP', 'DOWN', 'LEFT', 'RIGHT', 'OK', 'BACK']:
-            raise InputTypeException('Incorrect key')
+        if ikey not in ["UP", "DOWN", "LEFT", "RIGHT", "OK", "BACK"]:
+            raise InputTypeException("Incorrect key")
 
-        self.rpc_gui_send_input_event_request(ikey, 'PRESS')
+        self.rpc_gui_send_input_event_request(ikey, "PRESS")
         self.rpc_gui_send_input_event_request(ikey, itype)
-        self.rpc_gui_send_input_event_request(ikey, 'RELEASE')
+        self.rpc_gui_send_input_event_request(ikey, "RELEASE")

@@ -4,6 +4,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.idea/
+
+bin/
+lib64
+pyvenv.cfg
+
 # C extensions
 *.so
 

@@ -2,19 +2,19 @@
 command Completion callback class for FlipperCMD interface.
 """
 
-import sys
 import readline
+import sys
 from os import environ
 
-__all__ = ['Cmd_Complete']
+__all__ = ["Cmd_Complete"]
 
 
-class Cmd_Complete():  # Custom completer
+class Cmd_Complete:  # Custom completer
     """Command Completion callback class for FlipperCMD interface."""
 
     def __init__(self, **kwargs):
 
-        self.volcab = kwargs.get('volcab', [])
+        self.volcab = kwargs.get("volcab", [])
         self.volcab.sort()
 
         # self.cmd_comp_key = []
@@ -51,7 +51,7 @@ class Cmd_Complete():  # Custom completer
         #     print help syntax
 
         # only do completion for first word
-        if buf and buf[-1] == ' ' and buf.strip().upper() in self.volcab:
+        if buf and buf[-1] == " " and buf.strip().upper() in self.volcab:
             return [None]
 
         text = text.upper()
@@ -85,6 +85,6 @@ class Cmd_Complete():  # Custom completer
                 buffer = ""
             buffer += match
 
-        print(self.prompt.rstrip(), readline.get_line_buffer(), sep='', end='')
+        print(self.prompt.rstrip(), readline.get_line_buffer(), sep="", end="")
 
         sys.stdout.flush()

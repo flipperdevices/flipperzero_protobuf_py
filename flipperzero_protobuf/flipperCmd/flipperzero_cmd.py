@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """flipper command line app"""
 
+# import pprint
+import argparse
 # import os
 # import sys
 import shlex
-# import pprint
-import argparse
 
-
+# from google.protobuf.json_format import MessageToDict
+from ..flipper_base import (FlipperProtoException,  # FlipperProtoBase
+                            InputTypeException, Varint32Exception)
 # from .flipperCmd import FlipperCMD
 from . import FlipperCMD, cmdException
-# from google.protobuf.json_format import MessageToDict
-from ..flipper_base import InputTypeException, FlipperProtoException, Varint32Exception    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 # from .flipper_proto import FlipperProto
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
@@ -21,37 +21,56 @@ from .cmd_complete import Cmd_Complete
 def arg_opts():
     """argument parse"""
 
-    parser = argparse.ArgumentParser(add_help=True,
-                        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        add_help=True, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
 
-    parser.add_argument('--debug', dest="debug",
-                        default=0,
-                        help='Increase debug verbosity', action='store_true')
+    parser.add_argument(
+        "--debug",
+        dest="debug",
+        default=0,
+        help="Increase debug verbosity",
+        action="store_true",
+    )
 
-    parser.add_argument('-v', '--verbose', dest="verbose",
-                        default=0,
-                        help='Increase debug verbosity', action='count')
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        default=0,
+        help="Increase debug verbosity",
+        action="count",
+    )
 
-    parser.add_argument("-p", "--port", dest="serial_port",
-                        default=None,
-                        help="Serial Port")
+    parser.add_argument(
+        "-p", "--port", dest="serial_port", default=None, help="Serial Port"
+    )
 
     data_grp = parser.add_mutually_exclusive_group()
 
-    data_grp.add_argument("-i", "--interactive", dest="interactive",
-                          default=False, action='store_true',
-                          help="Interactive Mode")
+    data_grp.add_argument(
+        "-i",
+        "--interactive",
+        dest="interactive",
+        default=False,
+        action="store_true",
+        help="Interactive Mode",
+    )
 
-    data_grp.add_argument("-c", "--cmd-file", dest="cmd_file",
-                          type=argparse.FileType('r', encoding='UTF-8'),
-                          default=None,
-                          help="Command File")
+    data_grp.add_argument(
+        "-c",
+        "--cmd-file",
+        dest="cmd_file",
+        type=argparse.FileType("r", encoding="UTF-8"),
+        default=None,
+        help="Command File",
+    )
 
     return parser.parse_known_args()
 
 
 def main() -> None:
-    """"Main call start funtion"""
+    """ "Main call start funtion"""
 
     # global rdir
     interactive = False
@@ -67,9 +86,11 @@ def main() -> None:
 
     if len(argv) == 0 and arg.cmd_file is None:
         print("Entering Interactive Mode")
-        print("  Device Name:", fcmd.flip.device_info.get('hardware_name', "Unknown"))
-        print(f"  Firmware: v{fcmd.flip.device_info['firmware_version']} "
-              f"{fcmd.flip.device_info['firmware_build_date']}")
+        print("  Device Name:", fcmd.flip.device_info.get("hardware_name", "Unknown"))
+        print(
+            f"  Firmware: v{fcmd.flip.device_info['firmware_version']} "
+            f"{fcmd.flip.device_info['firmware_build_date']}"
+        )
         print("  Serial Port:", fcmd.flip.port())
         print(f"  FlipperProto version: {fcmd.flip.version}")
         print("  Protobuf Version:", fcmd.flip.rpc_protobuf_version())
@@ -89,7 +110,7 @@ def main() -> None:
                     if fcmd.verbose or fcmd.debug:
                         print("cmd=", line)
                     argv = shlex.split(line, comments=True, posix=True)
-                    if not argv or argv[0][0] == '#':
+                    if not argv or argv[0][0] == "#":
                         continue
                     fcmd.run_comm(argv)
                 break
@@ -148,5 +169,5 @@ def main() -> None:
             break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
