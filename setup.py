@@ -14,7 +14,7 @@ from setuptools import find_packages, setup
 
 # from distutils.core import setup
 
-version = '0.1.20221107'
+version = '0.1.20221108'
 
 exec(open("./flipperzero_protobuf/version.py").read())
 
@@ -52,8 +52,8 @@ setup(
     # cmdclass = { 'install_scripts': install_scripts_and_symlinks }
     install_requires=[
         'pyreadline; platform_system == "Windows"',
-        "numpy==1.21.4",
-        "protobuf==4.21.3",
+        "numpy==1.22.3",
+        "protobuf==3.20.2",
         "pyserial",
     ],
     entry_points={
