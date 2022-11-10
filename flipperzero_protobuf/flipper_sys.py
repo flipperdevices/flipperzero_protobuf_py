@@ -214,47 +214,6 @@ class FlipperProtoSys:
 
         return ret
 
-    # CommonInfo
-    def rpc_common_info(self, key: str) -> list[tuple[str, str]]:
-        """Common Info
-
-        Return
-        ----------
-        list[tuple[key, value : str]]
-
-        Raises
-        ----------
-        FlipperProtoException
-
-        """
-
-        cmd_data = system_pb2.CommonInfoRequest()
-        cmd_data.key = key
-
-        rep_data = self._rpc_send_and_read_answer(
-            cmd_data, "system_common_info_request"
-        )
-
-        if rep_data.command_status != 0:
-            raise FlipperProtoException(
-                self.Status_values_by_number[rep_data.command_status].name
-            )
-
-        ret = []
-
-        while True:
-            ret.append((
-                rep_data.system_common_info_response.key,
-                rep_data.system_common_info_response.value,
-            ))
-
-            if rep_data.has_next:
-                rep_data = self._rpc_read_answer()
-            else:
-                break
-
-        return ret
-
     # ProtobufVersion
     def rpc_protobuf_version(self) -> tuple[int, int]:
 
