@@ -127,6 +127,7 @@ class FlipperCMD:
             ("TIME",): self.do_time,
             ("DF", "INFO"): self.do_info,
             ("DEV-INFO",): self.do_devinfo,
+            ("GET-PROP", "GETPROP"): self.do_get_property,
             ("LCD", "LCHDIR"): self._do_chdir,
             ("LPWD",): self._do_print_cwd,
             ("PRINT-SCREEN",): self.do_print_screen,
@@ -258,6 +259,18 @@ class FlipperCMD:
 
         for k, v in sorted(self.flip.device_info.items()):
             print(f"{k:<25s} = {v}")
+
+    def do_get_property(self, cmd, argv):
+        """print property by key
+        GET-PROP <Key>
+        """
+        if len(argv) != 1:
+            raise cmdException(f"Syntax:\n\t{cmd} <Key>\n" "\tprint property by key")
+
+        props = self.flip.rpc_property_get(argv[0])
+        for k, v in props:
+            print(f"{k:<28s} = {v}")
+
 
     def _interpret_val(self, opt):
         opt = opt.upper()
