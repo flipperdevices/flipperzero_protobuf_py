@@ -151,3 +151,16 @@ class FlipperProtoApp:
             raise FlipperProtoException(
                 self.Status_values_by_number[rep_data.command_status].name
             )
+
+    # GetError
+    def rpc_app_get_error(self) -> tuple[int, str]:
+        cmd_data = application_pb2.GetErrorRequest()
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "app_get_error_request"
+        )
+        if rep_data.command_status != 0:
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
+        return (rep_data.app_get_error_response.code, rep_data.app_get_error_response.text)
+

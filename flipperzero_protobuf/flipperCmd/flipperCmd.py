@@ -128,6 +128,7 @@ class FlipperCMD:
             ("DF", "INFO"): self.do_info,
             ("DEV-INFO",): self.do_devinfo,
             ("GET-PROP", "GETPROP"): self.do_get_property,
+            ("GET-ERROR", "GETERR"): self.do_get_error,
             ("LCD", "LCHDIR"): self._do_chdir,
             ("LPWD",): self._do_print_cwd,
             ("PRINT-SCREEN",): self.do_print_screen,
@@ -271,6 +272,14 @@ class FlipperCMD:
         for k, v in props:
             print(f"{k:<28s} = {v}")
 
+    def do_get_error(self, cmd, argv):
+        """print extended error info (code and text description)
+        GET-ERROR
+        """
+        if len(argv):
+            raise cmdException(f"Syntax:\n\t{cmd}\n" "\tprint extended error info")
+        err = self.flip.rpc_app_get_error()
+        print(f"Code: {err[0]}, text: \"{err[1]}\"")
 
     def _interpret_val(self, opt):
         opt = opt.upper()
