@@ -139,6 +139,8 @@ class FlipperCMD:
             ("START-SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self._do_send_cmd,
             ("REBOOT",): self.do_reboot,
+            ("RUN-APP", "RUN"): self.do_run_app,
+            ("XCHG", "DATA-XCHANGE"): self.do_data_exchange,
             ("QUIT", "EXIT"): self.do_quit,
             ("ZIP",): self._do_zip,
             ("HELP", "?"): self.print_cmd_help,
@@ -1289,6 +1291,36 @@ class FlipperCMD:
         # quit if not booting into OS mode
         if mode in ["DFU", "UPDATE"]:
             self.QuitException(f"REBOOT {mode}")
+
+    def do_run_app(self, cmd, argv):
+        """run application
+        RUN-APP <args>
+        """
+        if not len(argv):
+            raise cmdException(f"Syntax :\n\t{cmd} <app_name> [args]")
+        elif len(argv) == 1:
+            args = ""
+        else:
+            args = " ".join(argv[1:])
+
+        self.flip.rpc_app_start(argv[0], args)
+
+    def do_data_exchange(self, cmd, argv):
+        """run application
+        DATA-XCHANGE <mode> [data]
+        direction can be 'send' or 'recv'
+        data is only applicable for the 'send' mode
+        """
+        if not len(argv):
+            raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
+        elif argv[0] == "send" and len(argv) > 1:
+            data = bytes.fromhex("".join(argv[1:]))
+            self.flip.rpc_app_data_exchange_send(data)
+        elif argv[0] == "recv" and len(argv) == 1:
+            data = self.flip.rpc_app_data_exchange_recv()
+            print(f"Received data: {data.hex(' ', 1)}")
+        else:
+            raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
 
 
 #
