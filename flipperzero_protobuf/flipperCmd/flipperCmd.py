@@ -1306,17 +1306,20 @@ class FlipperCMD:
         self.flip.rpc_app_start(argv[0], args)
 
     def do_data_exchange(self, cmd, argv):
-        """run application
+        """exchange arbitrary data with application
         DATA-XCHANGE <mode> [data]
-        direction can be 'send' or 'recv'
+        mode can be 'send' or 'recv'
         data is only applicable for the 'send' mode
         """
         if not len(argv):
             raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
-        elif argv[0] == "send" and len(argv) > 1:
-            data = bytes.fromhex("".join(argv[1:]))
+        elif argv[0].lower() == "send":
+            if len(argv) == 1:
+                data = bytes()
+            else:
+                data = bytes.fromhex("".join(argv[1:]))
             self.flip.rpc_app_data_exchange_send(data)
-        elif argv[0] == "recv" and len(argv) == 1:
+        elif argv[0].lower() == "recv":
             data = self.flip.rpc_app_data_exchange_recv()
             print(f"Received data: {data.hex(' ', 1)}")
         else:
