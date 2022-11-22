@@ -15,7 +15,6 @@ from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2
 # import pprint
 
 # from nis import match
-# from numpy import mat
 
 # pylint: disable=line-too-long, no-member
 

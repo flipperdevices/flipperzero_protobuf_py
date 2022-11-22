@@ -454,7 +454,7 @@ class FlipperCMD:
         PRINT-SCREEN [filename.pbm]
         """
         outf = None
-        if len(argv) == 0 or argv[0] == "?" or len(argv) > 1:
+        if (argv and argv[0] == "?") or len(argv) > 1:
             raise cmdException(
                 f"Syntax:\n\t{cmd} [filename.pbm]\n"
                 "\tfile has to end in .pbm\n"
