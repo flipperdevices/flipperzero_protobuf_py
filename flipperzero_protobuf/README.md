@@ -248,6 +248,17 @@ rpc_audiovisual_alert()
 rpc_stop_session()
 > Stop RPC session
 
+### [Property Calls](flipper_property.py) ###
+---
+
+rpc_property_get(key)
+> Get a property by key
+
+    Arg:
+       key: string with partially or fully specified key
+    Returns:
+       list of tuple (str, str) key-value pairs
+
 
 ### [Exceptions](flipper_base.py) ###
 ---
