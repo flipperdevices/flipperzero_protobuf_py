@@ -24,6 +24,24 @@ rpc_app_button_press(args)
 rpc_app_button_release()
 > Send button release command to app
 
+rpc_app_get_error()
+> Get extended error info
+
+    Returns:
+      Error info as tuple (int, str)
+
+rpc_app_data_exchange_send(data)
+> Send user data to application
+
+    Arg:
+      data: User data to send as bytes
+
+rpc_app_data_exchange_recv()
+> Receive user data from application
+
+    Returns:
+      Received user data as bytes
+
 
 ### [GPIO Calls](flipper_gui.py) ###
 ---
