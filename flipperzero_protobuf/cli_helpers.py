@@ -47,7 +47,6 @@ def calc_file_md5(fname) -> str:
 
 def _write_screen(dat) -> None:
     """Print image to terminal"""
-    # c = [" ", "▄", "▀", "\x1b[7m \x1b[0m"]
     c = [" ", "▄", "▀", "█"]
     for y in range(0, _SCREEN_H, 2):
         for x in range(_SCREEN_W):
@@ -59,7 +58,7 @@ def _write_pbm_file(dat, dest) -> None:
     """write Black & White bitmap in simple Netpbm format"""
     with open(dest, "w", encoding="utf-8") as fd:
         print(f"P1\n{_SCREEN_W} {_SCREEN_H}", file=fd)
-        for y in range(0, _SCREEN_H):
+        for y in range(_SCREEN_H):
             print(" ".join([str(i) for i in dat[y]]), file=fd)
 
 
@@ -67,7 +66,7 @@ def _write_ppm_file(dat, dest) -> None:
     """write Orange and Black color RGB image stored in PPM format"""
     with open(dest, "w", encoding="utf-8") as fd:
         print(f"P3\n{_SCREEN_W} {_SCREEN_H}\n255", file=fd)
-        for y in range(0, _SCREEN_H):
+        for y in range(_SCREEN_H):
             print(
                 " ".join(
                     ["000 000 000" if c else "255 165 000" for c in dat[y]]
