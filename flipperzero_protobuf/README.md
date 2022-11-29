@@ -24,6 +24,24 @@ rpc_app_button_press(args)
 rpc_app_button_release()
 > Send button release command to app
 
+rpc_app_get_error()
+> Get extended error info
+
+    Returns:
+      Error info as tuple (int, str)
+
+rpc_app_data_exchange_send(data)
+> Send user data to application
+
+    Arg:
+      data: User data to send as bytes
+
+rpc_app_data_exchange_recv()
+> Receive user data from application
+
+    Returns:
+      Received user data as bytes
+
 
 ### [GPIO Calls](flipper_gui.py) ###
 ---
@@ -229,6 +247,17 @@ rpc_audiovisual_alert()
 
 rpc_stop_session()
 > Stop RPC session
+
+### [Property Calls](flipper_property.py) ###
+---
+
+rpc_property_get(key)
+> Get a property by key
+
+    Arg:
+       key: string with partially or fully specified key
+    Returns:
+       list of tuple (str, str) key-value pairs
 
 
 ### [Exceptions](flipper_base.py) ###

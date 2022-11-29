@@ -151,3 +151,33 @@ class FlipperProtoApp:
             raise FlipperProtoException(
                 self.Status_values_by_number[rep_data.command_status].name
             )
+
+    # GetError
+    def rpc_app_get_error(self) -> tuple[int, str]:
+        cmd_data = application_pb2.GetErrorRequest()
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "app_get_error_request"
+        )
+        if rep_data.command_status != 0:
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
+        return (rep_data.app_get_error_response.code, rep_data.app_get_error_response.text)
+
+    # DataExchange (send)
+    def rpc_app_data_exchange_send(self, data: bytes) -> None:
+        cmd_data = application_pb2.DataExchangeRequest()
+        cmd_data.data = data
+        rep_data = self._rpc_send_and_read_answer(
+            cmd_data, "app_data_exchange_request"
+        )
+        if rep_data.command_status != 0:
+            raise FlipperProtoException(
+                self.Status_values_by_number[rep_data.command_status].name
+            )
+
+    # DataExchange (receive)
+    def rpc_app_data_exchange_recv(self) -> bytes:
+        self._serial.flushInput()
+        rep_data = self._rpc_read_answer(0)
+        return rep_data.app_data_exchange_request.data

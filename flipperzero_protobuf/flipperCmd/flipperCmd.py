@@ -127,6 +127,8 @@ class FlipperCMD:
             ("TIME",): self.do_time,
             ("DF", "INFO"): self.do_info,
             ("DEV-INFO",): self.do_devinfo,
+            ("GET-PROP", "GETPROP"): self.do_get_property,
+            ("GET-ERROR", "GETERR"): self.do_get_error,
             ("LCD", "LCHDIR"): self._do_chdir,
             ("LPWD",): self._do_print_cwd,
             ("PRINT-SCREEN",): self.do_print_screen,
@@ -137,6 +139,8 @@ class FlipperCMD:
             ("START-SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self._do_send_cmd,
             ("REBOOT",): self.do_reboot,
+            ("RUN-APP", "RUN"): self.do_run_app,
+            ("XCHG", "DATA-XCHANGE"): self.do_data_exchange,
             ("QUIT", "EXIT"): self.do_quit,
             ("ZIP",): self._do_zip,
             ("HELP", "?"): self.print_cmd_help,
@@ -258,6 +262,26 @@ class FlipperCMD:
 
         for k, v in sorted(self.flip.device_info.items()):
             print(f"{k:<25s} = {v}")
+
+    def do_get_property(self, cmd, argv):
+        """print property by key
+        GET-PROP <Key>
+        """
+        if len(argv) != 1:
+            raise cmdException(f"Syntax:\n\t{cmd} <Key>\n" "\tprint property by key")
+
+        props = self.flip.rpc_property_get(argv[0])
+        for k, v in props:
+            print(f"{k:<28s} = {v}")
+
+    def do_get_error(self, cmd, argv):
+        """print extended error info (code and text description)
+        GET-ERROR
+        """
+        if len(argv):
+            raise cmdException(f"Syntax:\n\t{cmd}\n" "\tprint extended error info")
+        err = self.flip.rpc_app_get_error()
+        print(f"Code: {err[0]}, text: \"{err[1]}\"")
 
     def _interpret_val(self, opt):
         opt = opt.upper()
@@ -1267,6 +1291,39 @@ class FlipperCMD:
         # quit if not booting into OS mode
         if mode in ["DFU", "UPDATE"]:
             self.QuitException(f"REBOOT {mode}")
+
+    def do_run_app(self, cmd, argv):
+        """run application
+        RUN-APP <args>
+        """
+        if not len(argv):
+            raise cmdException(f"Syntax :\n\t{cmd} <app_name> [args]")
+        elif len(argv) == 1:
+            args = ""
+        else:
+            args = " ".join(argv[1:])
+
+        self.flip.rpc_app_start(argv[0], args)
+
+    def do_data_exchange(self, cmd, argv):
+        """exchange arbitrary data with application
+        DATA-XCHANGE <mode> [data]
+        mode can be 'send' or 'recv'
+        data is only applicable for the 'send' mode
+        """
+        if not len(argv):
+            raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
+        elif argv[0].lower() == "send":
+            if len(argv) == 1:
+                data = bytes()
+            else:
+                data = bytes.fromhex("".join(argv[1:]))
+            self.flip.rpc_app_data_exchange_send(data)
+        elif argv[0].lower() == "recv":
+            data = self.flip.rpc_app_data_exchange_recv()
+            print(f"Received data: {data.hex(' ', 1)}")
+        else:
+            raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
 
 
 #
