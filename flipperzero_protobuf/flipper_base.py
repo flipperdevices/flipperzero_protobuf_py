@@ -44,7 +44,6 @@ class FlipperProtoBase:
     """Meta base Class for FlipperProto"""
 
     def __init__(self, serial_port=None, debug=0) -> None:
-
         # self.info = {}
 
         self._debug = debug
@@ -156,7 +155,6 @@ class FlipperProtoBase:
         self._serial.write(cmd_str + "\r")
 
         while True:
-
             r = self._serial.readline().decode("utf-8")
             print(r)
 

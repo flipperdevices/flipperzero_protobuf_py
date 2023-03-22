@@ -3,15 +3,18 @@
 
 # import pprint
 import argparse
+
 # import os
 # import sys
 import shlex
 
 # from google.protobuf.json_format import MessageToDict
-from ..flipper_base import (FlipperProtoException,  # FlipperProtoBase
-                            InputTypeException, Varint32Exception)
+from ..flipper_base import FlipperProtoException  # FlipperProtoBase
+from ..flipper_base import InputTypeException, Varint32Exception
+
 # from .flipperCmd import FlipperCMD
 from . import FlipperCMD, cmdException
+
 # from .flipper_storage import FlipperProtoStorage
 # from .flipper_proto import FlipperProto
 # from .cli_helpers import print_screen, flipper_tree_walk, calc_file_md5
@@ -104,7 +107,6 @@ def main() -> None:
     lineno = 1
     while 1:
         try:
-
             if arg.cmd_file:
                 for line in arg.cmd_file:
                     if fcmd.verbose or fcmd.debug:

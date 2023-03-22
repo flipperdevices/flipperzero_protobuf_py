@@ -18,15 +18,20 @@ import sys
 import time
 import zipfile
 
-from ..cli_helpers import (calc_file_md5, calc_n_print_du, dict2datetime,
-                           flipper_tree_walk, print_screen)
+from ..cli_helpers import (
+    calc_file_md5,
+    calc_n_print_du,
+    dict2datetime,
+    flipper_tree_walk,
+    print_screen,
+)
+
 # from google.protobuf.json_format import MessageToDict
 # from ..flipper_base import FlipperProtoException   # cmdException    # FlipperProtoBase
 # from .flipper_storage import FlipperProtoStorage
 from ..flipper_proto import FlipperProto
 
 # import pprint
-
 
 
 _DEBUG = 0
@@ -76,7 +81,6 @@ class FlipperCMD:
             Exception.__init__(self, msg)
 
     def __init__(self, proto=None, **kwargs):
-
         self.debug = kwargs.get("debug", _DEBUG)
 
         if proto is None:
@@ -173,7 +177,6 @@ class FlipperCMD:
             return
 
         if cmd in self._cmd_table:
-
             # handle help here insteqd of everywhere else
             if argv and argv[0] == "?":
                 print("==")
@@ -281,7 +284,7 @@ class FlipperCMD:
         if len(argv):
             raise cmdException(f"Syntax:\n\t{cmd}\n" "\tprint extended error info")
         err = self.flip.rpc_app_get_error()
-        print(f"Code: {err[0]}, text: \"{err[1]}\"")
+        print(f'Code: {err[0]}, text: "{err[1]}"')
 
     def _interpret_val(self, opt):
         opt = opt.upper()
@@ -397,9 +400,7 @@ class FlipperCMD:
 
         self._local_time = time.localtime()
         with zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED) as zf:
-
             for targ in argv:
-
                 targ = self._remote_path(targ)
 
                 # pylint: disable=protected-access
@@ -595,7 +596,6 @@ class FlipperCMD:
         flist = self.flip.rpc_storage_list(targ)
 
         if flist:
-
             flist.sort(key=lambda x: (x["type"], x["name"].lower()))
 
             # should split off file list printing into sub func
@@ -664,7 +664,6 @@ class FlipperCMD:
         argv_len = len(argv)
 
         if argv_len == 2:
-
             old_fn = argv.pop(0).rstrip("/")
             new_fn = argv.pop(0).rstrip("/")
 
@@ -700,7 +699,6 @@ class FlipperCMD:
             return
 
         for f in flist:
-
             dist_file = f"{dest_dir}/{os.path.basename(f)}"
             if not f.startswith("/"):
                 f = os.path.normpath(self.rdir + "/" + f)
@@ -858,7 +856,6 @@ class FlipperCMD:
             return
 
         for f in remote_list:
-
             local_name = local_filen + "/" + os.path.basename(f)
 
             if not f.startswith("/"):
@@ -1211,15 +1208,15 @@ class FlipperCMD:
         Stat <flipper_path>
         """
 
-        if (len(argv) == 0 or argv[0] == '?' or len(argv) > 1):
+        if len(argv) == 0 or argv[0] == "?" or len(argv) > 1:
             raise cmdException(f"Syntax :\n\t{cmd} file")
 
         targ = argv.pop(0)
 
-        if not targ.startswith('/'):
-            targ = os.path.normpath(self.rdir + '/' + targ)
+        if not targ.startswith("/"):
+            targ = os.path.normpath(self.rdir + "/" + targ)
 
-        targ = targ.rstrip('/')
+        targ = targ.rstrip("/")
 
         if self.debug:
             print(cmd, targ)

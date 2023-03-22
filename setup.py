@@ -14,7 +14,7 @@ from setuptools import find_packages, setup
 
 # from distutils.core import setup
 
-version = '0.1.20221108'
+version = "0.1.20221108"
 
 exec(open("./flipperzero_protobuf/version.py").read())
 

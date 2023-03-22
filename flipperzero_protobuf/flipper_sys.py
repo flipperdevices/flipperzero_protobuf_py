@@ -118,7 +118,6 @@ class FlipperProtoSys:
         cmd_data.mode = getattr(cmd_data, mode)
 
         try:
-
             # nothing happens if only cmd_send is called and response is not read
             # rep_data = self._rpc_send(cmd_data, 'system_reboot_request')
 
@@ -162,10 +161,12 @@ class FlipperProtoSys:
         ret = []
 
         while True:
-            ret.append((
-                rep_data.system_power_info_response.key,
-                rep_data.system_power_info_response.value,
-            ))
+            ret.append(
+                (
+                    rep_data.system_power_info_response.key,
+                    rep_data.system_power_info_response.value,
+                )
+            )
 
             if rep_data.has_next:
                 rep_data = self._rpc_read_answer()
@@ -202,10 +203,12 @@ class FlipperProtoSys:
         ret = []
 
         while True:
-            ret.append((
-                rep_data.system_device_info_response.key,
-                rep_data.system_device_info_response.value,
-            ))
+            ret.append(
+                (
+                    rep_data.system_device_info_response.key,
+                    rep_data.system_device_info_response.value,
+                )
+            )
 
             if rep_data.has_next:
                 rep_data = self._rpc_read_answer()
@@ -216,7 +219,6 @@ class FlipperProtoSys:
 
     # ProtobufVersion
     def rpc_protobuf_version(self) -> tuple[int, int]:
-
         """Protobuf Version
 
         Parameters

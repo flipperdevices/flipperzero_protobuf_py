@@ -8,9 +8,9 @@ from .flipper_app import FlipperProtoApp
 from .flipper_base import FlipperProtoBase
 from .flipper_gpio import FlipperProtoGpio
 from .flipper_gui import FlipperProtoGui
+from .flipper_property import FlipperProtoProperty
 from .flipper_storage import FlipperProtoStorage
 from .flipper_sys import FlipperProtoSys
-from .flipper_property import FlipperProtoProperty
 
 # from .flipperzero_protobuf_compiled import flipper_pb2, system_pb2, gui_pb2, gpio_pb2
 

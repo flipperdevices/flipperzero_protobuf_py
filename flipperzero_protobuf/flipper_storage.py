@@ -152,7 +152,6 @@ class FlipperProtoStorage:
         data_len = len(data)
         command_id = self._get_command_id()
         for chunk in range(0, data_len, chunk_size):
-
             chunk_data = data[chunk : chunk + chunk_size]
 
             cmd_data.file.data = chunk_data
@@ -238,7 +237,7 @@ class FlipperProtoStorage:
         )
 
     def rpc_timestamp(self, path=None) -> int:
-        """ get info or file or directory file from flipperzero device
+        """get info or file or directory file from flipperzero device
 
         Parameters
         ----------
@@ -258,10 +257,12 @@ class FlipperProtoStorage:
         cmd_data = storage_pb2.TimestampRequest()
         cmd_data.path = path
 
-        rep_data = self._rpc_send_and_read_answer(cmd_data, 'storage_timestamp_request')
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "storage_timestamp_request")
 
         if rep_data.command_status != 0:
-            raise FlipperProtoException(f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}")
+            raise FlipperProtoException(
+                f"{rep_data.command_status}: {self.Status_values_by_number[rep_data.command_status].name} path={path}"
+            )
 
         return rep_data.storage_timestamp_response.timestamp
 
@@ -329,7 +330,6 @@ class FlipperProtoStorage:
         return rep_data.storage_md5sum_response.md5sum
 
     def _mkdir_path(self, path) -> None:
-
         if self._debug:
             print(f"\n_mkdir_path path={path}")
         cmd_data = storage_pb2.MkdirRequest()

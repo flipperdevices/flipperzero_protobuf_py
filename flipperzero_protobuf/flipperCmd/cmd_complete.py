@@ -13,7 +13,6 @@ class Cmd_Complete:  # Custom completer
     """Command Completion callback class for FlipperCMD interface."""
 
     def __init__(self, **kwargs):
-
         self.volcab = kwargs.get("volcab", [])
         self.volcab.sort()
 

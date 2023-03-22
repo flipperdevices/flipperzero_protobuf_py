@@ -43,9 +43,7 @@ class FlipperProtoProperty:
         cmd_data = property_pb2.GetRequest()
         cmd_data.key = key
 
-        rep_data = self._rpc_send_and_read_answer(
-            cmd_data, "property_get_request"
-        )
+        rep_data = self._rpc_send_and_read_answer(cmd_data, "property_get_request")
 
         if rep_data.command_status != 0:
             raise FlipperProtoException(
@@ -55,10 +53,12 @@ class FlipperProtoProperty:
         ret = []
 
         while rep_data.has_next:
-            ret.append((
-                rep_data.property_get_response.key,
-                rep_data.property_get_response.value,
-            ))
+            ret.append(
+                (
+                    rep_data.property_get_response.key,
+                    rep_data.property_get_response.value,
+                )
+            )
 
             rep_data = self._rpc_read_answer()
 
