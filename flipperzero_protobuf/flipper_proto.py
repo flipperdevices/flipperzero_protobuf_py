@@ -7,6 +7,7 @@
 from .flipper_app import FlipperProtoApp
 from .flipper_base import FlipperProtoBase
 from .flipper_gpio import FlipperProtoGpio
+from .flipper_desktop import FlipperProtoDesktop
 from .flipper_gui import FlipperProtoGui
 from .flipper_property import FlipperProtoProperty
 from .flipper_storage import FlipperProtoStorage
@@ -19,6 +20,7 @@ __all__ = ["FlipperProto"]
 
 class FlipperProto(
     FlipperProtoBase,
+    FlipperProtoDesktop,
     FlipperProtoSys,
     FlipperProtoGpio,
     FlipperProtoApp,

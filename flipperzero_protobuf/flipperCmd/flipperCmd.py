@@ -143,6 +143,9 @@ class FlipperCMD:
             ("START-SESSION",): self.do_start_session,
             ("SEND", "SEND-COMMAND"): self._do_send_cmd,
             ("REBOOT",): self.do_reboot,
+            ("DESKTOP_IS_LOCKED",): self.do_desktop_is_locked,
+            ("DESKTOP_UNLOCK",): self.do_desktop_unlock,
+            ("REBOOT",): self.do_reboot,
             ("RUN-APP", "RUN"): self.do_run_app,
             ("XCHG", "DATA-XCHANGE"): self.do_data_exchange,
             ("QUIT", "EXIT"): self.do_quit,
@@ -1321,6 +1324,12 @@ class FlipperCMD:
             print(f"Received data: {data.hex(' ', 1)}")
         else:
             raise cmdException(f"Syntax :\n\t{cmd} <mode> [data]")
+
+    def do_desktop_is_locked(self, cmd, argv):
+        print(self.flip.desktop_is_locked())
+
+    def do_desktop_unlock(self, cmd, argv):
+        print(self.flip.desktop_unlock())
 
 
 #
