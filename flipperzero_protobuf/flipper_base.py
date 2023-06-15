@@ -75,7 +75,7 @@ class FlipperProtoBase:
         return self._serial.port
 
     def _get_startup_info(self) -> dict:
-        """read / record info during startip"""
+        """read / record info during startup"""
         # cache some data
         ret = {}
         self._serial.read_until(b">: ")
@@ -89,7 +89,7 @@ class FlipperProtoBase:
                 break
 
             if len(r) > 5:
-                k, v = r.split(":")
+                k, v = r.split(":", maxsplit=1)
                 ret[k.strip()] = v.strip()
 
         return ret
