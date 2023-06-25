@@ -139,34 +139,29 @@ Quit interactive mode
 ```
 #!/usr/bin/env python3
 
-import os
-import sys
-import pprint
-import datetime
-
-from google.protobuf.json_format import MessageToDict
+from flipperzero_protobuf.cli_helpers import print_hex, dict2datetime
 from flipperzero_protobuf.flipper_proto import FlipperProto
-from flipperzero_protobuf.cli_helpers import *
+
 
 def main():
 
     proto = FlipperProto()
 
     print("\n\nPing")
-    ping_rep = proto.rcp_system_ping()
+    ping_rep = proto.rpc_system_ping()
     print_hex(ping_rep)
 
     print("\n\n]DeviceInfo")
-    ping_rep = proto.rcp_device_info()
-    print(ping_rep)
+    device_info = proto.rpc_device_info()
+    print(device_info)
 
     print("\n\nGetDateTime")
-    dtime_resp = proto.rcp_get_datetime()
+    dtime_resp = proto.rpc_get_datetime()
     dt = dict2datetime(dtime_resp)
     print(dt.ctime())
 
     print("\n\nList files")
-    list_resp = proto.rcp_storage_list('/ext')
+    list_resp = proto.rpc_storage_list('/ext')
     for li in list_resp:
         print(f"[{li['type']}]\t{li['name']}")
 
@@ -174,8 +169,10 @@ def main():
     print("\n\nrun Infrared App")
     proto.rpc_app_start('Infrared', '/ext/infrared/Tv_Tivo.ir')
 
+
 if __name__ == '__main__':
     main()
+
 ```
 
 ---
