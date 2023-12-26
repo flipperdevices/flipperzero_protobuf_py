@@ -61,6 +61,23 @@ class FlipperProtoGui:
                 self.Status_values_by_number[rep_data.command_status].name
             )
 
+    # SendVirtualDisplayFrame
+    def rpc_send_virtual_display_frame(self, data) -> None:
+        """Send Frame to Virtual Display
+
+        Parameters
+        ----------
+        data : bytes
+
+        Returns
+        -------
+        None
+
+        """
+        cmd_data = gui_pb2.ScreenFrame()
+        cmd_data.data = data
+        self._rpc_send(cmd_data, "gui_screen_frame")
+
     # StopVirtualDisplay
     def rpc_stop_virtual_display(self) -> None:
         """Stop Virtual Display
