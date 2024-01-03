@@ -5,8 +5,6 @@ import datetime
 import hashlib
 from collections.abc import Iterator
 
-import numpy
-
 from .flipper_base import InputTypeException
 
 __ALL__ = [
@@ -24,8 +22,8 @@ def print_hex(bytes_data) -> None:
     print("".join(f"{x:02x} " for x in bytes_data))
 
 
-_SCREEN_H = 128
-_SCREEN_W = 64
+_SCREEN_H = 64
+_SCREEN_W = 128
 
 
 def calc_file_md5(fname) -> str:
@@ -48,37 +46,32 @@ def calc_file_md5(fname) -> str:
 
 
 def _write_screen(dat) -> None:
-    """write image data to terminal screen"""
-    for y in range(0, _SCREEN_W, 2):
-        for x in range(1, _SCREEN_H + 1):
-            if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 1:
-                print("\u2588", end="")
-            if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 1:
-                print("\u2584", end="")
-            if int(dat[x][y]) == 1 and int(dat[x][y + 1]) == 0:
-                print("\u2580", end="")
-            if int(dat[x][y]) == 0 and int(dat[x][y + 1]) == 0:
-                print(" ", end="")
+    """Print image to terminal"""
+    c = [" ", "▄", "▀", "█"]
+    for y in range(0, _SCREEN_H, 2):
+        for x in range(_SCREEN_W):
+            print(c[dat[y][x] * 2 + dat[y + 1][x]], end="")
         print()
 
 
 def _write_pbm_file(dat, dest) -> None:
     """write Black & White bitmap in simple Netpbm format"""
     with open(dest, "w", encoding="utf-8") as fd:
-        print(f"P1\n{_SCREEN_H + 1} {_SCREEN_W}", file=fd)
-        for y in range(0, _SCREEN_W):
-            print(numpy.array2string(dat[:, y], max_line_width=300)[1:-1], file=fd)
+        print(f"P1\n{_SCREEN_W} {_SCREEN_H}", file=fd)
+        for y in range(_SCREEN_H):
+            print(" ".join([str(i) for i in dat[y]]), file=fd)
 
 
 def _write_ppm_file(dat, dest) -> None:
     """write Orange and Black color RGB image stored in PPM format"""
     with open(dest, "w", encoding="utf-8") as fd:
-        print(f"P3\n{_SCREEN_H + 1} {_SCREEN_W}\n255", file=fd)
-        for y in range(0, _SCREEN_W):
+        print(f"P3\n{_SCREEN_W} {_SCREEN_H}\n255", file=fd)
+        for y in range(_SCREEN_H):
             print(
                 " ".join(
-                    ["255 165 000" if c == "1" else "000 000 000" for c in dat[:, y]]
-                )
+                    ["000 000 000" if c else "255 165 000" for c in dat[y]]
+                ),
+                file=fd
             )
 
 
@@ -87,7 +80,7 @@ def print_screen(screen_bytes, dest=None) -> None:
 
     Parameters
     ----------
-        screen_bytes: numpy array
+        screen_bytes: list
         dest : str
             filename (optional)
 
@@ -120,7 +113,7 @@ def print_screen(screen_bytes, dest=None) -> None:
     raise InputTypeException("invalid filename: {dest}")
 
 
-def _dump_screen(screen_bytes) -> numpy.ndarray:
+def _dump_screen(screen_bytes):
     """process` screendump data
 
     Parameters
@@ -129,33 +122,15 @@ def _dump_screen(screen_bytes) -> numpy.ndarray:
 
     Returns
     -------
-        numpy array
+        list[y][x]
 
     """
 
-    # pylint: disable=multiple-statements
+    scr = [[0] * _SCREEN_W for _ in range(_SCREEN_H)]
 
-    def get_bin(x) -> str:
-        return format(x, "08b")
-
-    scr = numpy.zeros((_SCREEN_H + 1, _SCREEN_W + 1), dtype=int)
-    data = screen_bytes
-
-    x = y = 0
-    basey = 0
-
-    for i in range(0, int(_SCREEN_H * _SCREEN_W / 8)):
-        tmp = get_bin(data[i])[::-1]
-
-        y = basey
-        x += 1
-        for c in tmp:
-            scr[x][y] = c
-            y += 1
-
-        if (i + 1) % _SCREEN_H == 0:
-            basey += 8
-            x = 0
+    for i, b in enumerate(screen_bytes):
+        for j in range(8):
+            scr[i // _SCREEN_W * 8 + j][i % _SCREEN_W] = b >> j & 1
 
     return scr
 

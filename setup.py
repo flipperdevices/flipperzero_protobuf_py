@@ -52,7 +52,6 @@ setup(
     # cmdclass = { 'install_scripts': install_scripts_and_symlinks }
     install_requires=[
         'pyreadline; platform_system == "Windows"',
-        "numpy==1.22.3",
         "protobuf==3.20.2",
         "pyserial",
     ],

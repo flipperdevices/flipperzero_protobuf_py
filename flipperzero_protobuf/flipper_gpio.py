@@ -8,7 +8,6 @@ FlipperProto GPIO function Class
 
 # from nis import match
 # from google.protobuf.internal.encoder import _VarintBytes
-# from numpy import mat
 
 # pylint: disable=line-too-long, no-member
 
