@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "async-flipperzero-protobuf"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+packages = [{include = "async_flipperzero_protobuf"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyserial-asyncio = "^0.6"
+protobuf = "^4.23.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

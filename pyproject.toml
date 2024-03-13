@@ -41,3 +41,13 @@ flipperzero_cmd = "flipperzero_protobuf.flipperzero_cmd:main"
 [project.urls]
 "Homepage" = "https://github.com/flipperdevices/flipperzero_protobuf_py"
 "Bug Tracker" = "https://github.com/flipperdevices/flipperzero_protobuf_py/issues"
+
+
+[tool.ruff]
+exclude = [".git", "__pycache__", ".idea",".venv", "flipperzero_protobuf_compiled", "flipperzero_protobuf"]  # TODO: fix
+line-length = 120
+
+[tool.isort]
+multi_line_output = "3"
+length_sort = true
+reverse_sort = "1"
