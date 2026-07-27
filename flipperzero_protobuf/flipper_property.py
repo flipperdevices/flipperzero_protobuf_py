@@ -52,7 +52,7 @@ class FlipperProtoProperty:
 
         ret = []
 
-        while rep_data.has_next:
+        while True:
             ret.append(
                 (
                     rep_data.property_get_response.key,
@@ -60,6 +60,9 @@ class FlipperProtoProperty:
                 )
             )
 
-            rep_data = self._rpc_read_answer()
+            if rep_data.has_next:
+                rep_data = self._rpc_read_answer()
+            else:
+                break
 
         return ret
