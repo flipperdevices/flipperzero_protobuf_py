@@ -221,12 +221,12 @@ def datetime2dict(dt=None) -> dict:
 
     datetime_dict = {
         "year": tlist[0],
-        "month": tlist[2],
-        "day": tlist[3],
-        "hour": tlist[4],
-        "minute": tlist[5],
-        "second": tlist[6],
-        "weekday": tlist[7] + 1,
+        "month": tlist[1],
+        "day": tlist[2],
+        "hour": tlist[3],
+        "minute": tlist[4],
+        "second": tlist[5],
+        "weekday": tlist[6] + 1,
     }
 
     return datetime_dict
