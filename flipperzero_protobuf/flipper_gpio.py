@@ -88,12 +88,12 @@ class FlipperProtoGpio:
         """
 
         cmd_data = gpio_pb2.GetPinMode()
-        if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
-            raise InputTypeException("Invalid pin")
 
         if isinstance(pin, int):
             cmd_data.pin = pin
         else:
+            if pin not in ["PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"]:
+                raise InputTypeException("Invalid pin")
             cmd_data.pin = getattr(gpio_pb2, pin)
 
         # if _debug:
