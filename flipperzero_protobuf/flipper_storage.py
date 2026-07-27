@@ -151,7 +151,9 @@ class FlipperProtoStorage:
         chunk_size = 512
         data_len = len(data)
         command_id = self._get_command_id()
-        for chunk in range(0, data_len, chunk_size):
+        # a zero-length file still needs one (empty) write request sent,
+        # otherwise nothing is transmitted and the reply read below blocks forever
+        for chunk in range(0, max(data_len, 1), chunk_size):
             chunk_data = data[chunk : chunk + chunk_size]
 
             cmd_data.file.data = chunk_data
